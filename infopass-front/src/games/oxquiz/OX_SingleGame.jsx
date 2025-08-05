@@ -5,171 +5,158 @@ import axios from 'axios';
 // ========================================
 // 🎮 OX 퀴즈 게임 - 싱글플레이 모드
 // ========================================
-// 이 페이지는 1인용 OX 퀴즈 게임입니다.
-// - 로딩 애니메이션 (걷는 캐릭터)
-// - 3-2-1 카운트다운
-// - OX 퀴즈 문제 풀이
-// - 타이머 및 생명력 시스템
-// - 틀렸을 때 몬스터 공격 애니메이션
-// ========================================
 
-// 🔹 게임 설정 상수
-const MAX_LIFE = 3;           // 최대 생명력
-const TIMER_DURATION = 300;    // 문제당 제한 시간 (초)
+const MAX_LIFE = 3;
+const TIMER_DURATION = 300;
 const walkImgs = Array.from({ length: 16 }, (_, i) => `/ox_image/walk${i + 1}.png`);
 
 const OX_SingleGame = () => {
-  // ========================================
-  // 🎯 게임 상태 관리
-  // ========================================
-  const [myOX, setMyOX] = useState(null);           // 플레이어가 선택한 O/X
-  const [myScore, setMyScore] = useState(0);        // 현재 점수
-  const [timeLeft, setTimeLeft] = useState(TIMER_DURATION);  // 남은 시간
-  const [myLife, setMyLife] = useState(MAX_LIFE);   // 남은 생명력
-  const [quizlist, setquizlist] = useState([]);     // 퀴즈 목록
-  const [resultMsg, setResultMsg] = useState(""); // 정답/오답 메시지 상태 추가
-  const [currentindex, setcurrentindex] = useState(0); // OX 퀴즈 데이터
-  const [buttonDisabled, setButtonDisabled] = useState(false); // O/X 버튼 비활성화
-  // ========================================
-  // ⚡ 퀴즈 데이터 URL
-  // ========================================
+  // 게임 상태
+  const [myOX, setMyOX] = useState(null);
+  const [myScore, setMyScore] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(TIMER_DURATION);
+  const [myLife, setMyLife] = useState(MAX_LIFE);
+  const [quizlist, setquizlist] = useState([]);
+  const [resultMsg, setResultMsg] = useState("");
+  const [currentindex, setcurrentindex] = useState(0);
+  const [buttonDisabled, setButtonDisabled] = useState(false);
+
+  // 캐릭터 선택
+  const [selectedChar, setSelectedChar] = useState(null);
+  const [showCharSelect, setShowCharSelect] = useState(false);
+
+  // 애니메이션 상태
+  const [showMonster, setShowMonster] = useState(false);
+  const [showLaser, setShowLaser] = useState(false);
+  const [showBoom, setShowBoom] = useState(false);
+  const [isShaking, setIsShaking] = useState(false);
+  const [monsterFade, setMonsterFade] = useState(false);
+  const [laserFade, setLaserFade] = useState(false);
+  const [boomFade, setBoomFade] = useState(false);
+
+  // UI 상태
+  const [loading, setLoading] = useState(true);
+  const [walkFrame, setWalkFrame] = useState(0);
+  const [countdown, setCountdown] = useState(null);
+  const [gameStarted, setGameStarted] = useState(false);
+  const [showQuiz, setShowQuiz] = useState(false);
+
   let quizurl = 'http://localhost:9000/oxquiz/quizlist';
+  
+// 게임 오버 모달 상태
+const [showGameOverModal, setShowGameOverModal] = useState(false);
+const [gameOverType, setGameOverType] = useState(null); // 'dead' | 'clear'
 
-  // ========================================
-  // ⚡ 애니메이션 상태 관리
-  // ========================================
-  const [showMonster, setShowMonster] = useState(false);  // 몬스터 표시
-  const [showLaser, setShowLaser] = useState(false);      // 레이저 표시
-  const [showBoom, setShowBoom] = useState(false);        // 폭발 효과 표시
-  const [isShaking, setIsShaking] = useState(false);      // 캐릭터 흔들림 효과
-  const [monsterFade, setMonsterFade] = useState(false);  // 몬스터 페이드아웃
-  const [laserFade, setLaserFade] = useState(false);      // 레이저 페이드아웃
-  const [boomFade, setBoomFade] = useState(false);        // 폭발 페이드아웃
 
-  // ========================================
-  // 🎬 UI 상태 관리
-  // ========================================
-  const [loading, setLoading] = useState(true);     // 로딩 상태
-  const [walkFrame, setWalkFrame] = useState(0);    // 걷기 애니메이션 프레임
-  const [countdown, setCountdown] = useState(null);  // 카운트다운 숫자
-  const [gameStarted, setGameStarted] = useState(false);  // 게임 시작 여부
-  const [showQuiz, setShowQuiz] = useState(false);  // 퀴즈 UI 표시 여부
 
-  // ========================================
-  // 🎬 애니메이션 효과들
-  // ========================================
-
-  // 🔹 로딩 애니메이션 (걷는 이미지)
+  // 로딩 애니메이션
   useEffect(() => {
     if (!loading) return;
     const walkTimer = setInterval(() => {
       setWalkFrame(prev => (prev + 1) % walkImgs.length);
-    }, 180); // 180ms마다 프레임 변경
+    }, 180);
     return () => clearInterval(walkTimer);
   }, [loading]);
 
-  // 🔹 로딩 끝나면 countdown 시작
+  // 1.5초 로딩 후 캐릭터 선택창 띄우기
   useEffect(() => {
+    if (!loading) return;
     const timer = setTimeout(() => {
-      setLoading(false); // 1.5초 후 로딩 종료
+      setLoading(false);
+      setShowCharSelect(true);
     }, 1500);
     return () => clearTimeout(timer);
-  }, []);
-
-  // 🔹 countdown: 3 → 2 → 1 → 게임 시작
-  useEffect(() => {
-    if (!loading) {
-      setCountdown(3);
-      let counter = 3;
-      const countdownInterval = setInterval(() => {
-        counter -= 1;
-        if (counter === 0) {
-          clearInterval(countdownInterval);
-          setCountdown(null);
-          setGameStarted(true);
-          setShowQuiz(true);
-          setTimeLeft(TIMER_DURATION);
-        } else {
-          setCountdown(counter);
-        }
-      }, 1000); // 1초마다 카운트다운
-    }
   }, [loading]);
 
-  // 🔹 타이머 작동
+  // 캐릭터 선택 후 3-2-1 카운트다운
+  const handleCharSelect = (num) => {
+    setSelectedChar(num);
+    setShowCharSelect(false);
+    setGameStarted(true);
+    setCountdown(3);
+    let counter = 3;
+    const countdownInterval = setInterval(() => {
+      counter -= 1;
+      if (counter === 0) {
+        clearInterval(countdownInterval);
+        setCountdown(null);
+        setShowQuiz(true);
+        setTimeLeft(TIMER_DURATION);
+      } else {
+        setCountdown(counter);
+      }
+    }, 1000);
+  };
+
+  // 타이머 작동
   useEffect(() => {
     if (timeLeft <= 0 || !gameStarted) return;
     const timer = setInterval(() => {
       setTimeLeft((prev) => (prev > 0 ? +(prev - 0.1).toFixed(1) : 0));
-    }, 100); // 0.1초마다 시간 감소
+    }, 100);
     return () => clearInterval(timer);
   }, [timeLeft, gameStarted]);
 
-  // ========================================
-  // 🎮 게임 로직 함수들
-  // ========================================
-
-  // 🔹 퀴즈 데이터 가져오기
+  // 퀴즈 데이터 가져오기
   useEffect(() => {
     axios.get(quizurl)
       .then((res) => {
         setquizlist(res.data);
-        console.log("퀴즈 데이터:", res.data);
       })
       .catch((error) => {
         console.error("Error fetching quiz data:", error);
       });
-  }, []);
+  }, [gameStarted]);
 
-  // 🔹 하트 렌더링 (생명력 표시)
+  // 하트 렌더링
   const renderHearts = (life) =>
     Array.from({ length: MAX_LIFE }).map((_, idx) => (
       <span key={idx} className="ox-heart">
-        {idx < life ? '❤️' : '💔'} {/* 살아있으면 빨간하트, 죽으면 깨진하트 */}
+        {idx < life ? '❤️' : '💔'}
       </span>
     ));
 
-  // 🔹 게임 종료 처리 함수 (alert 1번만!)
-  const handleGameEnd = (finalScore) => {
-    alert(`게임 종료! 최종 점수: ${finalScore}`);
+  // 게임 종료 처리
+  const handleGameEnd = () => {
     setGameStarted(false);
-    setMyScore(0);
-    setMyLife(MAX_LIFE);
-    setcurrentindex(0);
-    setTimeLeft(TIMER_DURATION);
-    setMyOX(null);
   };
 
-  // 🔹 OX 버튼 클릭 처리 (정답/오답/마지막 문제 처리)
+  useEffect(() => {
+    if (myLife === 0 && gameStarted) {
+      setTimeout(() => {
+        handleGameEnd(myScore);
+      }, 500); // 연출 후 바로 게임 오버, 필요시 딜레이 조정
+    }
+  }, [myLife, gameStarted]);
+
+  // OX 버튼 클릭 처리
   const handleOXClick = (ox) => {
-    if( buttonDisabled) return; // 버튼 비활성화 상태면 클릭 무시
-    setButtonDisabled(true); // 클릭 후 버튼 비활성화
+    if (buttonDisabled) return;
+    setButtonDisabled(true);
     setMyOX(ox);
     const isCorrect = (ox === 'O' && quizlist[currentindex]?.answer === 1) ||
                       (ox === 'X' && quizlist[currentindex]?.answer === 0);
 
     if (isCorrect) {
-      // 마지막 문제라면 점수 올리고 alert를 setTimeout으로 약간 늦게 띄움
       setResultMsg("정답입니다!");
-      if (currentindex === quizlist.length - 1) { 
+      if (currentindex === quizlist.length - 1) {
         setMyScore(prev => {
           const finalScore = prev + 1;
           setTimeout(() => {
             handleGameEnd(finalScore);
-          }, 700); // O/X 표시 후 alert
+          }, 700);
           return finalScore;
         });
-      } else { 
+      } else {
         setMyScore(prev => prev + 1);
         setTimeout(() => {
-        setResultMsg("");
-        setcurrentindex(currentindex + 1);
-        setMyOX(null);
-        setButtonDisabled(false); // 버튼 다시 활성화
-        }, 1000); // O/X 표시 시간
+          setResultMsg("");
+          setcurrentindex(currentindex + 1);
+          setMyOX(null);
+          setButtonDisabled(false);
+        }, 1000);
       }
     } else {
-      // 오답 처리(애니메이션 등) 후 마지막 문제면 alert도 setTimeout으로!
       setResultMsg("오답입니다!");
       setShowMonster(true);
       setTimeout(() => setShowLaser(true), 800);
@@ -191,10 +178,9 @@ const OX_SingleGame = () => {
         setMonsterFade(false);
         setLaserFade(false);
         setBoomFade(false);
-        setButtonDisabled(false); // 버튼 다시 활성화
-        setMyOX(null); // O/X 선택 초기화
-        setResultMsg(""); // 메시지 초기화
-        // 생명력이 0이면 게임 종료
+        setButtonDisabled(false);
+        setMyOX(null);
+        setResultMsg("");
         if (currentindex === quizlist.length - 1) {
           setTimeout(() => {
             handleGameEnd(myScore);
@@ -207,11 +193,7 @@ const OX_SingleGame = () => {
     }
   };
 
-  // ========================================
-  // 🎨 렌더링
-  // ========================================
-
-  // 🔹 로딩 화면
+  // 로딩 화면
   if (loading) {
     return (
       <div className="ox-loading">
@@ -221,7 +203,67 @@ const OX_SingleGame = () => {
     );
   }
 
-  // 🔹 게임 화면 (기본 + 카운트다운 + 퀴즈 UI 조건부 표시)
+  // 캐릭터 선택 화면
+  if (showCharSelect) {
+    return (
+      <div className="ox-charselect-bg">
+        <div className="ox-charselect-box">
+          <h2>캐릭터를 선택하세요!</h2>
+          <div className="ox-charselect-list">
+            {[1, 2, 3, 4, 5].map(num => (
+              <button
+                key={num}
+                className={`ox-charselect-btn${selectedChar === num ? ' selected' : ''}`}
+                onClick={() => handleCharSelect(num)}
+                value={num}
+              >
+                <img src={`/ox_image/char${num}.png`} alt={`캐릭터${num}`} style={{ width: 80, height: 80 }} />
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  //게임 종료 화면
+  if (!gameStarted) {
+    if(myLife <= 0) {
+      return (
+        <div className="ox-gameover">
+          <h2>GAME OVER</h2>
+          <p>최종 점수: {myScore}</p>
+          <button onClick={() => {
+            setMyScore(0);
+            setMyLife(MAX_LIFE);
+            setcurrentindex(0);
+            setShowQuiz(false);
+            setShowCharSelect(true); // 캐릭터 선택 다시 보여주기
+            setSelectedChar(null);   // 선택 캐릭터 초기화
+            setTimeLeft(TIMER_DURATION); // 타이머 초기화
+          }}>다시 시작</button>
+        </div>
+      );
+    }else{
+      return (
+        <div className="ox-gameover">
+          <h2>CLEAR!</h2>
+          <p>최종 점수: {myScore}</p>
+          <button onClick={() => {
+            setMyScore(0);
+            setMyLife(MAX_LIFE);
+            setcurrentindex(0);
+            setShowQuiz(false);
+            setShowCharSelect(true); // 캐릭터 선택 다시 보여주기
+            setSelectedChar(null);   // 선택 캐릭터 초기화
+            setTimeLeft(TIMER_DURATION); // 타이머 초기화
+          }}>다시 시작</button>
+        </div>
+      );
+    }
+  }
+
+  // 게임 화면
   return (
     <div style={{
       width: '100vw',
@@ -237,16 +279,12 @@ const OX_SingleGame = () => {
       zIndex: 1,
     }}>
       <div className="ox-container" style={{ display: 'block' }}>
-        {/* ======================================== */}
-        {/* 📝 문제 영역 */}
-        {/* ======================================== */}
+        {/* 문제 영역 */}
         <div className="ox-quiz">
           {resultMsg ? <span className='resultMsg'>{resultMsg}</span> : (showQuiz ? currentindex + 1 + " " + quizlist[currentindex]?.question : "")}
         </div>
 
-        {/* ======================================== */}
-        {/* ⏰ 타이머 바 */}
-        {/* ======================================== */}
+        {/* 타이머 바 */}
         {showQuiz && (
           <div style={{
             display: 'flex',
@@ -268,9 +306,7 @@ const OX_SingleGame = () => {
           </div>
         )}
 
-        {/* ======================================== */}
-        {/* 🎯 OX 버튼 */}
-        {/* ======================================== */}
+        {/* OX 버튼 */}
         {showQuiz && (
           <div className="ox-oxwrap">
             <img
@@ -279,6 +315,7 @@ const OX_SingleGame = () => {
               className={`ox-oximg${myOX === 'O' ? ' ox-oximg-active' : ''}`}
               onClick={() => handleOXClick('O')}
               draggable={false}
+              disabled={buttonDisabled}
             />
             <img
               src="/ox_image/X.png"
@@ -286,13 +323,12 @@ const OX_SingleGame = () => {
               className={`ox-oximg${myOX === 'X' ? ' ox-oximg-active' : ''}`}
               onClick={() => handleOXClick('X')}
               draggable={false}
+              disabled={buttonDisabled}
             />
           </div>
         )}
 
-        {/* ======================================== */}
-        {/* 👤 캐릭터 및 이펙트 */}
-        {/* ======================================== */}
+        {/* 캐릭터 및 이펙트 */}
         <div className="ox-charwrap-single">
           <div className={`ox-char${isShaking ? ' ox-shake' : ''}`}>
             {/* 몬스터 공격 애니메이션 */}
@@ -336,8 +372,92 @@ const OX_SingleGame = () => {
               </div>
             )}
 
-            {/* 플레이어 캐릭터 */}
-            <img src="/ox_image/shipBeige_manned.png" alt="플레이어1" style={{ width: '90px', height: '90px' }} />
+            {/* 캐릭터 이미지 + 이모지 연기/불 효과 */}
+            <div style={{ position: 'relative', display: 'inline-block', width: 90, height: 90 }}>
+              <img
+                src={`/ox_image/char${selectedChar}.png`}
+                alt="플레이어1"
+                style={{
+                  width: '90px',
+                  height: '90px',
+                  zIndex: 1,
+                  position: 'relative',
+                  animation: myLife === 1 ? 'criticalShake 0.3s infinite alternate' : 'none'
+                }}
+              />
+              {/* 목숨 2개 이하: 연기 이모지 효과 */}
+              {myLife <= 2 && (
+                <>
+                  <span style={{
+                    position: 'absolute',
+                    left: 10,
+                    top: 40,
+                    fontSize: 35,
+                    zIndex: 2,
+                    pointerEvents: 'none',
+                    animation: 'smokeUp 2s infinite linear',
+                    opacity: 0.7,
+                    filter: 'brightness(0.1) blur(1px)'
+                  }}>💨</span>
+                  <span style={{
+                    position: 'absolute',
+                    left: 50,
+                    top: 30,
+                    fontSize: 30,
+                    zIndex: 2,
+                    pointerEvents: 'none',
+                    animation: 'smokeUp 2.5s infinite linear 0.8s',
+                    opacity: 0.6,
+                    filter: 'brightness(0.1) blur(1.5px)'
+                  }}>💨</span>
+                  <span style={{
+                    position: 'absolute',
+                    left: 10,
+                    top: 8,
+                    fontSize: 25,
+                    zIndex: 2,
+                    pointerEvents: 'none',
+                    animation: 'smokeUp 1.8s infinite linear 1.2s',
+                    opacity: 0.5,
+                    filter: 'brightness(0.1) blur(1px)'
+                  }}>💨</span>
+                  <span style={{
+                    position: 'absolute',
+                    left: 35,
+                    top: 8,
+                    fontSize: 25,
+                    zIndex: 2,
+                    pointerEvents: 'none',
+                    animation: 'smokeUp 1.8s infinite linear 1.2s',
+                    opacity: 0.5,
+                    filter: 'brightness(0.1) blur(1px)'
+                  }}>💨</span>
+                </>
+              )}
+              {/* 목숨 1개: 불 이모지 효과 */}
+              {myLife === 1 && (
+                <>
+                  <span style={{
+                    position: 'absolute',
+                    left: -10,
+                    top: 15,
+                    fontSize: 45,
+                    zIndex: 3,
+                    pointerEvents: 'none',
+                    animation: 'fireFlicker 0.4s infinite alternate'
+                  }}>🔥</span>
+                  <span style={{
+                    position: 'absolute',
+                    left: 50,
+                    top: 20,
+                    fontSize: 40,
+                    zIndex: 3,
+                    pointerEvents: 'none',
+                    animation: 'fireFlicker 0.7s infinite alternate 0.6s'
+                  }}>🔥</span>
+                </>
+              )}
+            </div>
             <div className="ox-nick">플레이어1</div>
             <div className="ox-scoreboard ox-scoreboard-single">{myScore}</div>
             <div className="ox-lifewrap">
@@ -346,9 +466,7 @@ const OX_SingleGame = () => {
           </div>
         </div>
 
-        {/* ======================================== */}
-        {/* 🔢 카운트다운 오버레이 */}
-        {/* ======================================== */}
+        {/* 카운트다운 오버레이 */}
         {countdown !== null && (
           <div className="ox-countdown-overlay">
             <h1>{countdown}</h1>
