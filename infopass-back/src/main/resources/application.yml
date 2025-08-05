@@ -16,5 +16,5 @@ spring:
 mybatis:
    type-aliases-package: boot.infopass.dto
    mapper-locations:
-   - /mapper/**/*.xml
+   - /mapper/*.xml
 

@@ -15,7 +15,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 @Component
-public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler{
+public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
+
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {
@@ -32,7 +33,7 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler{
 		
 		session.setAttribute("id", id);
 		session.setAttribute("role", role);
-		response.sendRedirect("/my/mypage"); //로그인 성공시 이동할 페이지
-	}
 	
+	}
+
 }
