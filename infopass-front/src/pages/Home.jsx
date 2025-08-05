@@ -11,7 +11,7 @@ const Home = () => {
       </header>
 
       <section className="card-grid">
-        <Link to="/quiz" className="card">🎮 퀴즈 게임</Link>
+        <Link to="/oxquiz" className="card">🎮 퀴즈 게임</Link>
         <Link to="/scratch" className="card">🧩 Scratch</Link>
         <Link to="/flip" className="card">🃏 카드 뒤집기</Link>
         <Link to="/mypage" className="card">👤 마이페이지</Link>
