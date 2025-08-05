@@ -1,159 +1,256 @@
 import React, { useEffect, useState } from 'react'
-import './OX_Quiz.css'
 
-// ========================================
-// 🎮 OX 퀴즈 게임 메인 페이지
-// ========================================
-// 이 페이지는 OX 퀴즈 게임의 시작 화면입니다.
-// - 로딩 애니메이션 (걷는 캐릭터)
-// - 우주선들이 날아오는 인트로 애니메이션
-// - 싱글플레이/멀티플레이 선택 버튼
-// ========================================
+const styles = {
+  container: {
+    width: '60vw',
+    height: '75vh',
+    minWidth: '600px',
+    minHeight: '400px',
+    //backgroundColor: '#5ca5e9',
+    background: 'url(/ox_image/002.png) center/cover no-repeat',
+    borderRadius: '32px',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+    margin: 'auto',
+    marginTop: '150px',
+    position: 'absolute',
+    left: '0', right: '0', top: '0', bottom: '0',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '32px 0 0 0',
+    zIndex: 10,
+    overflow: 'hidden',
+  },
+  loading: {
+    width: '60vw',
+    height: '75vh',
+    minWidth: '600px',
+    minHeight: '400px',
+    backgroundColor: '#5ca5e9',
+    borderRadius: '32px',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+    margin: 'auto',
+    marginTop: '150px',
+    position: 'absolute',
+    left: '0', right: '0', top: '0', bottom: '0',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '2.2rem',
+    color: '#fff',
+    fontWeight: 'bold',
+    letterSpacing: '2px',
+    zIndex: 20,
+  },
+  // ...이하 기존 styles...
+  beige: {
+    width: '150px',
+    transform: 'rotate(-10deg)',
+    position: 'absolute',
+    left: '12%',
+    top: '30%',
+    zIndex: 3,
+    transition: 'all 0.8s cubic-bezier(.68,-0.55,.27,1.55)',
+  },
+  blue: {
+    width: '150px',
+    transform: 'rotate(15deg)',
+    position: 'absolute',
+    left: '45%',
+    top: '8%',
+    zIndex: 3,
+    transition: 'all 0.8s cubic-bezier(.68,-0.55,.27,1.55)',
+  },
+  green: {
+    width: '150px',
+    transform: 'rotate(8deg)',
+    position: 'absolute',
+    left: '80%',
+    top: '2%',
+    zIndex: 3,
+    transition: 'all 0.8s cubic-bezier(.68,-0.55,.27,1.55)',
+  },
+  pink: {
+    width: '150px',
+    transform: 'rotate(-30deg)',
+    position: 'absolute',
+    left: '65%',
+    top: '55%',
+    zIndex: 2,
+    transition: 'all 0.8s cubic-bezier(.68,-0.55,.27,1.55)',
+  },
+  yellow: {
+    width: '150px',
+    transform: 'rotate(25deg)',
+    position: 'absolute',
+    left: '20%',
+    top: '55%',
+    zIndex: 2,
+    transition: 'all 0.8s cubic-bezier(.68,-0.55,.27,1.55)',
+  },
+  greenlaser: {
+    width: '70px',
+    height: '350px',
+    transform: 'rotate(8deg)',
+    position: 'absolute',
+    left: '80.8%',
+    top: '18%',
+    zIndex: 1,
+    opacity: 0,
+    transition: 'opacity 0.3s, height 0.5s',
+  },
+  greenboom: {
+    width: '290px',
+    transform: 'rotate(12deg)',
+    position: 'absolute',
+    left: '67.8%',
+    top: '51%',
+    zIndex: 0,
+    opacity: 0,
+    transition: 'opacity 0.3s',
+  },
+  oxlogo: {
+    width: '800px',
+    zIndex: 2,
+    position: 'absolute',
+    left: '15%',
+    top: '10%',
+    animation: 'blink 0.4s linear 5 alternate',
+    opacity: 1,
+  },
+  multibutton: {
+    width: '200px',
+    position: 'absolute',
+    top: '60%',
+    animation: 'blink 0.4s linear 5 alternate',
+    opacity: 1,
+    cursor: 'pointer',
+  },
+  singlebutton: {
+    width: '200px',
+    position: 'absolute',
+    top: '70%',
+    animation: 'blink 0.4s linear 5 alternate',
+    opacity: 1,
+    cursor: 'pointer',
+  }
+}
 
-// 🔹 걷기 이미지 배열을 컴포넌트 밖으로 선언 (렌더링마다 재생성 방지)
-const walkImgs = Array.from({ length: 16 }, (_, i) => `/ox_image/walk${i + 1}.png`)
+// keyframes를 전역 스타일로 추가
+const styleSheet = `
+@keyframes blink {
+  0% { opacity: 1; }
+  100% { opacity: 0.2; }
+}
+`
 
 const OX_main = () => {
-  // ========================================
-  // 🎯 상태 관리
-  // ========================================
-  const [showShips, setShowShips] = useState(false)        // 우주선 표시 여부
-  const [showLaser, setShowLaser] = useState(false)        // 레이저 표시 여부
-  const [showBoom, setShowBoom] = useState(false)          // 폭발 효과 표시 여부
-  const [loading, setLoading] = useState(true)             // 로딩 상태
-  const [walkFrame, setWalkFrame] = useState(0)            // 걷기 애니메이션 프레임
+  const [showShips, setShowShips] = useState(false)
+  const [showLaser, setShowLaser] = useState(false)
+  const [showBoom, setShowBoom] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [walkFrame, setWalkFrame] = useState(0) // 걷기 프레임 상태 추가
+
+  // 우주선 등장 전 위치(밖에서 날아오는 효과)
   const [shipPos, setShipPos] = useState({
-    beige: { left: '-20%', top: '80%' },    // 베이지 우주선 초기 위치
-    blue: { left: '100%', top: '-20%' },    // 파란 우주선 초기 위치
-    green: { left: '120%', top: '60%' },    // 초록 우주선 초기 위치
-    pink: { left: '50%', top: '120%' },     // 핑크 우주선 초기 위치
-    yellow: { left: '-15%', top: '-10%' },  // 노란 우주선 초기 위치
+    beige: { left: '-20%', top: '80%' },
+    blue: { left: '100%', top: '-20%' },
+    green: { left: '120%', top: '60%' },
+    pink: { left: '50%', top: '120%' },
+    yellow: { left: '-15%', top: '-10%' },
   })
 
-  // ========================================
-  // 🎬 애니메이션 효과들
-  // ========================================
-
-  // 🔹 걷기 애니메이션 (loading 중에만 실행)
   useEffect(() => {
-    if (!loading) return
+    // 스타일시트 삽입(최초 1회)
+    const styleTag = document.createElement('style')
+    styleTag.innerHTML = styleSheet
+    document.head.appendChild(styleTag)
 
-    const walkTimer = setInterval(() => {
-      setWalkFrame(prev => (prev + 1) % walkImgs.length)
-    }, 180) // 180ms마다 프레임 변경
+    // 걷기 애니메이션 타이머
+    let walkTimer
+    if (loading) {
+      walkTimer = setInterval(() => {
+        setWalkFrame(prev => (prev + 1) % 4)
+      }, 180) // 0.18초마다 프레임 변경 (빠르게 걷는 느낌)
+    }
 
-    return () => clearInterval(walkTimer)
-  }, [loading])
-
-  // 🔹 loading 상태가 끝났을 때 애니메이션 실행
-  useEffect(() => {
+    // 3초간 로딩 후 화면 전환
     const timer = setTimeout(() => {
-      setLoading(false) // 3초 후 로딩 종료
+      setLoading(false)
     }, 3000)
 
-    return () => clearTimeout(timer)
-  }, [])
+    // 1. 우주선 날아오기 (로딩 끝난 뒤에만 실행)
+    let shipTimer, laserTimer, boomTimer
+    if (!loading) {
+      shipTimer = setTimeout(() => {
+        setShowShips(true)
+        setShipPos({
+          beige: {}, blue: {}, green: {}, pink: {}, yellow: {}
+        })
+        // 2. 레이저 발사
+        laserTimer = setTimeout(() => {
+          setShowLaser(true)
+          boomTimer = setTimeout(() => setShowBoom(true), 350)
+        }, 1000)
+      }, 1800)
+    }
 
-  // 🔹 우주선 인트로 애니메이션
-  useEffect(() => {
-    if (loading) return
-
-    const shipTimer = setTimeout(() => {
-      setShowShips(true) // 우주선들 표시
-      setShipPos({
-        beige: {}, blue: {}, green: {}, pink: {}, yellow: {} // 최종 위치로 이동
-      })
-
-      const laserTimer = setTimeout(() => {
-        setShowLaser(true) // 레이저 발사
-
-        const boomTimer = setTimeout(() => {
-          setShowBoom(true) // 폭발 효과
-        }, 350)
-
-        return () => clearTimeout(boomTimer)
-      }, 1000)
-
-      return () => clearTimeout(laserTimer)
-    }, 1800)
-
-    return () => clearTimeout(shipTimer)
+    return () => {
+      document.head.removeChild(styleTag)
+      clearInterval(walkTimer)
+      clearTimeout(timer)
+      clearTimeout(shipTimer)
+      clearTimeout(laserTimer)
+      clearTimeout(boomTimer)
+    }
   }, [loading])
 
-  // ========================================
-  // 🎮 게임 모드 선택 함수들
-  // ========================================
-
-  // 🔹 멀티플레이 게임 진입
-  const entermultigame = () => {
-    window.location.href = 'OX_MultiGame'
+  // 우주선 스타일 병합
+  const getShipStyle = (name) => ({
+    ...styles[name],
+    ...(showShips ? shipPos[name] : shipPos[name])
+  })
+  const entermultigame=()=>{
+     window.location.href= 'OX_MultiGame';
+  }
+  const enterSingleGame=()=>{
+    window.location.href='OX_SingleGame';
   }
 
-  // 🔹 싱글플레이 게임 진입
-  const enterSingleGame = () => {
-    window.location.href = 'OX_SingleGame'
-  }
-
-  // ========================================
-  // 🎨 렌더링
-  // ========================================
-
-  // 🔹 로딩 중일 때 걷는 캐릭터 표시
   if (loading) {
+    const walkImgs = [
+      "/ox_image/walk1.png",
+      "/ox_image/walk2.png",
+      "/ox_image/walk3.png",
+      "/ox_image/walk4.png"
+    ]
     return (
-      <div className="ox-loading">
-        <img src={walkImgs[walkFrame]} alt="로딩 애니메이션" style={{ width: '100px' }} />
+      <div style={styles.loading}>
+        <img src={walkImgs[walkFrame]} alt="" style={{width:'100px'}}/>
         로딩중...
       </div>
     )
   }
 
   return (
-    <div className="ox-container">
-      {/* ======================================== */}
-      {/* 🚀 우주선들 - 각각 다른 위치에서 날아옴 */}
-      {/* ======================================== */}
-      <img src="/ox_image/shipBeige_manned.png" alt="베이지 우주선" className="ox-beige" style={shipPos.beige} />
-      <img src="/ox_image/shipBlue_manned.png" alt="파란 우주선" className="ox-blue" style={shipPos.blue} />
-      <img src="/ox_image/shipGreen_manned.png" alt="초록 우주선" className="ox-green" style={shipPos.green} />
-      <img src="/ox_image/shipPink_manned.png" alt="핑크 우주선" className="ox-pink" style={shipPos.pink} />
-      <img src="/ox_image/shipYellow_manned.png" alt="노란 우주선" className="ox-yellow" style={shipPos.yellow} />
+    <div style={styles.container}>
+      {/* 우주선들 */}
+      <img src="/ox_image/char1.png" alt="" style={getShipStyle('beige')} />
+      <img src="/ox_image/char2.png" alt="" style={getShipStyle('blue')} />
+      <img src="/ox_image/char3.png" alt="" style={getShipStyle('green')} />
+      <img src="/ox_image/char4.png" alt="" style={getShipStyle('pink')} />
+      <img src="/ox_image/char5.png" alt="" style={getShipStyle('yellow')} />
 
-      {/* ======================================== */}
-      {/* ⚡ 레이저/폭발 효과 */}
-      {/* ======================================== */}
-      <img 
-        src="/ox_image/laserGreen1.png" 
-        className="ox-greenlaser" 
-        style={{ 
-          opacity: showLaser ? 1 : 0, 
-          height: showLaser ? '350px' : '0px' 
-        }} 
-        alt="레이저 효과"
-      />
-      <img 
-        src="/ox_image/laserGreen_burst.png" 
-        className="ox-greenboom" 
-        style={{ opacity: showBoom ? 1 : 0 }} 
-        alt="폭발 효과"
-      />
+      {/* 레이저/버스트 */}
+      <img src="/ox_image/laserGreen1.png" style={{ ...styles.greenlaser, opacity: showLaser ? 1 : 0, height: showLaser ? '350px' : '0px' }} />
+      <img src="/ox_image/laserGreen_burst.png" style={{ ...styles.greenboom, opacity: showBoom ? 1 : 0 }} />
 
-      {/* ======================================== */}
-      {/* 🎯 게임 선택 UI */}
-      {/* ======================================== */}
-      <img src="/ox_image/oxgame_logo.png" alt="OX Quiz Logo" className="ox-logo" />
-      <img 
-        src="/ox_image/multibutton.png" 
-        alt="멀티플레이 버튼" 
-        className="ox-multibutton" 
-        onClick={entermultigame} 
-      />
-      <img 
-        src="/ox_image/singlebutton.png" 
-        alt="싱글플레이 버튼" 
-        className="ox-singlebutton" 
-        onClick={enterSingleGame} 
-      />
+      {/* 로고/버튼 */}
+      <img src="/ox_image/oxgame_logo.png" alt="OX Quiz Logo" style={styles.oxlogo} />
+      <img src="/ox_image/multibutton.png" alt="" style={styles.multibutton} onClick={entermultigame}/>
+      <img src="/ox_image/singlebutton.png" alt="" style={styles.singlebutton} onClick={enterSingleGame}/>
     </div>
   )
 }
