@@ -1,0 +1,265 @@
+/* 모달 스타일 */
+div.SignupPage-modal-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  max-width: 90vw;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  padding: 40px;
+  color: white;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 기본 정보 텍스트 프레임 */
+.infoTextFrame {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.userinfoText {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(45deg, #fff, #f0f0f0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.infoOptionalText {
+  font-size: 12px;
+  color: #ccc;
+  margin: 5px 0 0 0;
+  font-weight: 300;
+}
+
+/* 사용자 입력 프레임 */
+.userInputFrame {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+/* 폼 컨트롤 스타일 */
+.UserInput {
+  padding: 12px 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+  width: 170px;
+}
+
+.UserInput::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.UserInput:focus {
+  outline: none;
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.UserInput:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* 아이디 입력 필드 */
+.UserInput[placeholder="아이디"] {
+  width: 160px;
+}
+
+/* 비밀번호 입력 필드 */
+.UserInput[placeholder="비밀번호"],
+.UserInput[placeholder="비밀번호 확인"] {
+  width: 200px;
+}
+
+/* 닉네임 입력 필드 */
+.UserInput[placeholder="닉네임"] {
+  width: 200px;
+}
+
+/* 이메일 도메인 선택 */
+.UserInput[style*="width:150px"] {
+  width: 150px;
+  color: white;
+}
+
+.UserInput[style*="width:150px"] option {
+  background: #667eea;
+  color: white;
+}
+
+/* 아이디 확인 버튼 */
+.CheckOfId {
+  padding: 12px 20px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  background: transparent;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+
+.CheckOfId:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.3);
+}
+
+/* 전화번호 프레임 */
+.numberFrame {
+  margin: 30px 0;
+}
+
+.numberSelectFrame {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* 전화번호 선택 박스 */
+.numberBox {
+  padding: 12px 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+  cursor: pointer;
+}
+
+.numberBox:focus {
+  outline: none;
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.numberBox option {
+  background: #667eea;
+  color: white;
+}
+
+/* 버튼 컨테이너 */
+.button-container {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+/* Material-UI 버튼 스타일 오버라이드 */
+.MuiButton-outlined {
+  border: 2px solid rgba(255, 255, 255, 0.5) !important;
+  color: white !important;
+  border-radius: 12px !important;
+  padding: 12px 24px !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+  backdrop-filter: blur(5px) !important;
+  background: transparent !important;
+}
+
+.MuiButton-outlined:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.3) !important;
+}
+
+.MuiButton-outlined.MuiButton-colorSuccess {
+  border-color: #4caf50 !important;
+  color: #4caf50 !important;
+}
+
+.MuiButton-outlined.MuiButton-colorSuccess:hover {
+  background: rgba(76, 175, 80, 0.2) !important;
+  border-color: #4caf50 !important;
+  color: white !important;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .SignupPage-modal-container {
+    width: 95vw;
+    padding: 30px 20px;
+  }
+  
+  .userInputFrame {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .UserInput,
+  .numberInput {
+    width: 100% !important;
+  }
+  
+  .numberSelectFrame {
+    flex-direction: column;
+  }
+  
+  .button-container {
+    flex-direction: column;
+  }
+}
+
+/* 애니메이션 효과 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -40%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.SignupPage-modal-container {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* 스크롤바 스타일 */
+.UserInput::-webkit-scrollbar,
+.numberBox::-webkit-scrollbar {
+  width: 6px;
+}
+
+.UserInput::-webkit-scrollbar-track,
+.numberBox::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.UserInput::-webkit-scrollbar-thumb,
+.numberBox::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.UserInput::-webkit-scrollbar-thumb:hover,
+.numberBox::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
