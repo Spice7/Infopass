@@ -1,0 +1,570 @@
+/* ======================================== */
+/* 🎮 OX 퀴즈 게임 - 공통 스타일 */
+/* ======================================== */
+
+.ox-container {
+  width: 60vw;
+  height: 75vh;
+  min-width: 600px;
+  min-height: 400px;
+  background: url(/ox_image/002.png) center/cover no-repeat;
+  border-radius: 32px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 0 20px rgba(92, 165, 233, 0.3);
+  margin: auto;
+  margin-top: 150px;
+  position: absolute;
+  left: 0; right: 0; top: 0; bottom: 0;
+  padding: 32px 0 0 0;
+  z-index: 10;
+  overflow: hidden;
+  border: 3px solid rgba(92, 165, 233, 0.5);
+  animation: containerGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes containerGlow {
+  0% { box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 0 20px rgba(92, 165, 233, 0.3); }
+  100% { box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 0 30px rgba(92, 165, 233, 0.6); }
+}
+
+/* 카운트다운 오버레이 스타일 추가 */
+.ox-countdown-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  border-radius: 32px;
+  backdrop-filter: blur(5px);
+}
+
+.ox-countdown-overlay h1 {
+  font-size: 8rem;
+  color: #fff;
+  font-weight: bold;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.5), 0 0 40px rgba(92, 165, 233, 0.8);
+  animation: countdownPulse 0.5s ease-in-out;
+  background: linear-gradient(45deg, #5ca5e9, #fff, #5ca5e9);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: countdownPulse 0.5s ease-in-out, gradientShift 2s ease-in-out infinite;
+}
+
+@keyframes countdownPulse {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.ox-loading {
+  width: 60vw;
+  height: 75vh;
+  min-width: 600px;
+  min-height: 400px;
+  background: linear-gradient(135deg, #5ca5e9 0%, #4a90e2 50%, #357abd 100%);
+  border-radius: 32px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 0 20px rgba(92, 165, 233, 0.4);
+  margin: auto;
+  margin-top: 150px;
+  position: absolute;
+  left: 0; right: 0; top: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  color: #fff;
+  font-weight: bold;
+  letter-spacing: 2px;
+  z-index: 20;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  /* animation: loadingPulse 2s ease-in-out infinite; */
+}
+
+@keyframes loadingPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+/* 우주선 애니메이션 개선 */
+.ox-beige {
+  width: 150px;
+  transform: rotate(-10deg);
+  position: absolute;
+  left: 12%;
+  top: 30%;
+  z-index: 3;
+  transition: all 0.8s cubic-bezier(.68,-0.55,.27,1.55);
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+}
+
+.ox-blue {
+  width: 150px;
+  transform: rotate(15deg);
+  position: absolute;
+  left: 45%;
+  top: 8%;
+  z-index: 3;
+  transition: all 0.8s cubic-bezier(.68,-0.55,.27,1.55);
+  filter: drop-shadow(0 0 10px rgba(92, 165, 233, 0.4));
+}
+
+.ox-green {
+  width: 150px;
+  transform: rotate(8deg);
+  position: absolute;
+  left: 80%;
+  top: 2%;
+  z-index: 3;
+  transition: all 0.8s cubic-bezier(.68,-0.55,.27,1.55);
+  filter: drop-shadow(0 0 10px rgba(76, 175, 80, 0.4));
+}
+
+.ox-pink {
+  width: 150px;
+  transform: rotate(-30deg);
+  position: absolute;
+  left: 65%;
+  top: 55%;
+  z-index: 2;
+  transition: all 0.8s cubic-bezier(.68,-0.55,.27,1.55);
+  filter: drop-shadow(0 0 10px rgba(233, 30, 99, 0.4));
+}
+
+.ox-yellow {
+  width: 150px;
+  transform: rotate(25deg);
+  position: absolute;
+  left: 20%;
+  top: 55%;
+  z-index: 2;
+  transition: all 0.8s cubic-bezier(.68,-0.55,.27,1.55);
+  filter: drop-shadow(0 0 10px rgba(255, 235, 59, 0.4));
+}
+
+.ox-greenlaser {
+  width: 70px;
+  height: 350px;
+  transform: rotate(8deg);
+  position: absolute;
+  left: 80.8%;
+  top: 18%;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s, height 0.5s;
+  filter: drop-shadow(0 0 20px rgba(76, 175, 80, 0.8));
+}
+
+.ox-greenboom {
+  width: 290px;
+  transform: rotate(12deg);
+  position: absolute;
+  left: 67.8%;
+  top: 51%;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.3s;
+  filter: drop-shadow(0 0 30px rgba(255, 193, 7, 0.8));
+}
+
+.ox-logo {
+  width: 800px;
+  z-index: 2;
+  position: absolute;
+  left: 15%;
+  top: 10%;
+  animation: blink 0.4s linear 5 alternate;
+  opacity: 1;
+  filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.5));
+}
+
+.ox-multibutton {
+  width: 200px;
+  position: absolute;
+  top: 60%;
+  left: 40%;
+  animation: blink 0.4s linear 5 alternate;
+  opacity: 1;
+  cursor: pointer;
+  transition: transform 0.2s ease, filter 0.2s ease;
+  filter: drop-shadow(0 0 10px rgba(92, 165, 233, 0.4));
+}
+
+.ox-multibutton:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 15px rgba(92, 165, 233, 0.8));
+}
+
+.ox-singlebutton {
+  width: 200px;
+  position: absolute;
+  top: 70%;
+  left : 40%;
+  animation: blink 0.4s linear 5 alternate;
+  opacity: 1;
+  cursor: pointer;
+  transition: transform 0.2s ease, filter 0.2s ease;
+  filter: drop-shadow(0 0 10px rgba(92, 165, 233, 0.4));
+}
+
+.ox-singlebutton:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 15px rgba(92, 165, 233, 0.8));
+}
+
+/* OX_MultiGame, OX_SingleGame 공통 스타일 */
+.ox-quiz {
+  width: 90%;
+  min-height: 100px;
+  background: rgba(255,255,255,0.95);
+  border-radius: 18px;
+  border: 3px solid #007bff;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1), 0 0 15px rgba(0, 123, 255, 0.3);
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #222;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 12px;
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  backdrop-filter: blur(5px);
+  animation: quizGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes quizGlow {
+  0% { box-shadow: 0 4px 20px rgba(0,0,0,0.1), 0 0 15px rgba(0, 123, 255, 0.3); }
+  100% { box-shadow: 0 4px 20px rgba(0,0,0,0.1), 0 0 25px rgba(0, 123, 255, 0.6); }
+}
+
+.ox-timerbar-wrap {
+  width: 100%;
+  height: 30px;
+  background: rgba(238, 238, 238, 0.9);
+  border-radius: 9px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1), inset 0 1px 3px rgba(0,0,0,0.1);
+  border: 2px solid rgba(0, 123, 255, 0.3);
+}
+
+.ox-timerbar {
+  height: 100%;
+  background: linear-gradient(90deg, #ffe066 0%, #ffd700 50%, #ffb300 100%);
+  transition: width 0.2s linear;
+  box-shadow: 0 0 10px rgba(255, 224, 102, 0.5);
+  position: relative;
+}
+
+.ox-timerbar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+  animation: timerShine 1s ease-in-out infinite;
+}
+
+@keyframes timerShine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.ox-quiz .resultMsg{
+  font-size: 2em;
+}
+
+.ox-oxwrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 100px;
+  position: absolute;
+  top: 25%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+}
+
+.ox-oximg {
+  width: 320px;
+  height: 320px;
+  cursor: pointer;
+  transition: transform 0.18s, box-shadow 0.18s, filter 0.18s;
+  border-radius: 50%;
+  object-fit: contain;
+  user-select: none;
+  filter: drop-shadow(0 0 15px rgba(0, 123, 255, 0.3));
+}
+
+.ox-oximg:hover {
+  transform: scale(1.02);
+  filter: drop-shadow(0 0 20px rgba(0, 123, 255, 0.6));
+}
+
+.ox-oximg-active {
+  transform: scale(1.08);
+  filter: drop-shadow(0 0 25px rgba(0, 123, 255, 0.8));
+  animation: oxPulse 0.5s ease-in-out;
+}
+
+@keyframes oxPulse {
+  0% { transform: scale(1.08); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1.08); }
+}
+
+.ox-charwrap {
+  width: 70%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  position: absolute;
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  padding: 0 100px;
+}
+
+.ox-charwrap-single {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  bottom: 0%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+}
+
+.ox-char {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.ox-char:hover {
+  transform: scale(1.02);
+}
+
+.ox-oxabove {
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 50px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: oxFloat 1s ease-in-out infinite alternate;
+}
+
+@keyframes oxFloat {
+  0% { transform: translateX(-50%) translateY(0px); }
+  100% { transform: translateX(-50%) translateY(-5px); }
+}
+
+.ox-nick {
+  margin-top: 10px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #333;
+  background: rgba(255,255,255,0.9);
+  border-radius: 8px;
+  padding: 4px 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border: 2px solid rgba(0, 123, 255, 0.3);
+  backdrop-filter: blur(5px);
+}
+
+.ox-scoreboard {
+  margin-top: 10px;
+  width: 80px;
+  height: 38px;
+  background: linear-gradient(180deg, #222 0%, #007bff 100%);
+  color: #fff;
+  font-weight: bold;
+  font-size: 1.5rem;
+  border-radius: 10px;
+  border: 3px solid #fff;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 10px rgba(0, 123, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 2px;
+  animation: scoreGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes scoreGlow {
+  0% { box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 10px rgba(0, 123, 255, 0.3); }
+  100% { box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 20px rgba(0, 123, 255, 0.6); }
+}
+
+.ox-scoreboard-single {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ox-lifewrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.ox-heart {
+  width: 28px;
+  height: 28px;
+  border: 2px solid #222;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  user-select: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  animation: heartBeat 1.5s ease-in-out infinite;
+}
+
+.ox-heart:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+@keyframes heartBeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.ox-heartimg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.ox-monster {
+  position: absolute;
+  top: -300px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 150px;
+  height: 150px;
+  z-index: 20;
+  pointer-events: none;
+  animation: monsterDrop 0.5s cubic-bezier(0.7,0,0.5,1) forwards;
+  filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.5));
+}
+
+.ox-laser {
+  position: absolute;
+  top: -180px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 240px;
+  z-index: 21;
+  pointer-events: none;
+  animation: laserDrop 0.5s cubic-bezier(0.7,0,0.5,1);
+  transform-origin: top;
+  filter: drop-shadow(0 0 15px rgba(255, 255, 0, 0.8));
+}
+
+.ox-boom {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 100px;
+  z-index: 22;
+  pointer-events: none;
+  animation: boomShow 0.4s;
+  filter: drop-shadow(0 0 25px rgba(255, 193, 7, 0.8));
+}
+
+.ox-shake {
+  animation: shake 0.4s;
+}
+
+/* 애니메이션 keyframes */
+@keyframes blink {
+  0% { opacity: 1; }
+  100% { opacity: 0.2; }
+}
+
+@keyframes monsterDrop {
+  0% { opacity: 0; transform: translateX(-50%) translateY(-120px);}
+  60% { opacity: 1; }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0);}
+}
+
+@keyframes laserDrop {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) scaleY(0.0);
+  }
+  10% {
+    opacity: 1;
+    transform: translateX(-50%) scaleY(0.3);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) scaleY(1);
+  }
+}
+
+@keyframes boomShow {
+  0% { opacity: 0; transform: scale(0.5) translateX(-50%);}
+  60% { opacity: 1; transform: scale(1.1) translateX(-50%);}
+  100% { opacity: 0; transform: scale(1) translateX(-50%);}
+}
+
+@keyframes shake {
+  0% { transform: translateX(0%) translateY(0);}
+  10% { transform: translateX(-10%) translateY(0);}
+  20% { transform: translateX(10%) translateY(0);}
+  30% { transform: translateX(-10%) translateY(0);}
+  40% { transform: translateX(10%) translateY(0);}
+  50% { transform: translateX(-10%) translateY(0);}
+  60% { transform: translateX(10%) translateY(0);}
+  70% { transform: translateX(-10%) translateY(0);}
+  80% { transform: translateX(10%) translateY(0);}
+  90% { transform: translateX(-10%) translateY(0);}
+  100% { transform: translateX(10%) translateY(0);}
+}
+
+@keyframes fadeout {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+} 
