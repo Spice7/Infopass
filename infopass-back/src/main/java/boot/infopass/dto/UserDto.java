@@ -1,6 +1,7 @@
 package boot.infopass.dto;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 import org.apache.ibatis.type.Alias;
 
@@ -21,17 +22,19 @@ public class UserDto {
 	private Integer level;
 	private Timestamp rank_updated_at;
 	private Timestamp created_at;
-	@Override
-	public String toString() {
-	    return "UserDto{" +
-	           "email='" + email + '\'' +
-	           ", password='" + (password != null ? "[PROTECTED]" : "null") + '\'' +
-	           ", name='" + name + '\'' +
-	           ", nickname='" + nickname + '\'' +
-	           ", phone='" + phone + '\'' +
-	           ", address='" + address + '\'' +
-	           '}';	
-	}
-	
+
+	// 권한 목록
+    List<UserAuth> authList;
+    
+    public UserDto(UserDto userDto) {
+    	this.id=userDto.id;
+    	this.password=userDto.password;
+    	this.name=userDto.name;
+    	this.nickname=userDto.nickname;
+    	this.email=userDto.email;
+    	this.phone=userDto.phone;
+    	this.address=userDto.address;
+    	this.authList = userDto.getAuthList();
+    }
 }
 
