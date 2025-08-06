@@ -4,12 +4,16 @@ import AdminRoutes from './AdminRoutes'
 import UserRoutes from './UserRoutes'
 import OxQuizRoutes from './OxQuizRoutes'
 import BlockRoutes from './BlockRoutes'
+import Home from '../pages/Home'
+import MyPage from '../pages/mypage/MyPage.jsx'
 
 
 const RouterMain = () => {
     return (
         <div>
             <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/MyPage" element={<MyPage />} />
                 {AdminRoutes}
                 {UserRoutes}
                 {OxQuizRoutes}
