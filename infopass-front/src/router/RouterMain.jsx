@@ -25,3 +25,5 @@ const RouterMain = () => {
         </div>
     )
 }
+
+export default RouterMain;
