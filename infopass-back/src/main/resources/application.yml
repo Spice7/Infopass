@@ -1,0 +1,20 @@
+server:
+ port: 9000
+ servlet:
+   session:
+     timeout: 90m
+     
+ #mysql_setting
+spring:
+ datasource:
+   driver-class-name: com.mysql.cj.jdbc.Driver
+   url: jdbc:mysql://infopass.c72c02iwaybk.ap-northeast-2.rds.amazonaws.com:3306/infopass?serverTimezone=Asia/Seoul
+   username: adminLKH
+   password: lkh940706!
+
+#mybatis
+mybatis:
+   type-aliases-package: boot.infopass.dto
+   mapper-locations:
+   - /mapper/*.xml
+

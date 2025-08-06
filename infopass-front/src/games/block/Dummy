@@ -1,0 +1,119 @@
+import React, { useRef, useState, useEffect } from 'react'
+import Blockly from './blocks.js'
+import { getSingleQuestion } from './BlockAPI.js';
+
+/// 블록 배치 게임
+/// Blockly API 사용
+
+// block.js에 등록한 커스텀 블록을 매핑
+const toolbox = {
+    "kind": "flyoutToolbox",
+    "contents": [
+        { "kind": "block", "type": "try_block" },
+        { "kind": "block", "type": "catch_arithmetic" },
+        { "kind": "block", "type": "catch_arrayindex" },
+        { "kind": "block", "type": "catch_numberformat" },
+        { "kind": "block", "type": "catch_exception" },
+        { "kind": "block", "type": "finally_block" },
+        { "kind": "block", "type": "print_statement" },
+        { "kind": "block", "type": "divide_statement" }
+    ]
+};
+
+// 초기 화면에 보여줄 문제
+// DB연결하면 없앨거임
+const initialWorkspaceXml = `
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <block type="try_block" x="40" y="40">
+    <statement name="TRY_BODY">
+      <block type="print_statement">
+        <field name="PRINT_TEXT">a / b</field>
+      </block>
+    </statement>
+    <next>
+      <!-- catch 블록을 여기에 배치해야 정답 -->
+      <next>
+        <block type="finally_block">
+          <statement name="FINALLY_BODY">
+            <block type="print_statement">
+              <field name="PRINT_TEXT">출력5</field>
+            </block>
+          </statement>
+        </block>
+      </next>
+    </next>
+  </block>
+</xml>
+`;
+
+// 정답 체크 메소드
+// 현재는 하드코딩 되어 있지만 DB연결 후 변수화 예정
+function isCorrect(workspace) {
+    // workspace의 모든 블록 탐색해서 catch_arithmetic 블록이 있는지 검사   // 상단에 매핑한 type으로 검사
+    const allBlocks = workspace.getAllBlocks(false);
+    // 반드시 catch_arithmetic 블록이 1개 이상 있어야 정답
+    return allBlocks.some(block => block.type === "catch_arithmetic");
+}
+
+
+const BlockMain = () => {
+    const blocklyDiv = useRef(null);
+    const workspaceRef = useRef(null);
+    const [result, setResult] = useState("");
+
+    useEffect(() => {
+        workspaceRef.current = Blockly.inject(blocklyDiv.current, {
+            toolbox,
+            trashcan: true,
+            scrollbars: true
+        });
+
+        // 문제 초기 블록 배치
+        const xml = Blockly.utils.xml.textToDom(initialWorkspaceXml);
+        workspaceRef.current.clear();
+        Blockly.Xml.appendDomToWorkspace(xml, workspaceRef.current);
+
+        return () => {
+            workspaceRef.current && workspaceRef.current.dispose();
+        };
+    }, []);
+
+    const handleCheck = () => {
+        if (isCorrect(workspaceRef.current)) {
+            setResult("정답입니다! 🎉");
+        } else {
+            setResult("오답입니다. 😢");
+        }
+    };
+
+    const showData = async(qid) => {
+        console.log(await getSingleQuestion(qid));
+    }
+
+    showData(1);
+
+    return (
+        <div>
+            <h2>예외 처리 블록 퀴즈</h2>
+            <p>
+                <b>
+                    a를 b로 나누는 코드에서 <br />
+                    0으로 나눌 때 발생하는 예외를 올바르게 처리하는 <br />
+                    catch 블록을 아래에 끌어다 놓으세요.
+                </b>
+            </p>
+            <div ref={blocklyDiv} style={{
+                height: "500px",
+                width: "1200px",
+                background: "#f7f7f7",
+                margin: "0 auto",
+                borderRadius: "12px",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.05)"
+            }} />
+            <button onClick={handleCheck} style={{ marginTop: 16 }}>정답 확인</button>
+            <div style={{ marginTop: 16, fontWeight: "bold" }}>{result}</div>
+        </div>
+    )
+}
+
+export default BlockMain
