@@ -19,6 +19,8 @@
     "axios": "^1.11.0",
 =======
 >>>>>>> be78e4b23dba9ebd0552f07c3e3e8ddfde1f4e77
+    "axios": "^1.11.0",
+    "blockly": "^12.2.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.7.1",
