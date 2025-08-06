@@ -1,79 +1,118 @@
 package boot.infopass.security;
 
+import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig implements WebMvcConfigurer {
-	
-	@Bean //암호화에 대한 빈 추가
-	public BCryptPasswordEncoder bCryptPasswordEncoder() {
-		
-		return new BCryptPasswordEncoder();
-	}
-	
-	
-	
-	
-   @Bean
-   public SecurityFilterChain filterChain(HttpSecurity http,
-   		CustomLoginSuccessHandler loginSuccessHandler,
-   		CustomLogoutHandler logoutHandler) throws Exception {
-	   http
-	   		
-			.authorizeHttpRequests((auth) -> auth
-					.requestMatchers("/", "/login","/user/**").permitAll()
-					.requestMatchers("/admin").hasRole("ADMIN")
-					.requestMatchers("/**").hasAnyRole("ADMIN", "USER")
-					.anyRequest().authenticated()
-					)
-			//admin --> login
-		   .formLogin((auth)->auth.loginPage("/login")
-				   .loginProcessingUrl("/loginProc")
-				   //.defaultSuccessUrl("/my/mypage") //자동으로 이동
-				   .successHandler(loginSuccessHandler)
-				   .permitAll()
-				   )
-		   .logout(logout -> logout
-				   .logoutUrl("/logout")
-				   .logoutSuccessUrl("/")
-				   .addLogoutHandler(logoutHandler)
-				   )
-		
-		   //다중로그인허용
-		   .sessionManagement((session)->session //중복로그인 설정
-				   .maximumSessions(3) //최대3개까지 허용
-				   .maxSessionsPreventsLogin(true)
-				   )
-		   //접근불가 페이지 오류띄우기
-		   .exceptionHandling((ex) -> ex
-				   .accessDeniedPage("/access-denied")
-				   )
-		   //csrf 공격에 대한 옵션 꺼두기
-		   .csrf((csrf) -> csrf.disable()); //csrf 비활성화
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true) //어노테이션에 prePostEnabled = true를 추가하면 AuthenticationManager를 자동으로 구성합니다.
+public class SecurityConfig  {
+
+	@Autowired
+	private CustomUserDetailService customUserDetailService;
+
+    @Autowired 
+    private JwtTokenProvider jwtTokenProvider;
+
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
+        log.info("securityFilterChain...");
+
+        // 폼 기반 로그인 비활성화
+        http.formLogin( login -> login.disable() );
+
+        // HTTP 기본 인증 비활성화
+        http.httpBasic( basic -> basic.disable() );
+
+        // CSRF(Cross-Site Request Forgery) 공격 방어 기능 비활성화
+        http.csrf( csrf -> csrf.disable() );
+
+        // CORS 설정
+        http.cors( cors -> cors.configurationSource(corsConfigurationSource()) );
+
+     
+        
+        // 필터 설정
+        // ✅ JWT 요청 필터 1️⃣
+        // ✅ JWT 인증 필터 2️⃣
+        http.addFilterAt(new JwtAuthenticationFilter(authenticationManager, jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(new JwtRequestFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+            ;
+
+     // 🟢 인가 설정 (authorizeHttpRequests)
+        http.authorizeHttpRequests(authorize -> authorize
+            // ✅ 1. 공개적으로 허용할 정적 리소스 및 경로를 먼저 지정합니다.
+            .requestMatchers("/", "/login", "/user/join", "/user/idCheck").permitAll()
+
+            // ✅ 2. 특정 권한이 필요한 경로를 지정합니다.
+            .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
+            .requestMatchers("/admin/**").hasRole("ADMIN")
+
+            // ✅ 3. 위의 규칙에 해당하지 않는 모든 요청은 인증이 필요합니다.
+            .anyRequest().authenticated()
+        );
+    					
+        // 사용자 정보를 불러오는 서비스 설정
+        http.userDetailsService(customUserDetailService);
+
 
 		return http.build();
 	}
-   
-// 🔧 CORS 설정을 따로 명시하는 Bean
-   @Override
-   public void addCorsMappings(CorsRegistry registry) {
-       registry.addMapping("/**") // 모든 경로에 대해
-               .allowedOrigins("http://localhost:5174") // 허용할 origin
-               .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 허용할 HTTP 메서드
-               .allowedHeaders("*") // 모든 헤더 허용
-               .allowCredentials(true) // 자격 증명(쿠키, 인증 헤더) 허용 여부
-               .maxAge(3600); // preflight 요청의 유효 시간 (초)
-   }
-   
+
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }    
+
+    // CORS 설정
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        
+        // 허용할 오리진 설정
+        configuration.addAllowedOrigin("http://localhost:5173");
+        
+        // 허용할 헤더 설정
+        configuration.addAllowedHeader("*");
+        
+        // 허용할 HTTP 메소드 설정
+        configuration.addAllowedMethod("*");
+        
+        // 인증 정보 포함 허용
+        configuration.setAllowCredentials(true);
+        
+        // Authorization 헤더 노출 허용
+        configuration.addExposedHeader("Authorization");
+        
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        
+        return source;
+    }
+
 }
 
 

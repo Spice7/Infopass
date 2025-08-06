@@ -28,7 +28,7 @@ const SignupPage = () => {
   const [phonePrefix, setPhonePrefix] = useState(PHONENUMBER_LIST[0]);
 
   //axios URL
-  const insertUrl = "http://localhost:9000/user/register";
+  const insertUrl = "http://localhost:9000/user/join";
 
 
   //사용자 정보
@@ -46,7 +46,7 @@ const SignupPage = () => {
   //아이디 체크
   const idCheckEvent = () => {
     const email = userInfo.id + "@" + userInfo.email;
-    const idCheckUrl = "http://localhost:9000/user/idCheck";
+    const idCheckUrl = "http://localhost:9000/user/idcheck";
     console.log(email);
     axios.post(idCheckUrl, {email: email}).then(res => {
       console.log(res.data);
@@ -89,11 +89,11 @@ const SignupPage = () => {
     
     };
     //console.log(sendInfo);
-
-    if (!userCheck) {
-      alert("아이디 중복체크 해주세요");
-      return;
-    } else {
+   
+    // if (!userCheck) {
+    //   alert("아이디 중복체크 해주세요");
+    //   return;
+    // } else {
       console.log("회원가입 정보: ", sendInfo);
       axios.post(insertUrl, sendInfo).then(() => {
         console.log("회원가입 성공");
@@ -103,7 +103,7 @@ const SignupPage = () => {
         console.error('회원가입 실패:', error.response ? error.response.data : error.message);
     // 에러 메시지 표시 로직
       });
-    }
+    // }
   }
   return (
     <div>
