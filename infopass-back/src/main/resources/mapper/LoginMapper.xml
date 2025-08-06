@@ -3,7 +3,7 @@
 <mapper namespace="boot.infopass.mapper.UserMapper">
 
     <!-- UserDto 매핑-->
-    <resultMap type="UserDto" id="userMap">
+    <resultMap type="user" id="userMap">
         <id property="id" column="id" />
         
         <result property="id" column="id" />

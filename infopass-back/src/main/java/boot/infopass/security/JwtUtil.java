@@ -1,16 +1,16 @@
-package boot.infopass.security;
-import io.jsonwebtoken.Jwts;
-
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.SignatureAlgorithm;
-import jakarta.servlet.http.HttpServletRequest;
-
-import java.util.Date;
-
-import org.springframework.stereotype.Component;
-
-@Component
-public class JwtUtil {
+//package boot.infopass.security;
+//import io.jsonwebtoken.Jwts;
+//
+//import io.jsonwebtoken.JwtException;
+//import io.jsonwebtoken.SignatureAlgorithm;
+//import jakarta.servlet.http.HttpServletRequest;
+//
+//import java.util.Date;
+//
+//import org.springframework.stereotype.Component;
+//
+//@Component
+//public class JwtUtil {
 
 //    private final String SECRET_KEY = "your-secret-key-very-secret";
 //    private final long EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 1일
@@ -63,4 +63,4 @@ public class JwtUtil {
 //            return false;
 //        }
 //    }
-}
+//}
