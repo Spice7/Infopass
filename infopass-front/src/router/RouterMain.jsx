@@ -5,7 +5,7 @@ import UserRoutes from './UserRoutes'
 import OxQuizRoutes from './OxQuizRoutes'
 import BlockRoutes from './BlockRoutes'
 import Home from '../pages/Home'
-import MyPage from '../pages/mypage/MyPage.jsx'
+import MyPageRoutes from './MyPageRoutes'
 
 
 const RouterMain = () => {
@@ -13,7 +13,7 @@ const RouterMain = () => {
         <div>
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/MyPage" element={<MyPage />} />
+                {MyPageRoutes}
                 {AdminRoutes}
                 {UserRoutes}
                 {OxQuizRoutes}
