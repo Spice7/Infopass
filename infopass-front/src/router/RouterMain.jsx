@@ -6,6 +6,7 @@ import OxQuizRoutes from './OxQuizRoutes'
 import BlockRoutes from './BlockRoutes'
 import Home from '../pages/Home'
 import MyPage from '../pages/mypage/MyPage.jsx'
+import Ranking from "./Ranking";
 
 
 const RouterMain = () => {
@@ -15,6 +16,7 @@ const RouterMain = () => {
                 <Route path="/" element={<Home />} />
                 <Route path="/MyPage" element={<MyPage />} />
                 {AdminRoutes}
+                {Ranking}
                 {UserRoutes}
                 {OxQuizRoutes}
                 {BlockRoutes}
@@ -23,5 +25,3 @@ const RouterMain = () => {
         </div>
     )
 }
-
-export default RouterMain
