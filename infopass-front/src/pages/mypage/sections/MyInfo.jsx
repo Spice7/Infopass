@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import {
   Box,
   Paper,
@@ -10,6 +11,7 @@ import {
   Divider,
   Button,
   LinearProgress,
+  CircularProgress
 } from '@mui/material';
 import { AccountCircle, Edit } from '@mui/icons-material';
 
@@ -18,32 +20,36 @@ const MAX_EXP_PER_LEVEL = 100;
 
 const MyInfo = () => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true); // 로딩 상태 추가
 
   useEffect(() => {
-    const dummyUser = {
-      id: 1,
-      name: '홍길동',
-      nickname: '길동이',
-      email: 'hong123@gmail.com',
-      phone: '010-1234-5678',
-      address: '서울시 강남구 역삼동',
-      usertype: 'USER',
-      exp: 75,
-      level: 7,
-      rank_updated_at: '2025-08-01T15:30:00',
-      created_at: '2024-05-10T10:20:00',
-    };
-
-    setTimeout(() => {
-      setUser(dummyUser);
-    }, 500);
+    axios.get('/api/mypage/user/1') // 백엔드에서 사용자 ID 1번 정보 가져옴
+      .then((res) => {
+        setUser(res.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('유저 정보 가져오기 실패:', err);
+        setLoading(false);
+      });
   }, []);
+
+  if (loading) {
+    return (
+      <Box sx={{ width: '100%', textAlign: 'center', mt: 10 }}>
+        <CircularProgress />
+        <Typography sx={{ mt: 2 }} color="text.secondary">
+          사용자 정보를 불러오는 중입니다...
+        </Typography>
+      </Box>
+    );
+  }
 
   if (!user) {
     return (
       <Box sx={{ width: '100%', textAlign: 'center', mt: 10 }}>
-        <Typography variant="h6" color="text.secondary">
-          사용자 정보를 불러오는 중입니다...
+        <Typography variant="h6" color="error">
+          사용자 정보를 불러오지 못했습니다.
         </Typography>
       </Box>
     );
@@ -85,23 +91,19 @@ const MyInfo = () => {
         </Avatar>
         <Box sx={{ flexGrow: 1, textAlign: { xs: 'center', md: 'left' } }}>
           <Typography variant="h3" fontWeight={700} gutterBottom>
-            {user.name} <Typography component="span" variant="h5" color="text.secondary">({user.nickname})</Typography>
+            {user.name}
+            <Typography component="span" variant="h5" color="text.secondary">
+              ({user.nickname})
+            </Typography>
           </Typography>
           <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 1.5 }}>
             {user.email}
           </Typography>
-
-          {/* <br> 태그를 사용하여 강제 줄바꿈 */}
           <Typography variant="body1" color="text.secondary">
-            전화번호: {user.phone} <br />
-            주소: {user.address} <br />
-            
-
-
-            
-            가입일: {user.created_at.substring(0, 10)}
+            전화번호: {user.phone}<br />
+            주소: {user.address}<br />
+            가입일: {user.createdAt?.substring(0, 10)}
           </Typography>
-          
         </Box>
         <Button
           variant="contained"
@@ -112,7 +114,6 @@ const MyInfo = () => {
         </Button>
       </Paper>
 
-      {/* 경험치 진행바와 레벨 정보 */}
       <Card elevation={8} sx={{ width: '100%', maxWidth: 800, p: 3, mb: 4, borderRadius: 3 }}>
         <Typography variant="h6" fontWeight={600} gutterBottom>
           레벨 {user.level}
@@ -130,7 +131,6 @@ const MyInfo = () => {
         </Typography>
       </Card>
 
-      {/* 주요 정보 카드들 (원하는 정보로 수정) */}
       <Grid container spacing={3} sx={{ mb: 5 }}>
         <Grid item xs={12} sm={6} md={6}>
           <Card elevation={8} sx={{ borderRadius: 3, height: '100%', textAlign: 'center', p: 2 }}>
@@ -139,7 +139,7 @@ const MyInfo = () => {
                 퀴즈 정답률
               </Typography>
               <Typography variant="h3" fontWeight={700} color={brandColor}>
-                75 %
+                75%
               </Typography>
             </CardContent>
           </Card>
