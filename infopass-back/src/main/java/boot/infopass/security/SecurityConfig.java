@@ -53,8 +53,7 @@ public class SecurityConfig  {
         // CORS 설정
         http.cors( cors -> cors.configurationSource(corsConfigurationSource()) );
 
-     
-        
+
         // 필터 설정
         // ✅ JWT 요청 필터 1️⃣
         // ✅ JWT 인증 필터 2️⃣

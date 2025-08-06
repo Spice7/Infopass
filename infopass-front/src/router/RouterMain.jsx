@@ -1,15 +1,24 @@
-import React, { useContext } from 'react';
-import { Route, Routes, Link } from 'react-router-dom';
-import AdminRoutes from './AdminRoutes';
-import UserRoutes from './UserRoutes';
-import OxQuizRoutes from './OxQuizRoutes';
-import { LoginContext } from '../user/LoginContextProvider';
+
+
+import React, { useContext } from 'react'
+import { Route, Router, Routes, Link } from 'react-router-dom'
+import AdminRoutes from './AdminRoutes'
+import UserRoutes from './UserRoutes'
+import OxQuizRoutes from './OxQuizRoutes'
+import BlockRoutes from './BlockRoutes'
+import Home from '../pages/Home'
+import MyPage from '../pages/mypage/MyPage.jsx'
+import Ranking from "./Ranking";
+import { LoginContext } from '../user/LoginContextProvider.jsx'
+
+
 
 const RouterMain = () => {
     const { isLogin, userInfo, logout } = useContext(LoginContext);
 
     return (
         <div>
+
             <header>
                 <nav>
                     {isLogin ? (
@@ -27,15 +36,22 @@ const RouterMain = () => {
             </header>
             <hr />
             <main>
-                <Routes>
-                    {AdminRoutes}
-                    {UserRoutes}
-                    {OxQuizRoutes}
-                    <Route path='*' element={<h1>잘못된 주소입니다</h1>} />
-                </Routes>
+
+            <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/MyPage" element={<MyPage />} />
+                {AdminRoutes}
+                {Ranking}
+                {UserRoutes}
+                {OxQuizRoutes}
+                {BlockRoutes}
+                <Route path='*' element={<h1>잘못된 주소입니다</h1>} />
+            </Routes>
             </main>
         </div>
+        
     );
-};
+}
 
 export default RouterMain;
+

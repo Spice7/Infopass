@@ -23,5 +23,5 @@ public class UserDto {
 	private Timestamp rank_updated_at;
 	private Timestamp created_at;
 	private Integer enabled;
-}
 
+}

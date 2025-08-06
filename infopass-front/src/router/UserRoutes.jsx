@@ -7,9 +7,9 @@ import UserForm from '../user/UserForm'
 
 
 const UserRoutes = [
-    <Route key="LoginForm" path='/user/LoginForm' element={<LoginForm />} />,
-    <Route key="SignupPage" path='/user/SignupPage' element={<SignupPage />} />,
-    <Route key="UserForm" path='/user/UserForm' element={<UserForm />} />
+    <Route key="login" path='/login' element={<LoginForm />} />,
+    <Route key="signup" path='/signup' element={<SignupPage />} />,
+    <Route key="user" path='/user' element={<UserForm />} />
     ]
 
 export default UserRoutes
