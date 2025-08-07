@@ -17,6 +17,7 @@ mybatis:
    mapper-locations:
    - /mapper/*.xml	 
 jwt:
-  secret-key: 2Jo!]8VlO)ohjFt5]9.h=n>}Knn!icdHTdT-7ra!:c."$oD#rh"#*kO*#y}^}{ZE
+  secret-key: 2Jo!]8VlO)ohjFt5]9.h=n>}Knn!icdHTdT-7ra!:c."$oD#rh"#*kO*#y}^}{ZE}
+
 
    

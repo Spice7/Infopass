@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true) //어노테이션에 prePostEnabled = true를 추가하면 AuthenticationManager를 자동으로 구성합니다.
+@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true) //어노테이션에 prePostEnabled = true를 추가하면 AuthenticationManager를 자동으로 구성합니다.
 public class SecurityConfig  {
 
 	@Autowired
@@ -55,22 +55,22 @@ public class SecurityConfig  {
 
 
         // 필터 설정
-        // ✅ JWT 요청 필터 1️⃣
-        // ✅ JWT 인증 필터 2️⃣
+        //  JWT 요청 필터 1️
+        //  JWT 인증 필터 2️
         http.addFilterAt(new JwtAuthenticationFilter(authenticationManager, jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(new JwtRequestFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
             ;
 
-     // 🟢 인가 설정 (authorizeHttpRequests)
+     //  인가 설정 (authorizeHttpRequests)
         http.authorizeHttpRequests(authorize -> authorize
-            // ✅ 1. 공개적으로 허용할 정적 리소스 및 경로를 먼저 지정합니다.
-            .requestMatchers("/", "/login", "/user/join", "/user/checkId").permitAll()
+            //  1. 공개적으로 허용할 정적 리소스 및 경로를 먼저 지정합니다.
+            .requestMatchers("/", "/login", "/user/join", "/user/checkId","/block/**").permitAll()
 
-            // ✅ 2. 특정 권한이 필요한 경로를 지정합니다.
+            //  2. 특정 권한이 필요한 경로를 지정합니다.
             .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
             .requestMatchers("/admin/**").hasRole("ADMIN")
 
-            // ✅ 3. 위의 규칙에 해당하지 않는 모든 요청은 인증이 필요합니다.
+            //  3. 위의 규칙에 해당하지 않는 모든 요청은 인증이 필요합니다.
             .anyRequest().authenticated()
         );
     					

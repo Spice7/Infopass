@@ -23,7 +23,7 @@ const RouterMain = () => {
                 <nav>
                     {isLogin ? (
                         <div>
-                            <span>{userInfo.email}님 환영합니다.</span>
+                            <span>{userInfo.nickname}님 환영합니다.</span>
                             <Link to="/" onClick={logout}>로그아웃</Link>
                         </div>
                     ) : (

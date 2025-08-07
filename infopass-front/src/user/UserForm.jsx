@@ -98,7 +98,7 @@ const UserForm = ({ userInfo, updateUser, deleteUser }) => {
                     정보 수정     
                 </button>
                 <button type='button' className='btn btn--form btn-login'
-                        onClick={ () => deleteUser(userInfo.userId)} >
+                        onClick={ () => deleteUser(userInfo.email)} >
                     회원 탈퇴
                 </button>
             </form>
