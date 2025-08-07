@@ -25,6 +25,8 @@ repositories {
 
 dependencies {
 
+ // Spring Data Redis 의존성
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	// Spring Boot Core
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 

@@ -1,6 +1,10 @@
 package boot.infopass.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import boot.infopass.dto.RankedUserDto;
+import boot.infopass.service.RankingService;
+
 import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
