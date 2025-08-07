@@ -6,7 +6,7 @@
 <mapper namespace="boot.infopass.mapper.MyPageUserMapperInter">
   <select id="findUserById" parameterType="int" resultType="boot.infopass.dto.MyPageUserDto">
     SELECT id, name, email, exp, level, created_at AS createdAt
-    FROM User
+    FROM user
     WHERE id = #{id}
   </select>
 </mapper>
