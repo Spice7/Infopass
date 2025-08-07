@@ -11,6 +11,7 @@ import MyPage from '../pages/mypage/MyPage.jsx'
 import Ranking from "./Ranking";
 import { LoginContext } from '../user/LoginContextProvider.jsx'
 
+import MyPageRoutes from './MyPageRoutes'
 
 
 const RouterMain = () => {
@@ -39,7 +40,7 @@ const RouterMain = () => {
 
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/MyPage" element={<MyPage />} />
+                {MyPageRoutes}
                 {AdminRoutes}
                 {Ranking}
                 {UserRoutes}
