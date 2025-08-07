@@ -1,11 +1,15 @@
 import React from 'react'
 import SignupPage from '../user/SignupPage'
-import Login from '../user/Login'
 import { Route } from 'react-router-dom'
+import LoginForm from '../user/LoginForm'
+
+import UserForm from '../user/UserForm'
+
 
 const UserRoutes = [
-    <Route key="Login" path='/user/Login' element={<Login />} />,
-    <Route key="SignupPage" path='/user/SignupPage' element={<SignupPage />} />
+    <Route key="login" path='/login' element={<LoginForm />} />,
+    <Route key="signup" path='/signup' element={<SignupPage />} />,
+    <Route key="user" path='/user' element={<UserForm />} />
     ]
 
 export default UserRoutes

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ch.qos.logback.core.model.Model;
 
 @RestController
-@CrossOrigin( origins = "http://localhost:5174")
+@CrossOrigin( origins = "http://localhost:5173")
 public class MainController {
 
 	@GetMapping("/")

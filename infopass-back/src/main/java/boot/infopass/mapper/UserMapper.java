@@ -14,4 +14,8 @@ public interface UserMapper {
 	public void insertUser(UserDto userDto);
 
 	List<RankedUserDto> findUserByIds(List<Long> userIds);
+	public int insertUser(UserDto userDto);
+	public UserDto getUserData(Integer id);
+	public UserDto login(String email);
+	public boolean findById(String email);
 }
