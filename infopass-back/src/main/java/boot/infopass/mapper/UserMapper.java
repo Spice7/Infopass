@@ -6,7 +6,8 @@ import boot.infopass.dto.UserDto;
 
 @Mapper
 public interface UserMapper {
-	public UserDto findByEmail(String email);	
-	public boolean existsByEmail(String email);
-	public void insertUser(UserDto userDto);
+	public int insertUser(UserDto userDto);
+	public UserDto getUserData(Integer id);
+	public UserDto login(String email);
+	public boolean findById(String email);
 }
