@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
 import boot.infopass.dto.RankedUserDto;
@@ -32,7 +34,7 @@ public class RankingService {
 
     public List<RankedUserDto> getTopRank(String key,int limit){
         Set<ZSetOperations.TypedTuple<Object>> redisResult=
-        redisTemplate.opsForZSet().reverseRangeWidthScores(key,0,limit-1);
+        redisTemplate.opsForZSet().reverseRangeWithScores(key,0,limit-1);
 
         if(redisResult==null || redisResult.isEmpty()){
             return new ArrayList<>();
