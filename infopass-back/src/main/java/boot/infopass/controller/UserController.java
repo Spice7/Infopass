@@ -29,7 +29,7 @@ public class UserController {
 	//ResponseEntity : 상태 코드, 헤더, 본문을 모두 포함하는 HTTP 응답을 유연하게 구성할 수 있는 Spring의 핵심 클래스
 	
 	
-	@PostMapping("/idCheck")
+	@PostMapping("/checkId")
 	public boolean findById(@RequestParam("email") String email) {
 		
 		return userService.findById(email);

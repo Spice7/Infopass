@@ -1,5 +1,4 @@
 import * as Blockly from "blockly";
-// 왜 여기서 에러가 나는지 모르겠음
 
 Blockly.defineBlocksWithJsonArray([
     {

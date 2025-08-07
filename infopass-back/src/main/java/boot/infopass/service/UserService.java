@@ -50,6 +50,7 @@ public class UserService implements UserServiceInter {
 	@Override
 	public boolean findById(String email) {
 		// TODO Auto-generated method stub
+		
 		return userMapper.findById(email);
 	}
 

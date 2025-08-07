@@ -6,14 +6,16 @@ const UserForm = ({ userInfo, updateUser, deleteUser }) => {
         e.preventDefault()
 
         const form = e.target
-        const userId = form.username.value
-        const userPw = form.password.value
-        const name = form.name.value
         const email = form.email.value
+        const password = form.password.value
+        const name = form.name.value
+        const phone = form.phone.value
+        const address = form.address.value
+        const nickname = form.nickName.value
 
-        console.log(userId, userPw, name, email);
+        console.log(email, password, name, phone, address, nickname);
 
-        updateUser( {userId, userPw, name, email } )
+        updateUser( {email, password, name, phone, address, nickname } )
     }
 
     return (
@@ -22,15 +24,15 @@ const UserForm = ({ userInfo, updateUser, deleteUser }) => {
 
             <form className='login-form' onSubmit={ (e) => onUpdate(e) }>
                 <div>
-                    <label htmlFor="name">username</label>
+                    <label htmlFor="name">email</label>
                     <input type="text"
-                            id='username'
-                            placeholder='username'
-                            name='username'
-                            autoComplete='username'
+                            id='email'
+                            placeholder='email'
+                            name='email'
+                            autoComplete='email'
                             required
                             readOnly
-                            defaultValue={ userInfo?.userId }
+                            defaultValue={ userInfo?.email }
                     />
                 </div>
 
@@ -58,16 +60,39 @@ const UserForm = ({ userInfo, updateUser, deleteUser }) => {
                 </div>
 
                 <div>
-                    <label htmlFor="name">Email</label>
+                    <label htmlFor="name">phone</label>
                     <input type="text"
-                            id='email'
-                            placeholder='email'
-                            name='email'
-                            autoComplete='email'
+                            id='phone'
+                            placeholder='phone'
+                            name='phone'
+                            autoComplete='phone'
                             required
-                            defaultValue={ userInfo?.email }
+                            defaultValue={ userInfo?.phone }
                     />
                 </div>
+                <div>
+                    <label htmlFor="name">address</label>
+                    <input type="text"
+                            id='address'
+                            placeholder='address'
+                            name='address'
+                            autoComplete='address'
+                            required
+                            defaultValue={ userInfo?.address }
+                    />
+                </div>
+                <div>
+                    <label htmlFor="name">nickname</label>
+                    <input type="text"
+                            id='nickname'
+                            placeholder='nickname'
+                            name='nickname'
+                            autoComplete='nickname'
+                            required
+                            defaultValue={ userInfo?.nickname }
+                    />
+                </div>
+                
 
                 <button type='submit' className='btn btn--form btn-login'>
                     정보 수정     
