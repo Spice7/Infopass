@@ -5,17 +5,18 @@ import {
   Avatar,
   Typography,
   Button,
+  Chip,
+  Tooltip,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   TextField,
 } from '@mui/material';
-import { Edit } from '@mui/icons-material';
+import { AccountCircle, Edit, Star } from '@mui/icons-material';
 
 import './UserProfileCard.css';
 import { update } from '../../../../user/auth';
-
 
 const primaryColor = '#4a90e2';
 const gradientColor = 'linear-gradient(135deg, #4a90e2 0%, #81d4fa 100%)';
@@ -48,12 +49,10 @@ const UserProfileCard = ({ user, onUpdate }) => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 수정 저장 함수
   const handleSave = async () => {
     setLoading(true);
     setError(null);
     try {
-      // /user/{id} 로 PUT 요청
       const response = await update(user.id, form);
 
       if (response.status === 200) {
@@ -90,6 +89,54 @@ const UserProfileCard = ({ user, onUpdate }) => {
           boxShadow: '0 12px 48px rgba(0,0,0,0.1)',
         }}
       >
+        {/* 프로필 아바타 + 레벨 칩 */}
+        <Box sx={{ position: 'relative', mr: { md: 4 } }}>
+          <Avatar
+            sx={{
+              width: 140,
+              height: 140,
+              fontSize: 90,
+              boxShadow: '0 6px 24px rgba(0,0,0,0.15)',
+              border: `4px solid ${cardBgColor}`,
+              background: gradientColor,
+              transition: 'none',
+              '&:hover': {
+                transform: 'none',
+                boxShadow: '0 6px 24px rgba(0,0,0,0.15)',
+              },
+            }}
+          >
+            <AccountCircle fontSize="inherit" />
+          </Avatar>
+          <Tooltip title={`레벨 ${user.level}`} arrow>
+            <Chip
+              icon={<Star sx={{ color: '#fff' }} />}
+              label={`Lv.${user.level}`}
+              size="large"
+              sx={{
+                position: 'absolute',
+                bottom: -12,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: 'linear-gradient(135deg, #FFD700 0%, #FF8C00 100%)',
+                color: '#fff',
+                fontWeight: 700,
+                fontSize: '1rem',
+                px: 2,
+                border: `2px solid ${cardBgColor}`,
+                boxShadow: '0 0 10px 2px rgba(255, 193, 7, 0.7)',
+                transition: 'none',
+                '&:hover': {
+                  transform: 'translateX(-50%)',
+                  boxShadow: '0 0 10px 2px rgba(255, 193, 7, 0.7)',
+                },
+                animation: 'none',
+              }}
+            />
+          </Tooltip>
+        </Box>
+
+        {/* 사용자 정보 */}
         <Box sx={{ flexGrow: 1, textAlign: { xs: 'center', md: 'left' } }}>
           <Typography variant="h2" fontWeight={800} gutterBottom sx={{ color: primaryColor }}>
             {user.name}
@@ -114,6 +161,7 @@ const UserProfileCard = ({ user, onUpdate }) => {
           </Typography>
         </Box>
 
+        {/* 수정 버튼 */}
         <Button
           variant="contained"
           startIcon={<Edit />}
@@ -128,10 +176,14 @@ const UserProfileCard = ({ user, onUpdate }) => {
             py: 1.5,
             borderRadius: 2,
             boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
+            transition: 'transform 0.28s cubic-bezier(.2,.8,.2,1), box-shadow 0.28s ease, opacity 0.28s',
             '&:hover': {
               background: gradientColor,
               transform: 'scale(1.05)',
               boxShadow: '0 8px 28px rgba(0,0,0,0.18)',
+            },
+            '&:active': {
+              transform: 'scale(0.99)',
             },
           }}
           onClick={handleOpen}
@@ -140,6 +192,7 @@ const UserProfileCard = ({ user, onUpdate }) => {
         </Button>
       </Paper>
 
+      {/* 수정 모달 */}
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
         <DialogTitle>프로필 수정</DialogTitle>
         <DialogContent dividers>
