@@ -1,0 +1,370 @@
+/* 우주 배경 */
+.ranking-wrapper {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  gap: 10vh;
+  padding: 20px;
+  flex-wrap: wrap;
+}
+
+.star-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+
+
+body {
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(
+    1deg,
+    #4c4c4c 0%,
+    /* 밝은 회색 */ #2a2a5c 25%,
+    /* 밝은 파란색 */ #4a5d8d 50%,
+    /* 중간 밝기의 블루 */ #2f4b80 75%,
+    /* 밝은 청색 */ #7b6bbf 100%
+  );
+  background-size: 400% 400%;
+  animation: spaceGradient 15s ease infinite;
+  min-height: 100vh;
+}
+
+/* 별 효과 */
+
+.ranking-container {
+  background: rgba(26, 26, 26, 0.8);
+  backdrop-filter: blur(10px);
+  min-height: 100vh;
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: visible;
+  z-index: 2;
+  height: auto;
+  padding-bottom: 40px;
+  flex: 1;
+  min-width: 400px;
+  max-width: 600px;
+  border-left: 2px solid #00ff88;
+}
+
+/* 실시간 랭킹 스타일 */
+.ranking-container.realtime {
+  border-left: 2px solid #00ff88;
+}
+
+.ranking-container.realtime .ranking-title {
+  color: #00ff88;
+}
+
+.ranking-container.realtime .info-icon {
+  color: #00ff88;
+}
+
+.ranking-container::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.05) 50%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+/* 헤더 스타일 */
+.ranking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 0 10px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ranking-title {
+  font-size: 30px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.info-icon {
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* 날짜 선택기 */
+.date-selector {
+  position: relative;
+}
+
+.date-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: #333;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.dropdown-arrow {
+  font-size: 12px;
+  transition: transform 0.2s;
+}
+
+.date-picker {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #333;
+  border-radius: 8px;
+  margin-top: 5px;
+  z-index: 1000;
+  min-width: 200px;
+}
+
+.date-picker div {
+  padding: 10px 15px;
+  cursor: pointer;
+  border-bottom: 1px solid #444;
+}
+
+.date-picker div:last-child {
+  border-bottom: none;
+}
+
+.date-picker div:hover {
+  background-color: #444;
+}
+
+/* 1위 유저 스타일 */
+.first-place {
+  background: linear-gradient(
+    135deg,
+    #00ff88 0%,
+    #00cc6a 25%,
+    #00aa55 50%,
+    #008844 75%,
+    #006633 100%
+  );
+  border-radius: 15px;
+  margin-bottom: 20px;
+  padding: 20px;
+  box-shadow: 0 8px 25px rgba(0, 255, 136, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.first-place::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.first-place-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.first-place-profile {
+  flex-shrink: 0;
+}
+
+.first-place-info {
+  flex: 1;
+  margin-left: 15px;
+}
+
+.first-place-name {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.first-place-score {
+  font-size: 16px;
+  color: #e8f5e8;
+}
+
+.first-place-medal {
+  font-size: 40px;
+  flex-shrink: 0;
+}
+
+/* 랭킹 리스트 */
+.ranking-list {
+  background: rgba(42, 42, 42, 0.9);
+  backdrop-filter: blur(5px);
+  border-radius: 20px;
+  overflow-y: auto;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ranking-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.ranking-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.ranking-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.ranking-item {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #444;
+  transition: background-color 0.2s;
+}
+
+.ranking-item:last-child {
+  border-bottom: none;
+}
+
+.ranking-item:hover {
+  background-color: #333;
+}
+
+.ranking-item.top-three {
+  background-color: #333;
+}
+
+.rank-number {
+  width: 40px;
+  font-size: 25px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.user-profile {
+  margin: 0 15px;
+}
+
+.profile-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 25px;
+}
+
+.profile-image.large {
+  width: 50px;
+  height: 50px;
+  font-size: 30px;
+}
+
+.user-info {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.user-name {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.user-score {
+  font-size: 20px;
+  color: #4caf50;
+  font-weight: bold;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .ranking-wrapper {
+    flex-direction: column-reverse;
+    gap: 15px;
+    padding: 15px;
+  }
+
+  .ranking-container {
+    padding: 15px;
+    min-width: auto;
+    max-width: none;
+  }
+
+  .ranking-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+
+  .date-selector {
+    align-self: flex-end;
+  }
+
+  .first-place-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .first-place-info {
+    margin-left: 0;
+  }
+
+  .ranking-item {
+    padding: 12px 15px;
+  }
+
+  .profile-image {
+    width: 35px;
+    height: 35px;
+    font-size: 18px;
+  }
+
+  .profile-image.large {
+    width: 45px;
+    height: 45px;
+    font-size: 22px;
+  }
+}

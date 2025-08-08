@@ -25,6 +25,8 @@ repositories {
 
 dependencies {
 
+ // Spring Data Redis 의존성
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	// Spring Boot Core
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
@@ -45,17 +47,18 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 
 	// JWT (JJWT)
-	// 최신 안정 버전 0.12.6 사용
+	// 최신 안정 버전 0.12.6 사용	
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6' // JSON 파싱을 위해 Jackson 사용
-
+	
 	// WebSocket (필요하다면 유지)
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
 	// Development Tools
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-
+	//시크릿키(의존성)
+	 annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 	// Test Dependencies
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4'

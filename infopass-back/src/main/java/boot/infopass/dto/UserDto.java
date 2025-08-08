@@ -2,6 +2,7 @@ package boot.infopass.dto;
 
 import java.sql.Timestamp;
 
+
 import org.apache.ibatis.type.Alias;
 
 import lombok.Data;
@@ -21,17 +22,6 @@ public class UserDto {
 	private Integer level;
 	private Timestamp rank_updated_at;
 	private Timestamp created_at;
-	@Override
-	public String toString() {
-	    return "UserDto{" +
-	           "email='" + email + '\'' +
-	           ", password='" + (password != null ? "[PROTECTED]" : "null") + '\'' +
-	           ", name='" + name + '\'' +
-	           ", nickname='" + nickname + '\'' +
-	           ", phone='" + phone + '\'' +
-	           ", address='" + address + '\'' +
-	           '}';	
-	}
-	
-}
+	private Integer enabled;
 
+}

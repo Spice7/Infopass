@@ -3,7 +3,7 @@ import './OX_Quiz.css';
 import axios from 'axios';
 
 const MAX_LIFE = 3;
-const TIMER_DURATION = 10;
+const TIMER_DURATION = 1800;
 const walkImgs = Array.from({ length: 16 }, (_, i) => `/ox_image/walk${i + 1}.png`);
 
 const OX_SingleGame = () => {
@@ -23,7 +23,7 @@ const OX_SingleGame = () => {
   const [buttonDisabled, setButtonDisabled] = useState(false);
 
   // 사용자 정보
-  const [userid] = useState('hong@naver.com');
+  const [userid] = useState('');
   const [useridx, setuseridx] = useState(0);
   const [usernickname, setusernickname] = useState('');
 

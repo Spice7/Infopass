@@ -1,0 +1,242 @@
+import axios from 'axios';
+
+// API 설정
+const api = axios.create({
+    baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:9000",
+    timeout: 10000, // 10초 타임아웃
+    headers: {
+        'Content-Type': 'application/json',
+    }
+});
+
+// 요청 인터셉터 (로깅, 인증 토큰 추가 등)
+api.interceptors.request.use(
+    (config) => {
+        // 개발 환경에서만 로깅
+        if (import.meta.env.MODE === 'development') {
+            console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+// 응답 인터셉터 (에러 처리)
+api.interceptors.response.use(
+    (response) => {
+        return response;
+    },
+    (error) => {
+        // 에러 로깅
+        if (import.meta.env.MODE === 'development') {
+            console.error('API Error:', error);
+        }
+
+        // 네트워크 에러
+        if (!error.response) {
+            throw new Error('네트워크 연결을 확인해주세요.');
+        }
+
+        // HTTP 상태 코드별 에러 처리
+        switch (error.response.status) {
+            case 400:
+                throw new Error('잘못된 요청입니다.');
+            case 401:
+                throw new Error('인증이 필요합니다.');
+            case 403:
+                throw new Error('접근 권한이 없습니다.');
+            case 404:
+                throw new Error('요청한 데이터를 찾을 수 없습니다.');
+            case 500:
+                throw new Error('서버 오류가 발생했습니다.');
+            default:
+                throw new Error(`오류가 발생했습니다. (${error.response.status})`);
+        }
+    }
+);
+
+/**
+ * 단일 블록 문제 데이터 조회
+ * @param {number} questionId - 문제 ID
+ * @returns {Promise<Object>} 문제 데이터
+ */
+export async function getSingleQuestion(questionId) {
+    try {
+        if (!questionId || questionId <= 0) {
+            throw new Error('유효하지 않은 문제 ID입니다.');
+        }
+
+        const response = await api.get(`/block/data/${questionId}`);
+
+        // 응답 데이터 유효성 검사
+        if (!response.data) {
+            throw new Error('서버에서 빈 응답을 받았습니다.');
+        }
+
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching question ${questionId}:`, error);
+        throw error; // 상위 컴포넌트에서 처리하도록 에러 전파
+    }
+}
+
+/**
+ * 랜덤 블록 문제 데이터 조회
+ * @returns {Promise<Object>} 랜덤 문제 데이터
+ */
+export async function getRandomQuestion() {
+    try {
+        const response = await api.get('/block/random');
+
+        if (!response.data) {
+            throw new Error('서버에서 빈 응답을 받았습니다.');
+        }
+
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching random question:', error);
+        throw error;
+    }
+}
+
+/**
+ * 모든 블록 문제 목록 조회
+ * @param {Object} params - 쿼리 파라미터
+ * @param {number} params.page - 페이지 번호 (기본값: 1)
+ * @param {number} params.size - 페이지 크기 (기본값: 10)
+ * @param {string} params.difficulty - 난이도 필터
+ * @returns {Promise<Object>} 문제 목록과 페이징 정보
+ */
+export async function getQuestionList(params = {}) {
+    try {
+        const { page = 1, size = 10, difficulty } = params;
+        const queryParams = new URLSearchParams({
+            page: page.toString(),
+            size: size.toString(),
+            ...(difficulty && { difficulty })
+        });
+
+        const response = await api.get(`/block/questions?${queryParams}`);
+
+        if (!response.data) {
+            throw new Error('서버에서 빈 응답을 받았습니다.');
+        }
+
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching question list:', error);
+        throw error;
+    }
+}
+
+/**
+ * 사용자 답안 제출
+ * @param {number} questionId - 문제 ID
+ * @param {string} userAnswer - 사용자 답안 (XML 형태)
+ * @param {number} userId - 사용자 ID (선택적)
+ * @returns {Promise<Object>} 채점 결과
+ */
+export async function submitAnswer(questionId, userAnswer, userId = null) {
+    try {
+        if (!questionId || !userAnswer) {
+            throw new Error('문제 ID와 답안이 필요합니다.');
+        }
+
+        const requestData = {
+            questionId,
+            userAnswer,
+            ...(userId && { userId })
+        };
+
+        const response = await api.post('/block/submit', requestData);
+
+        if (!response.data) {
+            throw new Error('서버에서 빈 응답을 받았습니다.');
+        }
+
+        return response.data;
+    } catch (error) {
+        console.error('Error submitting answer:', error);
+        throw error;
+    }
+}
+
+/**
+ * 사용자 게임 기록 조회
+ * @param {number} userId - 사용자 ID
+ * @returns {Promise<Object>} 게임 기록
+ */
+export async function getUserGameRecord(userId) {
+    try {
+        if (!userId) {
+            throw new Error('사용자 ID가 필요합니다.');
+        }
+
+        const response = await api.get(`/block/records/${userId}`);
+
+        if (!response.data) {
+            throw new Error('서버에서 빈 응답을 받았습니다.');
+        }
+
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching user record ${userId}:`, error);
+        throw error;
+    }
+}
+
+/**
+ * Java 코드 실행 (서버에서 Java 코드를 실행하여 결과 반환)
+ * @param {string} javaCode - 실행할 Java 코드
+ * @returns {Promise<Object>} 실행 결과
+ */
+export async function executeJavaCode(javaCode) {
+    try {
+        if (!javaCode || javaCode.trim() === '') {
+            throw new Error('실행할 Java 코드가 필요합니다.');
+        }
+
+        const response = await api.post('/block/execute-java', {
+            code: javaCode
+        });
+
+        if (!response.data) {
+            throw new Error('서버에서 빈 응답을 받았습니다.');
+        }
+
+        return response.data;
+    } catch (error) {
+        console.error('Error executing Java code:', error);
+        throw error;
+    }
+}
+
+/**
+ * Java 코드 검증 (문법 검사 및 예외 처리 검증)
+ * @param {string} javaCode - 검증할 Java 코드
+ * @returns {Promise<Object>} 검증 결과
+ */
+export async function validateJavaCode(javaCode) {
+    try {
+        if (!javaCode || javaCode.trim() === '') {
+            throw new Error('검증할 Java 코드가 필요합니다.');
+        }
+
+        const response = await api.post('/block/validate-java', {
+            code: javaCode
+        });
+
+        if (!response.data) {
+            throw new Error('서버에서 빈 응답을 받았습니다.');
+        }
+
+        return response.data;
+    } catch (error) {
+        console.error('Error validating Java code:', error);
+        throw error;
+    }
+}
+
+export default api;

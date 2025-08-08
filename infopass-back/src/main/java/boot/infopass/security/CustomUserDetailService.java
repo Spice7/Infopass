@@ -8,26 +8,40 @@ import org.springframework.stereotype.Service;
 
 import boot.infopass.dto.UserDto;
 import boot.infopass.mapper.UserMapper;
+import lombok.extern.slf4j.Slf4j;
 
-
+@Slf4j
 @Service
 public class CustomUserDetailService implements UserDetailsService {
 
-	@Autowired
-	UserMapper userMapper;
-	
-	@Override
-	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-		// 이메일을 통해 실제 사용자 상세 정보를 조회합니다.
-		UserDto userData = userMapper.findByEmail(email);
+    @Autowired
+    private UserMapper userMapper;
 
-		if(userData != null) {
-			System.out.println(email + " 아이디가 DB에 존재함!!");
-			return new CustomUserDetail(userData);
-		} else {
-			System.out.println(email + " 아이디가 DB에 존재하지 않음!!");
-			throw new UsernameNotFoundException(email + "을(를) 찾을 수 없습니다.");
-		}
-	}
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        log.info(":::::::::: UserDetailServiceImpl ::::::::::");
+        log.info("- 사용자 정의 인증을 위해, 사용자 정보 조회");
+        log.info("- username : " + username);
 
+        UserDto userDto = null;
+        try {
+            // 👩‍💼 사용자 정보 및 권한 조회
+        	userDto = userMapper.login(username);
+        	log.info("DB에서 조회된 사용자 정보: {}", userDto);
+        } catch (Exception e) {
+            log.error("사용자 조회 중 오류 발생: {}", e.getMessage());
+            e.printStackTrace();
+        }
+        if( userDto == null ) {
+            log.error("사용자를 찾을 수 없습니다: {}", username);
+            throw new UsernameNotFoundException("사용자를 찾을 수 없습니다." + username);
+        }
+        
+        log.info("사용자 enabled 상태: {}", userDto.getEnabled());
+        log.info("사용자 usertype: {}", userDto.getUsertype());
+
+        // 🔐 CustomUser ➡ UserDetails
+        CustomUser customUser = new CustomUser(userDto);
+        return customUser;
+    }
 }
