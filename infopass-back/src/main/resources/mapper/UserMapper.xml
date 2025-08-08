@@ -2,8 +2,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="boot.infopass.mapper.UserMapper">
 
-    <select id="findUserByIds" resultType="boot.infopass.dto.RankedUserDto"> select id as userId,
-        nickname, profile_image as prifileImage, from user where id in <foreach item="id"
+    <select id="findUserByIds" resultType="boot.infopass.dto.RankedUserDto"> 
+        select u.id as userId,
+        u.nickname, u.profile_image as prifileImage, r.total_score as totalScore from user u  
+        join multiplayer_rank r ON u.id=r.user_id where u.id in
+         <foreach item="id"
             collection="list" open="(" separator="," close=")"> #{id} </foreach>
     </select>
 </mapper>
