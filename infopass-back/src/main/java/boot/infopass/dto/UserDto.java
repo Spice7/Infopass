@@ -1,3 +1,4 @@
+
 package boot.infopass.dto;
 
 import java.sql.Timestamp;
