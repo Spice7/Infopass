@@ -28,6 +28,7 @@ public class CustomUserDetailService implements UserDetailsService {
             // 👩‍💼 사용자 정보 및 권한 조회
         	userDto = userMapper.login(username);
         	log.info("DB에서 조회된 사용자 정보: {}", userDto);
+            System.out.println("DB에서 조회된 사용자 정보: " + userDto);
         } catch (Exception e) {
             log.error("사용자 조회 중 오류 발생: {}", e.getMessage());
             e.printStackTrace();

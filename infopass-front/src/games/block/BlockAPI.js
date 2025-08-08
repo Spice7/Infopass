@@ -239,4 +239,82 @@ export async function validateJavaCode(javaCode) {
     }
 }
 
+/**
+ * 여러 정답을 지원하는 문제 데이터 조회
+ * @param {number} questionId - 문제 ID
+ * @returns {Promise<Object>} 문제 데이터 (answer 필드가 배열 형태)
+ */
+export async function getSingleQuestionWithMultipleAnswers(questionId) {
+    try {
+        if (!questionId || questionId <= 0) {
+            throw new Error('유효하지 않은 문제 ID입니다.');
+        }
+
+        const response = await api.get(`/block/data/${questionId}/multiple-answers`);
+
+        // 응답 데이터 유효성 검사
+        if (!response.data) {
+            throw new Error('서버에서 빈 응답을 받았습니다.');
+        }
+
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching question ${questionId} with multiple answers:`, error);
+        throw error;
+    }
+}
+
+/**
+ * 여러 정답을 포함한 문제 생성/수정
+ * @param {Object} questionData - 문제 데이터
+ * @param {string} questionData.question - 문제 내용
+ * @param {string} questionData.question_blocks - 초기 블록 XML
+ * @param {Array<string>} questionData.answers - 정답 XML 배열
+ * @param {Array<string>} questionData.toolbox - 사용 가능한 블록 타입 배열
+ * @param {string} questionData.difficulty - 난이도
+ * @returns {Promise<Object>} 생성된 문제 데이터
+ */
+export async function createQuestionWithMultipleAnswers(questionData) {
+    try {
+        if (!questionData.question || !questionData.answers || !Array.isArray(questionData.answers)) {
+            throw new Error('문제 내용과 정답 배열이 필요합니다.');
+        }
+
+        const response = await api.post('/block/questions/multiple-answers', questionData);
+
+        if (!response.data) {
+            throw new Error('서버에서 빈 응답을 받았습니다.');
+        }
+
+        return response.data;
+    } catch (error) {
+        console.error('Error creating question with multiple answers:', error);
+        throw error;
+    }
+}
+
+/**
+ * 문제의 정답 목록 조회
+ * @param {number} questionId - 문제 ID
+ * @returns {Promise<Array>} 정답 XML 배열
+ */
+export async function getQuestionAnswers(questionId) {
+    try {
+        if (!questionId || questionId <= 0) {
+            throw new Error('유효하지 않은 문제 ID입니다.');
+        }
+
+        const response = await api.get(`/block/questions/${questionId}/answers`);
+
+        if (!response.data) {
+            throw new Error('서버에서 빈 응답을 받았습니다.');
+        }
+
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching answers for question ${questionId}:`, error);
+        throw error;
+    }
+}
+
 export default api;

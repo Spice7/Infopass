@@ -1,3 +1,4 @@
+// Sidebar.jsx
 import React from 'react';
 import { Box, List, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
 import { AccountCircle, NoteAlt, History, HelpOutline } from '@mui/icons-material';
@@ -23,7 +24,7 @@ const Sidebar = ({ selectedMenu, setSelectedMenu }) => {
         color: 'white',
         boxShadow: 3,
         borderRadius: '0 15px 15px 0',
-        height: '100vh',
+         height: '80vh', 
         boxSizing: 'border-box',
         width: 'auto',
         minWidth: 260,

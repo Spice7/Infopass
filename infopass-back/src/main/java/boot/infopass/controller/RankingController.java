@@ -1,5 +1,12 @@
 package boot.infopass.controller;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import boot.infopass.dto.RankedUserDto;
 import boot.infopass.service.RankingService;
 import boot.infopass.util.RedisUtil;

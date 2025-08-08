@@ -3,6 +3,7 @@ package boot.infopass.service;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import boot.infopass.dto.UserDto;
@@ -40,12 +41,7 @@ public class UserService implements UserServiceInter {
 		return userMapper.getUserData(id);
 	}
 
-	@Override
-	public void login(UserDto userDto, HttpServletRequest request) {
-		// JWT 인증 필터에서 인증을 처리하므로 여기서는 로그만 남김
-		System.out.println("로그인 시도: " + userDto.getEmail());
-		// 실제 인증은 JwtAuthenticationFilter에서 수행됨
-	}
+	
 
 	@Override
 	public boolean findById(String email) {
