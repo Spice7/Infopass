@@ -4,21 +4,21 @@
     <!-- UserDto 매핑-->
 
     <resultMap type="user" id="userMap">
-        <id property="id" column="id" />
+        <id property="id" column="id" jdbcType="INTEGER" />
         
-        <result property="id" column="id" />
-        <result property="password" column="password" />
-        <result property="name" column="name" />
-        <result property="nickname" column="nickname" />
-        <result property="email" column="email" />
-        <result property="phone" column="phone" />
-        <result property="address" column="address" />
-        <result property="usertype" column="usertype" />
-        <result property="enabled" column="enabled" />
-        <result property="exp" column="exp" />
-        <result property="level" column="level" />
-        <result property="rank_updated_at" column="rank_updated_at" />
-        <result property="created_at" column="created_at" />
+        <result property="id" column="id" jdbcType="INTEGER" />
+        <result property="password" column="password" jdbcType="VARCHAR" />
+        <result property="name" column="name" jdbcType="VARCHAR" />
+        <result property="nickname" column="nickname" jdbcType="VARCHAR" />
+        <result property="email" column="email" jdbcType="VARCHAR" />
+        <result property="phone" column="phone" jdbcType="VARCHAR" />
+        <result property="address" column="address" jdbcType="VARCHAR" />
+        <result property="usertype" column="usertype" jdbcType="VARCHAR" />
+        <result property="enabled" column="enabled" jdbcType="INTEGER" />
+        <result property="exp" column="exp" jdbcType="INTEGER" />
+        <result property="level" column="level" jdbcType="INTEGER" />
+        <result property="rank_updated_at" column="rank_updated_at" jdbcType="TIMESTAMP" />
+        <result property="created_at" column="created_at" jdbcType="TIMESTAMP" />
         
     </resultMap>
 	<insert id="insertUser" parameterType="user">
@@ -27,12 +27,29 @@
 	<!-- 회원조회 -->
 	<select id="getUserData" parameterType="Integer" resultType="user">
 		select * from user where id=#{id}
-	</select>	
-	<!-- 회원조회-아이디 -->
-	<select id="login" parameterType="user" resultMap="userMap">
-		select * from user where email=#{email}
 	</select>
-	<select id="findById" parameterType="String" resultType="boolean">
+	<!-- 회원조회-아이디 -->
+	<select id="login" parameterType="String" resultMap="userMap">
+		select
+		    id,
+		    password,
+		    name,
+		    nickname,
+		    email,
+		    phone,
+		    address,
+		    usertype,
+		    enabled,
+		    exp,
+		    level,
+		    rank_updated_at,
+		    created_at
+		from
+		    user
+		where
+		    email = #{email}
+	</select>
+	<select id="findById" parameterType="user" resultType="boolean">
 		select count(*) from user where email=#{email}
 	</select>
 	

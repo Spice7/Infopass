@@ -16,6 +16,6 @@ public class AdminController {
 	@GetMapping("/access-denied")
 	public String accessError()
 	{
-		return "access-denied";
+		return "access-denied"; 
 	}
 }

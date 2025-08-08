@@ -54,12 +54,12 @@ public class UserController {
         // 인증 되지 않음
         return new ResponseEntity<>("UNAUTHORIZED", HttpStatus.UNAUTHORIZED);
     }
-    
-    @PostMapping("/finduser")
-    public UserDto FindeUser(@RequestBody Map<String, String> request) {
-        String email = request.get("email");
-        return userService.Finduser(email);
-    }
+//    
+//    @PostMapping("/finduser")
+//    public UserDto FindeUser(@RequestBody Map<String, String> request) {
+//        String idx = request.get();
+//        return userService.getUserData(idx);
+//    }
 	
 	// 회원가입
 	@PostMapping("/join")

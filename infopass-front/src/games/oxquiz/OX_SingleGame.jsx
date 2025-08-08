@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import './OX_Quiz.css';
 import axios from 'axios';
+import { LoginContext } from '../../user/LoginContextProvider';
 
 const MAX_LIFE = 3;
 const TIMER_DURATION = 1800;
@@ -23,9 +24,10 @@ const OX_SingleGame = () => {
   const [buttonDisabled, setButtonDisabled] = useState(false);
 
   // 사용자 정보
-  const [userid] = useState('');
-  const [useridx, setuseridx] = useState(0);
-  const [usernickname, setusernickname] = useState('');
+  const {userinfo} = useContext(LoginContext);
+  console.log("OX_SingleGame userinfo:", userinfo); 
+  const [useridx, setuseridx] = useState(userinfo.id);
+  const [usernickname, setusernickname] = useState(userinfo.nickname);
 
   // 캐릭터 선택
   const [selectedChar, setSelectedChar] = useState(null);
@@ -150,7 +152,7 @@ const OX_SingleGame = () => {
   // useEffect: 사용자 정보 가져오기
   // =========================
   useEffect(() => {
-    axios.post(finduserurl, { email: userid })
+    axios.post(finduserurl, { idx: useridx })
       .then((res) => {
         setusernickname(res.data.nickname);
         setuseridx(res.data.id);
@@ -158,7 +160,7 @@ const OX_SingleGame = () => {
       .catch((error) => {
         console.error("사용자 정보 에러:", error);
       });
-  }, [userid]);
+  }, [useridx]);
 
   // =========================
   // 하트 렌더링 함수

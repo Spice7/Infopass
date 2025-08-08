@@ -1,33 +1,31 @@
 package boot.infopass.controller;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import boot.infopass.dto.RankedUserDto;
 import boot.infopass.service.RankingService;
-
-import org.springframework.web.bind.annotation.*;
-
 import lombok.RequiredArgsConstructor;
-import java.util.List;
-import org.springframework.web.bind.annotation.GetMapping;
 
 
-@RestController
-@RequestMapping("/api/rank")
+
+@RestController 
+@RequestMapping("/rank")
 @RequiredArgsConstructor
 
 public class RankingController {
-    private final RankingService rankingService;
+   private final RankingService rankingService;
 
-    @GetMapping("/realtime")
-    public List<RankedUserDto> getRealtimeRanking(){
-        return rankingService.getTopRank("rank:realtime",30);
+   @GetMapping()
+    public List<RankedUserDto> getRanking(@RequestParam String type){
+        return rankingService.getRank(type);
     }
+   
 
-    @GetMapping("/weekly")
-    public List<RankedUserDto> getWeeklyRanking(){
-        String weekKey=rankingService.getCurrentWeekKey();
-        return rankingService.getTopRank("rank:weekly:"+weekKey,30);
-    }
+
 
 }
