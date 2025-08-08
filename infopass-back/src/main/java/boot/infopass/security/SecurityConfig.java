@@ -23,51 +23,40 @@ public class SecurityConfig implements WebMvcConfigurer {
 	
 	
 	
-   @Bean
-   public SecurityFilterChain filterChain(HttpSecurity http,
-   		CustomLoginSuccessHandler loginSuccessHandler,
-   		CustomLogoutHandler logoutHandler) throws Exception {
-	   http
-	   		
-			.authorizeHttpRequests((auth) -> auth
-					.requestMatchers("/", "/login","/user/**").permitAll()
-					.requestMatchers("/admin").hasRole("ADMIN")
-					.requestMatchers("/**").hasAnyRole("ADMIN", "USER")
-					.anyRequest().authenticated()
-					)
-			//admin --> login
-		   .formLogin((auth)->auth.loginPage("/login")
-				   .loginProcessingUrl("/loginProc")
-				   //.defaultSuccessUrl("/my/mypage") //자동으로 이동
-				   .successHandler(loginSuccessHandler)
-				   .permitAll()
-				   )
-		   .logout(logout -> logout
-				   .logoutUrl("/logout")
-				   .logoutSuccessUrl("/")
-				   .addLogoutHandler(logoutHandler)
-				   )
-		
-		   //다중로그인허용
-		   .sessionManagement((session)->session //중복로그인 설정
-				   .maximumSessions(3) //최대3개까지 허용
-				   .maxSessionsPreventsLogin(true)
-				   )
-		   //접근불가 페이지 오류띄우기
-		   .exceptionHandling((ex) -> ex
-				   .accessDeniedPage("/access-denied")
-				   )
-		   //csrf 공격에 대한 옵션 꺼두기
-		   .csrf((csrf) -> csrf.disable()); //csrf 비활성화
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http,
+	        CustomLoginSuccessHandler loginSuccessHandler,
+	        CustomLogoutHandler logoutHandler) throws Exception {
 
-		return http.build();
+	    http
+	        .cors(cors -> {}) // CORS 활성화
+	        .authorizeHttpRequests(auth -> auth
+	            .requestMatchers("/", "/login", "/user/**", "/oxquiz/**", "/ws/**", "/ws*").permitAll()
+	            .requestMatchers("/admin").hasRole("ADMIN")
+	            .anyRequest().hasAnyRole("ADMIN", "USER")
+	        )
+	        .formLogin(auth -> auth
+	            .loginPage("/login")
+	            .loginProcessingUrl("/loginProc")
+	            .successHandler(loginSuccessHandler)
+	            .permitAll()
+	        )
+	        .logout(logout -> logout
+	            .logoutUrl("/logout")
+	            .logoutSuccessUrl("/")
+	            .addLogoutHandler(logoutHandler)
+	        )
+	        .csrf(csrf -> csrf.disable());
+
+	    return http.build();
 	}
+
    
 // 🔧 CORS 설정을 따로 명시하는 Bean
    @Override
    public void addCorsMappings(CorsRegistry registry) {
        registry.addMapping("/**") // 모든 경로에 대해
-               .allowedOrigins("http://localhost:5174") // 허용할 origin
+               .allowedOrigins("http://localhost:5173") // 허용할 origin
                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 허용할 HTTP 메서드
                .allowedHeaders("*") // 모든 헤더 허용
                .allowCredentials(true) // 자격 증명(쿠키, 인증 헤더) 허용 여부

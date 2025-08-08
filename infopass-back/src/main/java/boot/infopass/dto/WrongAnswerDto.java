@@ -9,14 +9,15 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 @Data
-@Alias("oxquiz")
-public class OXQuizDto {
-
+@Alias("wrong")
+public class WrongAnswerDto {
+	
 	private Integer id;
-	private String question;
-	private Integer answer;
-	private String category;
+	private Integer userId;
+	private String gameType;
+	private Integer questionId;
+	private String submittedAnswer;
 	
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-	private Timestamp created_at;
+	private Timestamp createdAt;
 }

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="boot.infopass.mapper.WrongAnswerMapper">
+	<insert id="insertWrongAnswer" parameterType="wrong">
+		insert into wronganswer_log (user_id, game_type , question_id, submitted_answer, created_at) values (#{userId},'oxquiz', #{questionId}, #{submittedAnswer}, now())
+	</insert>
+</mapper>

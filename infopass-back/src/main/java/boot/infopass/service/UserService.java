@@ -54,6 +54,10 @@ public class UserService {
             return false; // 등록 실패
         }
     }
+    
+    public UserDto Finduser(String email) {
+    	return userMapper.findByEmail(email);
+    }
    
 	
 }

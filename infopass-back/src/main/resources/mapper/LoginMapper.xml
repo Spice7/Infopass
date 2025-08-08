@@ -3,12 +3,12 @@
 <mapper namespace="boot.infopass.mapper.UserMapper">
 	    <!-- 사용자 상세 정보 조회 (UserDto 반환) -->
     <select id="findByEmail" parameterType="String" resultType="user">
-        SELECT * FROM User WHERE email = #{email}
+        SELECT * FROM user WHERE email = #{email}
     </select>
 	<select id="existsByEmail" parameterType="String" resultType="boolean">
-		select count(*) from User where email=#{email}
+		select count(*) from user where email=#{email}
 	</select>	
 	<insert id="insertUser" parameterType="user">
-		insert into User(password, name, nickname, email, phone, address, rank_updated_at, created_at) values(#{password}, #{name}, #{nickname}, #{email}, #{phone}, #{address}, now(), now())
+		insert into user(password, name, nickname, email, phone, address, rank_updated_at, created_at) values(#{password}, #{name}, #{nickname}, #{email}, #{phone}, #{address}, now(), now())
 	</insert>
 </mapper>

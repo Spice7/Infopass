@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './OX_Quiz.css';
 import axios from 'axios';
 
-// ========================================
-// 🎮 OX 퀴즈 게임 - 싱글플레이 모드
-// ========================================
-
 const MAX_LIFE = 3;
-const TIMER_DURATION = 300;
+const TIMER_DURATION = 10;
 const walkImgs = Array.from({ length: 16 }, (_, i) => `/ox_image/walk${i + 1}.png`);
 
 const OX_SingleGame = () => {
-  // 게임 상태
+  // =========================
+  // 상태 변수 선언
+  // 추가로 해야할일
+  // - 로그인 시 사용자 정보 가져오기
+  // - 게임 종료시 경험치 시스템
+  // =========================
   const [myOX, setMyOX] = useState(null);
   const [myScore, setMyScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(TIMER_DURATION);
@@ -21,9 +22,31 @@ const OX_SingleGame = () => {
   const [currentindex, setcurrentindex] = useState(0);
   const [buttonDisabled, setButtonDisabled] = useState(false);
 
+  // 사용자 정보
+  const [userid] = useState('hong@naver.com');
+  const [useridx, setuseridx] = useState(0);
+  const [usernickname, setusernickname] = useState('');
+
   // 캐릭터 선택
   const [selectedChar, setSelectedChar] = useState(null);
   const [showCharSelect, setShowCharSelect] = useState(false);
+
+  // 게임 소개 슬라이드 상태 및 데이터
+  const [slideIndex, setSlideIndex] = useState(0);
+  const slides = [
+    {
+      img: "/ox_image/guide1.png", // slide1: 제한 시간
+      desc: "제한 시간안에 O/X를 선택하여 문제를 푸세요!!"
+    },
+    {
+      img: "/ox_image/guide2.png", // slide2: 외계인 공격
+      desc: "문제를 틀리면 외계인이 나타나 공격 하니 주의하세요!!"
+    },
+    {
+      img: "/ox_image/guide3.png", // slide3: 목숨 0개
+      desc: "목숨이 0개가 되면 게임이 종료되니 신중히 푸세요!!"
+    }
+  ];
 
   // 애니메이션 상태
   const [showMonster, setShowMonster] = useState(false);
@@ -41,15 +64,21 @@ const OX_SingleGame = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [showQuiz, setShowQuiz] = useState(false);
 
-  let quizurl = 'http://localhost:9000/oxquiz/quizlist';
-  
-// 게임 오버 모달 상태
-const [showGameOverModal, setShowGameOverModal] = useState(false);
-const [gameOverType, setGameOverType] = useState(null); // 'dead' | 'clear'
+  // 게임 종료 ref
+  const gameEndedRef = useRef(false);
 
+  // =========================
+  // API URL
+  // =========================
+  const quizurl = 'http://localhost:9000/oxquiz/quizlist';
+  const finduserurl = 'http://localhost:9000/user/finduser';
+  const usersubmiturl = 'http://localhost:9000/oxquiz/submitOXquiz';
+  const wronganswerurl = 'http://localhost:9000/oxquiz/wronganswer';
+  const userstatusurl = 'http://localhost:9000/oxquiz/InsertUserStatus';
 
-
-  // 로딩 애니메이션
+  // =========================
+  // useEffect: 로딩 애니메이션
+  // =========================
   useEffect(() => {
     if (!loading) return;
     const walkTimer = setInterval(() => {
@@ -58,7 +87,9 @@ const [gameOverType, setGameOverType] = useState(null); // 'dead' | 'clear'
     return () => clearInterval(walkTimer);
   }, [loading]);
 
-  // 1.5초 로딩 후 캐릭터 선택창 띄우기
+  // =========================
+  // useEffect: 캐릭터 선택창 띄우기
+  // =========================
   useEffect(() => {
     if (!loading) return;
     const timer = setTimeout(() => {
@@ -68,7 +99,9 @@ const [gameOverType, setGameOverType] = useState(null); // 'dead' | 'clear'
     return () => clearTimeout(timer);
   }, [loading]);
 
-  // 캐릭터 선택 후 3-2-1 카운트다운
+  // =========================
+  // 캐릭터 선택 후 카운트다운
+  // =========================
   const handleCharSelect = (num) => {
     setSelectedChar(num);
     setShowCharSelect(false);
@@ -88,27 +121,48 @@ const [gameOverType, setGameOverType] = useState(null); // 'dead' | 'clear'
     }, 1000);
   };
 
-  // 타이머 작동
+  // =========================
+  // useEffect: 타이머 작동
+  // =========================
   useEffect(() => {
-    if (timeLeft <= 0 || !gameStarted) return;
+    if (!gameStarted) return;
     const timer = setInterval(() => {
-      setTimeLeft((prev) => (prev > 0 ? +(prev - 0.1).toFixed(1) : 0));
+      setTimeLeft((prev) => (prev > 0 ? +(prev - 0.1).toFixed(1) : 0.0));
     }, 100);
     return () => clearInterval(timer);
-  }, [timeLeft, gameStarted]);
+  }, [gameStarted]);
 
-  // 퀴즈 데이터 가져오기
+  // =========================
+  // useEffect: 퀴즈 데이터 가져오기
+  // =========================
   useEffect(() => {
     axios.get(quizurl)
       .then((res) => {
         setquizlist(res.data);
+        console.log("퀴즈 데이터 로드 성공:", res.data);
       })
       .catch((error) => {
         console.error("Error fetching quiz data:", error);
       });
   }, [gameStarted]);
 
-  // 하트 렌더링
+  // =========================
+  // useEffect: 사용자 정보 가져오기
+  // =========================
+  useEffect(() => {
+    axios.post(finduserurl, { email: userid })
+      .then((res) => {
+        setusernickname(res.data.nickname);
+        setuseridx(res.data.id);
+      })
+      .catch((error) => {
+        console.error("사용자 정보 에러:", error);
+      });
+  }, [userid]);
+
+  // =========================
+  // 하트 렌더링 함수
+  // =========================
   const renderHearts = (life) =>
     Array.from({ length: MAX_LIFE }).map((_, idx) => (
       <span key={idx} className="ox-heart">
@@ -116,37 +170,57 @@ const [gameOverType, setGameOverType] = useState(null); // 'dead' | 'clear'
       </span>
     ));
 
-  // 게임 종료 처리
+  // =========================
+  // 게임 종료 처리 (중복 방지)
+  // =========================
   const handleGameEnd = () => {
-    setGameStarted(false);
-  };
+  if (gameEndedRef.current) return;
+  // 점수가 3점 미만일 때 경고 메시지
+  if (myScore < 3 ) {
+    alert("점수가 너무 낮습니다. 다시 시도해주세요.");
+  }else{
+  alert(`게임 종료! 최종 점수: ${myScore}`);
+  }
+  gameEndedRef.current = true;
+  setGameStarted(false);
+  axios.post(userstatusurl, { user_id: useridx, user_score: myScore, remain_time: timeLeft })
+    .then(() => { console.log("사용자 상태 저장 성공") });
+};
 
+  // =========================
+  // useEffect: 게임 종료 조건 감지
+  // =========================
   useEffect(() => {
-    if (myLife === 0 && gameStarted) {
+    if (gameEndedRef.current) return;
+    const allSolved = currentindex === quizlist.length - 1 && resultMsg === "정답입니다!";
+    const noLife = myLife === 0;
+    const noTime = timeLeft <= 0;
+    if (gameStarted && (allSolved || noLife || noTime)) {
       setTimeout(() => {
-        handleGameEnd(myScore);
-      }, 500); // 연출 후 바로 게임 오버, 필요시 딜레이 조정
+        handleGameEnd();
+      }, 500);
     }
-  }, [myLife, gameStarted]);
+  }, [currentindex, resultMsg, myLife, timeLeft, gameStarted, quizlist.length]);
 
+  // =========================
   // OX 버튼 클릭 처리
+  // =========================
   const handleOXClick = (ox) => {
     if (buttonDisabled) return;
     setButtonDisabled(true);
     setMyOX(ox);
     const isCorrect = (ox === 'O' && quizlist[currentindex]?.answer === 1) ||
-                      (ox === 'X' && quizlist[currentindex]?.answer === 0);
+      (ox === 'X' && quizlist[currentindex]?.answer === 0);
+
+    axios.post(usersubmiturl, {
+      user_id: useridx, quiz_id: quizlist[currentindex]?.id,
+      submitted_answer: ox, is_correct: isCorrect
+    });
 
     if (isCorrect) {
       setResultMsg("정답입니다!");
       if (currentindex === quizlist.length - 1) {
-        setMyScore(prev => {
-          const finalScore = prev + 1;
-          setTimeout(() => {
-            handleGameEnd(finalScore);
-          }, 700);
-          return finalScore;
-        });
+        setMyScore(prev => prev + 1);
       } else {
         setMyScore(prev => prev + 1);
         setTimeout(() => {
@@ -158,6 +232,10 @@ const [gameOverType, setGameOverType] = useState(null); // 'dead' | 'clear'
       }
     } else {
       setResultMsg("오답입니다!");
+      axios.post(wronganswerurl,{user_id:useridx,game_type:"oxquiz",
+        question_id:quizlist[currentindex]?.id,submitted_answer:ox}).then(()=>{
+        console.log("오답 기록 저장 성공");
+      })
       setShowMonster(true);
       setTimeout(() => setShowLaser(true), 800);
       setTimeout(() => {
@@ -181,17 +259,16 @@ const [gameOverType, setGameOverType] = useState(null); // 'dead' | 'clear'
         setButtonDisabled(false);
         setMyOX(null);
         setResultMsg("");
-        if (currentindex === quizlist.length - 1) {
-          setTimeout(() => {
-            handleGameEnd(myScore);
-          }, 100);
-        } else {
+        if (currentindex !== quizlist.length - 1) {
           setcurrentindex(currentindex + 1);
-          setMyOX(null);
         }
       }, 2000);
     }
   };
+
+  // =========================
+  // 화면 렌더링
+  // =========================
 
   // 로딩 화면
   if (loading) {
@@ -208,59 +285,100 @@ const [gameOverType, setGameOverType] = useState(null); // 'dead' | 'clear'
     return (
       <div className="ox-charselect-bg">
         <div className="ox-charselect-box">
+          {/* 게임 소개 슬라이드 */}
+          <div className="ox-slide-wrap">
+            <div className="ox-slide-imgrow">
+              <button
+                onClick={() => setSlideIndex((prev) => Math.max(prev - 1, 0))}
+                disabled={slideIndex === 0}
+                className="ox-slide-arrow-btn left"
+                aria-label="이전"
+              >
+                <span className="ox-slide-arrow">&#9664;</span> {/* ◀ */}
+              </button>
+              <img
+                src={slides[slideIndex].img}
+                alt={`slide${slideIndex + 1}`}
+                className="ox-slide-img-large"
+              />
+              <button
+                onClick={() => setSlideIndex((prev) => Math.min(prev + 1, slides.length - 1))}
+                disabled={slideIndex === slides.length - 1}
+                className="ox-slide-arrow-btn right"
+                aria-label="다음"
+              >
+                <span className="ox-slide-arrow">&#9654;</span> {/* ▶ */}
+              </button>
+            </div>
+            <div className="ox-slide-desc oneline">
+              {slides[slideIndex].desc}
+            </div>
+            <div className="ox-slide-indicator">
+              {slides.map((_, idx) => (
+                <span
+                  key={idx}
+                  className={`ox-slide-dot${slideIndex === idx ? ' active' : ''}`}
+                />
+              ))}
+            </div>
+          </div>
+          {/* 캐릭터 선택 */}
           <h2>캐릭터를 선택하세요!</h2>
           <div className="ox-charselect-list">
-            {[1, 2, 3, 4, 5].map(num => (
-              <button
-                key={num}
-                className={`ox-charselect-btn${selectedChar === num ? ' selected' : ''}`}
-                onClick={() => handleCharSelect(num)}
-                value={num}
-              >
-                <img src={`/ox_image/char${num}.png`} alt={`캐릭터${num}`} style={{ width: 80, height: 80 }} />
-              </button>
-            ))}
+            {[1, 2, 3, 4, 5].map(num => {
+              let colorClass = '';
+              if (num === 1) colorClass = 'char-basic';
+              else if (num === 2) colorClass = 'char-blue';
+              else if (num === 3) colorClass = 'char-green';
+              else if (num === 4) colorClass = 'char-pink';
+              else if (num === 5) colorClass = 'char-yellow';
+              return (
+                <button
+                  key={num}
+                  className={`ox-charselect-btn ${colorClass}${selectedChar === num ? ' selected' : ''}`}
+                  onClick={() => handleCharSelect(num)}
+                  value={num}
+                >
+                  <img src={`/ox_image/char${num}.png`} alt={`캐릭터${num}`} style={{ width: 80, height: 80 }} />
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
     );
   }
 
-  //게임 종료 화면
+  // 게임 종료 화면
   if (!gameStarted) {
-    if(myLife <= 0) {
-      return (
-        <div className="ox-gameover">
-          <h2>GAME OVER</h2>
-          <p>최종 점수: {myScore}</p>
-          <button onClick={() => {
-            setMyScore(0);
-            setMyLife(MAX_LIFE);
-            setcurrentindex(0);
-            setShowQuiz(false);
-            setShowCharSelect(true); // 캐릭터 선택 다시 보여주기
-            setSelectedChar(null);   // 선택 캐릭터 초기화
-            setTimeLeft(TIMER_DURATION); // 타이머 초기화
-          }}>다시 시작</button>
-        </div>
-      );
-    }else{
-      return (
-        <div className="ox-gameover">
-          <h2>CLEAR!</h2>
-          <p>최종 점수: {myScore}</p>
-          <button onClick={() => {
-            setMyScore(0);
-            setMyLife(MAX_LIFE);
-            setcurrentindex(0);
-            setShowQuiz(false);
-            setShowCharSelect(true); // 캐릭터 선택 다시 보여주기
-            setSelectedChar(null);   // 선택 캐릭터 초기화
-            setTimeLeft(TIMER_DURATION); // 타이머 초기화
-          }}>다시 시작</button>
-        </div>
-      );
-    }
+    return (
+      <div className="ox-gameover">
+        <h2>{myLife <= 0 ? 'GAME OVER' : 'CLEAR!'}</h2>
+        <p>최종 점수: {myScore}</p>
+        <button onClick={() => {
+          setMyScore(0);
+          setMyLife(MAX_LIFE);
+          setcurrentindex(0);
+          setShowCharSelect(true);
+          setSelectedChar(null);
+          setTimeLeft(TIMER_DURATION);
+          setShowQuiz(false);      // 퀴즈 화면 초기화
+          setCountdown(null);      // 카운트다운 초기화
+          setButtonDisabled(false);// 버튼 활성화
+          setResultMsg("");        // 결과 메시지 초기화
+          setMyOX(null);           // 선택 초기화
+          setShowMonster(false);
+          setShowLaser(false);
+          setShowBoom(false);
+          setIsShaking(false);
+          setMonsterFade(false);
+          setLaserFade(false);
+          setBoomFade(false);
+          gameEndedRef.current = false;
+          setGameStarted(false);   // 캐릭터 선택부터 다시 시작
+        }}>다시 시작</button>
+      </div>
+    );
   }
 
   // 게임 화면
@@ -458,7 +576,7 @@ const [gameOverType, setGameOverType] = useState(null); // 'dead' | 'clear'
                 </>
               )}
             </div>
-            <div className="ox-nick">플레이어1</div>
+            <div className="ox-nick">{usernickname}</div>
             <div className="ox-scoreboard ox-scoreboard-single">{myScore}</div>
             <div className="ox-lifewrap">
               {renderHearts(myLife)}

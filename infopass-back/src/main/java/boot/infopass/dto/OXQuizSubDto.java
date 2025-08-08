@@ -12,11 +12,11 @@ import lombok.Data;
 @Alias("oxsub")
 public class OXQuizSubDto {
 
-	private int id;
-	private int user_id;
-	private int question_id;
+	private Integer id;
+	private Integer user_id;
+	private Integer question_id;
 	private String submitted_answer;
-	private int is_correct;
+	private Integer is_correct;
 	
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm")
 	private Timestamp created_at;
