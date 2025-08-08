@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Cookies from 'js-cookie'
-import api from './api'
 import * as auth from './auth'
 import * as Swal from './alert'
 import { createContext } from 'react'
@@ -30,32 +29,36 @@ const LoginContextProvider = ({ children }) => {
   // 🍪➡💍 로그인 체크
   const loginCheck = async () => {
     const accessToken = Cookies.get("accessToken");
+    console.log(`accessToken: ${accessToken}`);
 
-    if (!accessToken) {
+    
+    if (!isLogin && !accessToken) {
       logoutSetting();
       return;
     }
-
-    try {
-      const response = await auth.info();
-      const data = response.data;
-      loginSetting(data, accessToken);
-
-    } catch (error) {
-      if (error.response && error.response.status === 401) {
-        // accessToek(jwt) 이 만료되었거나 인증에 실패하였습니다.
-        console.error("인증 실패: accessToken이 만료되었거나 유효하지 않습니다.");
-      } else {
-        // 사용자 정보 요청 중 알 수 없는 에러 발생
-        console.error("사용자 정보 요청 중 에러 발생:", error);
-      }
-      logoutSetting(); // 인증 실패 시 로그아웃 처리
-      return;
-    }
+    
+      try {
+            const response = await auth.info();
+            const data = response.data;
+            console.log(`로그인 체크 응답 데이터:`, data);
+            loginSetting(data, accessToken);
+            
+          } catch (error) {
+            if (error.response && error.response.status === 401) {
+              // accessToek(jwt) 이 만료되었거나 인증에 실패하였습니다.
+              console.error("인증 실패: accessToken이 만료되었거나 유효하지 않습니다.");
+            } else {
+              // 사용자 정보 요청 중 알 수 없는 에러 발생
+              console.error("사용자 정보 요청 중 에러 발생:", error);
+            }
+            logoutSetting(); // 인증 실패 시 로그아웃 처리
+            return;
+          }
+     
   };
 
   // 🔐 로그인
-  const login = async (username, password) => {
+  const login = async (username, password, location) => {
     try {
       const loginData = {
         email: username,  // username을 email 필드로 매핑
@@ -68,9 +71,11 @@ const LoginContextProvider = ({ children }) => {
       const authorization = headers.authorization;
       const accessToken = authorization.replace("Bearer ", "");
 
-        console.log(`로그인 응답 데이터:`, data);
+        console.log(`로그인 응답 데이터:`, data.email);
         console.log(`로그인 응답 상태:`, status);
         console.log(`로그인 응답 헤더:`, headers);
+        console.log(`로그인 응답 accessToken:`, accessToken);
+
         
       // 로그인 성공 시 accessToken을 쿠키에 저장하고 상태 업데이트
       if (status === 200) {
@@ -78,7 +83,7 @@ const LoginContextProvider = ({ children }) => {
         loginSetting(data, accessToken);
 
         Swal.alert("로그인 성공", "메인 화면으로 이동합니다", "success",
-          () => { navigate("/"); }
+          () => { navigate(location.state?.from || "/"); }
         );
       }
 
@@ -88,17 +93,19 @@ const LoginContextProvider = ({ children }) => {
   };
 
   // 🔐 로그인 세팅
-  const loginSetting = (userData, accessToken) => {
-    const { id, email, usertype, nickname } = userData;
-    //console.log(`로그인 세팅:`, userData);
-    console.log(`accessToken:`, accessToken);
-    
+  const loginSetting = async (userData, accessToken) => {
+
+    const response = await auth.info();
+            const data = response.data;
+            console.log(`로그인 세팅:`, data);
+            console.log(`accessToken:`, accessToken);
+
+    setUserInfo(data);
+
     setLogin(true);
-    const updatedUserInfo = { id, email, usertype, nickname };
-    setUserInfo(updatedUserInfo);
 
     const updatedRoles = { isUser: false, isAdmin: false };
-    const rolesArray = Array.isArray(usertype) ? usertype : [usertype];
+    const rolesArray = Array.isArray(data.usertype) ? data.usertype : [data.usertype];
     rolesArray.forEach((role) => {
         //console.log("loginSetting - processing role:", role); 
       if (role === 'USER') updatedRoles.isUser = true;

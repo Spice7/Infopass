@@ -53,6 +53,9 @@
 	<select id="findById" parameterType="user" resultType="boolean">
 		select count(*) from user where email=#{email}
 	</select>
+	<select id="findByNickName" parameterType="user" resultType="boolean">
+		select count(*) from user where nickname=#{nickname}
+	</select>
 	
 	
 </mapper>

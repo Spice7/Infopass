@@ -27,8 +27,8 @@ api.interceptors.response.use(
         return response;
     },
     (error) => {
-        if (error.response && error.response.status === 401) {
-            // 401 에러 발생 시 로그아웃 처리
+        if (error.response && error.response.status === 401 ) {
+            // 401 에러 발생 시 로그아웃 처리            
             triggerLogout();
         }
         return Promise.reject(error);

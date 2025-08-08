@@ -3,12 +3,11 @@ package boot.infopass.service;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import boot.infopass.dto.UserDto;
 import boot.infopass.mapper.UserMapper;
-import jakarta.servlet.http.HttpServletRequest;
+
 
 @Service
 public class UserService implements UserServiceInter {
@@ -39,15 +38,19 @@ public class UserService implements UserServiceInter {
 	public UserDto getUserData(Integer id) {
 
 		return userMapper.getUserData(id);
-	}
-
+	}	
 	
-
 	@Override
 	public boolean findById(String email) {
 		// TODO Auto-generated method stub
 		
 		return userMapper.findById(email);
+	}
+
+	@Override
+	public boolean findByNickName(String nickname) {
+		// TODO Auto-generated method stub
+		return userMapper.findByNickName(nickname);
 	}
 
 }
