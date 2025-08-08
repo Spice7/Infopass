@@ -30,6 +30,11 @@ const MyInfo = () => {
       });
   }, []);
 
+  // **UserProfileCard에서 프로필 수정 후 변경된 데이터를 받는 함수**
+  const handleUserUpdate = (updatedUser) => {
+    setUser(updatedUser);
+  };
+
   if (loading) {
     return (
       <Box sx={{ width: '100%', textAlign: 'center', mt: 10 }}>
@@ -64,7 +69,8 @@ const MyInfo = () => {
         py: 6,
       }}
     >
-      <UserProfileCard user={user} />
+      {/* 수정된 onUpdate 콜백 전달! */}
+      <UserProfileCard user={user} onUpdate={handleUserUpdate} />
       <UserStatsSection user={user} />
     </Box>
   );

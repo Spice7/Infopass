@@ -9,4 +9,7 @@ public interface UserServiceInter {
 	public UserDto getUserData(Integer id);
 	
 	public boolean findById(String email);
+	
+	
+	public UserDto updateUser(Long id, UserDto updatedUserDto);
 }
