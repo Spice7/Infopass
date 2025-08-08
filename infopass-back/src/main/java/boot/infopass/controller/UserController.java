@@ -10,11 +10,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import boot.infopass.dto.UserDto;
 import boot.infopass.security.CustomUser;
+import boot.infopass.dto.UserDto;
 import boot.infopass.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 @Slf4j
@@ -30,13 +29,13 @@ public class UserController {
 	
 	
 	@PostMapping("/checkId")
-	public boolean findById(@RequestParam("email") String email) {
-		
+	public boolean findById(@RequestBody UserDto userDto) {
+		String email = userDto.getEmail();
 		return userService.findById(email);
 	}
 	
 	//사용자 정보 조회
-    @GetMapping("/info")
+    @PostMapping("/info")
     public ResponseEntity<?> userInfo(@AuthenticationPrincipal CustomUser customUser) {
         
         log.info("::::: customUser :::::");
@@ -68,7 +67,7 @@ public class UserController {
         } 
 	}
 	
-	// 로그인 메서드는 LoginController로 이동됨
+	
 	
 	
 	
