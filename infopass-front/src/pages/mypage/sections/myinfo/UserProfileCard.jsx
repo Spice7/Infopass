@@ -22,6 +22,18 @@ const primaryColor = '#4a90e2';
 const gradientColor = 'linear-gradient(135deg, #4a90e2 0%, #81d4fa 100%)';
 const cardBgColor = '#ffffff';
 
+// 출력용 전화번호 포맷 함수 (선택 사항)
+const formatPhoneNumber = (phone) => {
+  if (!phone) return '';
+  const cleaned = phone.replace(/\D/g, '');
+  if (cleaned.length === 11) {
+    return cleaned.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+  } else if (cleaned.length === 10) {
+    return cleaned.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+  }
+  return phone;
+};
+
 const UserProfileCard = ({ user, onUpdate }) => {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
@@ -44,9 +56,25 @@ const UserProfileCard = ({ user, onUpdate }) => {
   };
   const handleClose = () => setOpen(false);
 
+  // 전화번호에 하이픈 자동 추가
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+
+    if (name === 'phone') {
+      const onlyNums = value.replace(/\D/g, '');
+      let formatted = onlyNums;
+
+      if (onlyNums.length <= 3) {
+        formatted = onlyNums;
+      } else if (onlyNums.length <= 7) {
+        formatted = onlyNums.replace(/(\d{3})(\d+)/, '$1-$2');
+      } else {
+        formatted = onlyNums.replace(/(\d{3})(\d{4})(\d{0,4})/, '$1-$2-$3');
+      }
+      setForm((prev) => ({ ...prev, [name]: formatted }));
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSave = async () => {
@@ -153,7 +181,7 @@ const UserProfileCard = ({ user, onUpdate }) => {
             {user.email}
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
-            <b>전화번호:</b> {user.phone}
+            <b>전화번호:</b> {formatPhoneNumber(user.phone)}
             <br />
             <b>주소:</b> {user.address}
             <br />
