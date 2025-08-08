@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -7,7 +7,9 @@ import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import Button1 from '@mui/material/Button';
 import './userInfo.css';
-// import DaumPostcode from 'react-daum-postcode';
+import { LoginContext } from './LoginContextProvider';
+import api from './api';
+
 
 const SignupPage = () => {
 
@@ -28,7 +30,7 @@ const SignupPage = () => {
   const [phonePrefix, setPhonePrefix] = useState(PHONENUMBER_LIST[0]);
 
   //axios URL
-  const insertUrl = "http://localhost:9000/user/register";
+  const insertUrl = "http://localhost:9000/user/join";
 
 
   //사용자 정보
@@ -43,25 +45,25 @@ const SignupPage = () => {
     address: '',
   });
 
-  //아이디 체크
-  const idCheckEvent = () => {
-    const email = userInfo.id + "@" + userInfo.email;
-    const idCheckUrl = "http://localhost:9000/user/idCheck";
-    console.log(email);
-    axios.post(idCheckUrl, {email: email}).then(res => {
-      console.log(res.data);
-      if (res.data =="available") {
-        setIdmsg('사용 가능한 아이디입니다.');
-        setUserCheck(true); // 중복체크 성공
-      } else {
-        setIdmsg('중복된 아이디입니다.');
-        setUserCheck(false); // 중복체크 실패
-      }
+const handleCheckId = async () => {
+    const email = userInfo.id + '@' + userInfo.email;
 
-    }).catch(err => {
-      console.log(err);
-    });
-  }
+      const response = await api.post(`/user/checkId`, { email : email }).then(res=>{
+        if (response.data) {
+        setIdmsg('이미 사용중인 아이디입니다.');
+        setUserCheck(false);
+      } else {
+        setIdmsg('사용 가능한 아이디입니다.');
+        setUserCheck(true);
+      }
+      })     
+     .catch(error =>{
+        console.error('아이디 중복 확인 실패:', error);
+        setIdmsg('중복 확인 중 오류가 발생했습니다.');
+        setUserCheck(false);
+     });
+};
+ 
 
   //사용자 정보 입력 이벤트
   const inputChangeEvent = (e) => {
@@ -89,7 +91,7 @@ const SignupPage = () => {
     
     };
     //console.log(sendInfo);
-
+   
     if (!userCheck) {
       alert("아이디 중복체크 해주세요");
       return;
@@ -133,7 +135,7 @@ const SignupPage = () => {
                   <option value="google.com">google.com</option>
                   <option value="kakao.com">kakao.com</option>
                 </select>
-                <button type='button' className='CheckOfId' onClick={idCheckEvent}>아이디 확인</button>
+                <button type='button' className='CheckOfId' onClick={handleCheckId}>아이디 확인</button>
                 <span>{idmsg}</span>
               </div>
               <br />
@@ -199,5 +201,6 @@ const SignupPage = () => {
     </div>
   )
 }
+
 
 export default SignupPage

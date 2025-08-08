@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="boot.infopass.mapper.RankMapper">
+
+    <select id="getUserRankingsByIds" resultType="boot.infopass.dto.RankedUserDto"> SELECT u.id as
+        id, u.nickname as nickname, COALESCE(r.total_score, 0) as totalScore FROM user u LEFT JOIN
+        multiplayer_rank r ON u.id = r.user_id WHERE u.id IN <foreach item="id" collection="ids"
+            open="(" separator="," close=")"> #{id} </foreach> ORDER BY r.total_score DESC </select>
+
+    <select id="getTopWeeklyRanks" resultType="boot.infopass.dto.RankedUserDto"> SELECT u.id as id,
+        u.nickname as nickname, COALESCE(r.total_score, 0) as totalScore FROM user u LEFT JOIN
+        multiplayer_rank r ON u.id = r.user_id ORDER BY r.total_score DESC LIMIT 30 </select>
+
+    <select id="getTopRealtimeRanks" resultType="boot.infopass.dto.RankedUserDto"> SELECT u.id as
+        id, u.nickname as nickname, COALESCE(r.total_score, 0) as totalScore FROM user u LEFT JOIN
+        multiplayer_rank r ON u.id = r.user_id ORDER BY r.total_score DESC LIMIT 30 </select>
+
+</mapper>

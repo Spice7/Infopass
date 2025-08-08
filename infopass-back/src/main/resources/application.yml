@@ -1,20 +1,43 @@
 server:
- port: 9000
- servlet:
-   session:
-     timeout: 90m
-     
- #mysql_setting
+  port: 9000
+  servlet:
+    session:
+      timeout: 90m
+
+#mysql_setting
 spring:
- datasource:
-   driver-class-name: com.mysql.cj.jdbc.Driver
-   url: jdbc:mysql://infopass.c72c02iwaybk.ap-northeast-2.rds.amazonaws.com:3306/infopass?serverTimezone=Asia/Seoul
-   username: adminLKH
-   password: lkh940706!
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://infopass.c72c02iwaybk.ap-northeast-2.rds.amazonaws.com:3306/infopass?serverTimezone=Asia/Seoul
+    username: adminLKH
+    password: lkh940706!
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      # Redis 연결 타임아웃 설정 추가
+      connect-timeout: 3000
+      timeout: 3000
+      # Lettuce 클라이언트 설정
+      lettuce:
+        pool:
+          max-active: 10
+          max-idle: 8
+          min-idle: 2
+          max-wait: 1000
+logging:
+  level:
+    "[root]": INFO # [전체 로깅 레벨]
+    "[boot.infopass]": DEBUG # [프로젝트 패키지 로깅 레벨]
+    "[org.springframework.data.redis]": DEBUG # [Redis 로깅 레벨]
+    "[io.lettuce]": DEBUG # [Lettuce 로깅 레벨]
+    "[org.springframework.cache]": DEBUG # [캐시 로깅 레벨]
 
 #mybatis
 mybatis:
-   type-aliases-package: boot.infopass.dto
-   mapper-locations:
-   - /mapper/*.xml
+  type-aliases-package: boot.infopass.dto
+  mapper-locations:
+    - /mapper/*.xml
 
+jwt:
+  secret-key: 2Jo!]8VlO)ohjFt5]9.h=n>}Knn!icdHTdT-7ra!:c."$oD#rh"#*kO*#y}^}{ZE

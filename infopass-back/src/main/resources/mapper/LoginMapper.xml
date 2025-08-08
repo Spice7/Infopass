@@ -3,33 +3,39 @@
 <mapper namespace="boot.infopass.mapper.UserMapper">
 
     <!-- UserDto 매핑-->
+
     <resultMap type="user" id="userMap">
         <id property="id" column="id" />
         
         <result property="id" column="id" />
-        <result property="email" column="email" />
         <result property="password" column="password" />
         <result property="name" column="name" />
         <result property="nickname" column="nickname" />
+        <result property="email" column="email" />
         <result property="phone" column="phone" />
         <result property="address" column="address" />
         <result property="usertype" column="usertype" />
+        <result property="enabled" column="enabled" />
         <result property="exp" column="exp" />
         <result property="level" column="level" />
         <result property="rank_updated_at" column="rank_updated_at" />
         <result property="created_at" column="created_at" />
         
-        
-        <collection property="authList" resultMap="authMap"></collection>
     </resultMap>
-	    <!-- 사용자 상세 정보 조회 (UserDto 반환) -->
-    <select id="findByEmail" parameterType="String" resultType="user">
-        SELECT * FROM User WHERE email = #{email}
-    </select>
-	<select id="existsByEmail" parameterType="String" resultType="boolean">
-		select count(*) from User where email=#{email}
-	</select>	
 	<insert id="insertUser" parameterType="user">
-		insert into User(password, name, nickname, email, phone, address, rank_updated_at, created_at) values(#{password}, #{name}, #{nickname}, #{email}, #{phone}, #{address}, now(), now())
+		insert into user(password, name, nickname, email, phone, address, usertype, enabled, rank_updated_at, created_at) values(#{password}, #{name}, #{nickname}, #{email}, #{phone}, #{address}, #{usertype}, 1, now(), now())
 	</insert>
+	<!-- 회원조회 -->
+	<select id="getUserData" parameterType="Integer" resultType="user">
+		select * from user where id=#{id}
+	</select>	
+	<!-- 회원조회-아이디 -->
+	<select id="login" parameterType="user" resultMap="userMap">
+		select * from user where email=#{email}
+	</select>
+	<select id="findById" parameterType="String" resultType="boolean">
+		select count(*) from user where email=#{email}
+	</select>
+	
+	
 </mapper>
