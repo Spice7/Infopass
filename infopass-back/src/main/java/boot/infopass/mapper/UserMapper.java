@@ -9,7 +9,7 @@ import boot.infopass.dto.UserDto;
 
 @Mapper
 public interface UserMapper {
-	List<RankedUserDto> findUserByIds(List<Long> userIds);
+	List<RankedUserDto> findUsersByIds(List<Long> userIds);
 	public int insertUser(UserDto userDto);
 	public UserDto getUserData(Integer id);
 	public UserDto login(String email);

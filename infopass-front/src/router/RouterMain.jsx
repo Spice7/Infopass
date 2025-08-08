@@ -8,7 +8,6 @@ import OxQuizRoutes from './OxQuizRoutes'
 import BlockRoutes from './BlockRoutes'
 import Home from '../pages/Home'
 import MyPageRoutes from './MyPageRoutes'
-import MyPage from '../pages/mypage/MyPage.jsx'
 import Ranking from "./Ranking";
 import { LoginContext } from '../user/LoginContextProvider.jsx'
 
@@ -24,7 +23,7 @@ const RouterMain = () => {
                 <nav>
                     {isLogin ? (
                         <div>
-                            <span>{userInfo.email}님 환영합니다.</span>
+                            <span>{userInfo.nickname}님 환영합니다.</span>
                             <Link to="/" onClick={logout}>로그아웃</Link>
                         </div>
                     ) : (

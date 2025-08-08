@@ -142,11 +142,21 @@ public class JwtTokenProvider {
 
             // 토큰 유효하면
             // name, email 도 담아주기
+            // DB 조회 로직 제거 (CustomUserDetailsService에서 모든 정보 로드)
             try {
                 UserDto userInfo = userMapper.getUserData(id);
                 if( userInfo != null ) {
-                	userDto.setName(userInfo.getName());
-                	userDto.setEmail(userInfo.getEmail());
+                    userDto.setName(userInfo.getName());
+                    userDto.setNickname(userInfo.getNickname());
+                    userDto.setEmail(userInfo.getEmail());
+                    userDto.setPhone(userInfo.getPhone());
+                    userDto.setAddress(userInfo.getAddress());
+                    userDto.setUsertype(userInfo.getUsertype()); // 이미 위에서 설정했지만, DB 값이 우선이라면 다시 설정
+                    userDto.setEnabled(userInfo.getEnabled());
+                    userDto.setExp(userInfo.getExp());
+                    userDto.setLevel(userInfo.getLevel());
+                    userDto.setRank_updated_at(userInfo.getRank_updated_at());
+                    userDto.setCreated_at(userInfo.getCreated_at());
                 }
             } catch (Exception e) {
                 log.error(e.getMessage());

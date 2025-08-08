@@ -23,6 +23,7 @@ const User = () => {
       return
     }
 
+
     const response = await auth.info()
     const data = response.data
     console.log(`getUserInfo`);
@@ -63,13 +64,13 @@ const User = () => {
   }
 
   // 회원 탈퇴
-  const deleteUser = async (userId) => {
-    console.log(userId);
+  const deleteUser = async (email) => {
+    console.log(email);
 
     let response
     let data
     try {
-      response = await auth.remove(userId)
+      response = await auth.remove(email)
     } catch (error) {
       console.error(`${error}`);
       console.error(`회원삭제 중 에러가 발생하였습니다.`);
@@ -105,7 +106,7 @@ const User = () => {
 
   return (
     <>
-        <Header />
+        <header />
         <div className="container">
             <UserForm userInfo={userInfo} updateUser={updateUser} deleteUser={deleteUser} />
         </div>
