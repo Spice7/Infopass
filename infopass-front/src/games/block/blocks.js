@@ -1,4 +1,5 @@
 import * as Blockly from "blockly";
+import JavaGenerator from "./javaGenerator.js";
 
 // 블록 메시지 상수 정의  // 추가 블록 생성, 다국어 지원 등 확장성 고려
 const BLOCK_MESSAGES = {
@@ -163,7 +164,7 @@ const blockDefinitions = [
     "helpUrl": ""
   },
 
-  // 추가 유용한 블록들   // 여기서부턴 AI가 추천한 블록들
+  // 추가 유용한 블록들   // 여기서부턴 AI가 추천한 블록들  // 신PT
   {
     "type": "array_access",
     "message0": "배열[%1]",
@@ -200,52 +201,34 @@ const blockDefinitions = [
 // 위에 정의한 커스텀 블록들을 Blockly에 등록
 Blockly.defineBlocksWithJsonArray(blockDefinitions);
 
-// Java 코드 생성기 정의
-if (Blockly.Java) {
-  // Try 블록 코드 생성
-  Blockly.Java['try_block'] = function (block) {
-    const statements_try = Blockly.Java.statementToCode(block, 'TRY_BODY');
-    return `try {\n${statements_try}} `;
-  };
+// try 블록
+JavaGenerator['try_block'] = function (block) {
+  const statements_try = JavaGenerator.statementToCode(block, 'TRY_BODY');
+  return `try {\n${statements_try}}`;
+};
 
-  // Catch 블록들 코드 생성
-  ['catch_arithmetic', 'catch_arrayindex', 'catch_numberformat', 'catch_exception'].forEach(blockType => {
-    Blockly.Java[blockType] = function (block) {
-      const statements_catch = Blockly.Java.statementToCode(block, 'CATCH_BODY');
-      const exceptionType = blockType.replace('catch_', '');
-      return `catch (${exceptionType}) {\n${statements_catch}} `;
-    };
-  });
+// catch 블록
+JavaGenerator['catch_arithmetic'] = function (block) {
+  const statements_catch = JavaGenerator.statementToCode(block, 'CATCH_BODY');
+  return `catch (ArithmeticException e) {\n${statements_catch}}`;
+};
 
-  // Finally 블록 코드 생성
-  Blockly.Java['finally_block'] = function (block) {
-    const statements_finally = Blockly.Java.statementToCode(block, 'FINALLY_BODY');
-    return `finally {\n${statements_finally}} `;
-  };
+// finally 블록
+JavaGenerator['finally_block'] = function (block) {
+  const statements_finally = JavaGenerator.statementToCode(block, 'FINALLY_BODY');
+  return `finally {\n${statements_finally}}`;
+};
 
-  // Print 문 코드 생성
-  Blockly.Java['print_statement'] = function (block) {
-    const text = block.getFieldValue('PRINT_TEXT');
-    return `System.out.print("${text}");\n`;
-  };
+// print
+JavaGenerator['print_statement'] = function (block) {
+  const text = block.getFieldValue('PRINT_TEXT');
+  return `System.out.print("${text}");\n`;
+};
 
-  // 나누기 연산 코드 생성
-  Blockly.Java['divide_statement'] = function (block) {
-    return ['a / b', Blockly.Java.ORDER_MULTIPLICATIVE];
-  };
-
-  // 배열 접근 코드 생성
-  Blockly.Java['array_access'] = function (block) {
-    const index = block.getFieldValue('INDEX');
-    return [`array[${index}]`, Blockly.Java.ORDER_MEMBER];
-  };
-
-  // parseInt 코드 생성
-  Blockly.Java['parse_int'] = function (block) {
-    const stringValue = block.getFieldValue('STRING_VALUE');
-    return [`Integer.parseInt("${stringValue}")`, Blockly.Java.ORDER_FUNCTION_CALL];
-  };
-}
+// 나누기
+JavaGenerator['divide_statement'] = function (block) {
+  return ['a / b', JavaGenerator.ORDER_ATOMIC];
+};
 
 // 블록 유효성 검사 함수
 // 잘못 사용 된 블럭이 있다면 오류 메세지 전달

@@ -1,16 +1,20 @@
 import React, { useRef, useState, useEffect, useMemo, useCallback } from 'react'
 import Blockly from './blocks.js'
 import { getSingleQuestion } from './BlockAPI.js';
+import JavaGenerator from './javaGenerator.js';
+import Cookies from 'js-cookie'
 
 const BlockMain = ({ questionId = null }) => {
-  const blocklyDiv = useRef(null);
-  const workspaceRef = useRef(null);
-  const [result, setResult] = useState("");
-  const [questionData, setQuestionData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [user, setUser] = useState(null);                   // 플레이중인 유저 정보
+  const [sessionId, setSessionId] = useState(null);         // 문제 중복 방지를 위한 session
+  const blocklyDiv = useRef(null);                          // 화면에 출력할 blockly API 영역
+  const workspaceRef = useRef(null);                        // blockly API DOM
+  const [result, setResult] = useState("");                 // 유저가 배치한 결과와 정답 비교용
+  const [questionData, setQuestionData] = useState(null);   // DB에서 추출해 화면에 출력할 문제
+  const [loading, setLoading] = useState(true);             // 로딩 관련
+  const [error, setError] = useState(null);                 // 디버깅용   // 배포시 삭제
 
-  // 랜덤 문제 ID 생성 또는 props로 받은 ID 사용
+  // 랜덤 문제 ID 생성 또는 props로 받은 ID 사용  // 백엔드로 옮겨야함
   const getQuestionId = useCallback(() => {
     return questionId || Math.floor(Math.random() * 10) + 1; // 1-10 범위의 랜덤 ID
   }, [questionId]);
@@ -50,6 +54,7 @@ const BlockMain = ({ questionId = null }) => {
     }
   }, [questionData]);
 
+  // 새로운 문제를 받아올 때마다 blockly workspace 최신화
   useEffect(() => {
     if (!questionData?.question_blocks || !blocklyDiv.current || !toolbox) return;
 
@@ -92,6 +97,7 @@ const BlockMain = ({ questionId = null }) => {
     };
   }, [questionData, toolbox]);
 
+  // xml 형태로 되어 있는 문제와 정답을 화면에 출력 가능한 데이터로
   const normalizeXml = useCallback((xmlString) => {
     try {
       const parser = new DOMParser();
@@ -117,6 +123,7 @@ const BlockMain = ({ questionId = null }) => {
     }
   }, []);
 
+  // 정답 체크
   const handleCheck = useCallback(() => {
     if (!workspaceRef.current || !questionData?.answer) {
       setResult("오류: 정답 확인을 할 수 없습니다.");
@@ -146,6 +153,7 @@ const BlockMain = ({ questionId = null }) => {
     }
   }, [questionData, normalizeXml]);
 
+  // 초기화
   const handleReset = useCallback(() => {
     if (workspaceRef.current) {
       workspaceRef.current.clear();
@@ -158,7 +166,7 @@ const BlockMain = ({ questionId = null }) => {
     }
   }, [questionData]);
 
-  // 개발 환경에서만 XML 내보내기 버튼 표시
+  // 개발 환경에서만 XML 내보내기 버튼 표시   // 배포 시 삭제 잊지 말자
   const handleExportXml = useCallback(() => {
     if (workspaceRef.current) {
       const xml = Blockly.Xml.workspaceToDom(workspaceRef.current);
@@ -170,21 +178,14 @@ const BlockMain = ({ questionId = null }) => {
     }
   }, []);
 
-  // Java 코드 생성 기능 추가
+  // java 코드로 변환 기능
   const handleGenerateJavaCode = useCallback(() => {
-    if (workspaceRef.current && Blockly.Java) {
-      try {
-        const javaCode = Blockly.Java.workspaceToCode(workspaceRef.current);
-        console.log('생성된 Java 코드:', javaCode);
-        navigator.clipboard.writeText(javaCode).then(() => {
-          alert('Java 코드가 클립보드에 복사되었습니다.');
-        });
-      } catch (error) {
-        console.error('Java 코드 생성 오류:', error);
-        alert('Java 코드 생성 중 오류가 발생했습니다.');
-      }
-    } else {
-      alert('Java 코드 생성기가 사용할 수 없습니다.');
+    if (workspaceRef.current) {
+      const javaCode = JavaGenerator.workspaceToCode(workspaceRef.current);
+      console.log('생성된 Java 코드:', javaCode);
+      navigator.clipboard.writeText(javaCode).then(() => {
+        alert('Java 코드가 클립보드에 복사되었습니다.');
+      });
     }
   }, []);
 
