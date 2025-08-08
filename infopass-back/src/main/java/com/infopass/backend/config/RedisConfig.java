@@ -10,13 +10,13 @@ import org.springframework.data.redis.core.RedisTemplate;
 public class RedisConfig {
     @Bean
     public RedisConnectionFactory redisConnectionRactory(){
-        return new LettuceConnectionFactory();
+        return new LettuceConnectionFactory("localhost",6379);
     }
 
     @Bean
-    public RedisTemplate<String,Object> redisTemplate(RedisConnectionFactory factory){
+    public RedisTemplate<String,Object> redisTemplate(){
         RedisTemplate<String,Object>template=new RedisTemplate<>();
-        template.setConnectionFactory(factory);
+        template.setConnectionFactory(RedisConnectionFactory);
         return template;
     }
 
