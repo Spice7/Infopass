@@ -11,6 +11,7 @@ const api = axios.create({
 api.interceptors.request.use(
     (config) => {
         const accessToken = Cookies.get('accessToken');
+        console.log('Token in header:', accessToken);
         if (accessToken) {
             config.headers.Authorization = `Bearer ${accessToken}`;
         }
@@ -28,6 +29,7 @@ api.interceptors.response.use(
     },
     (error) => {
         if (error.response && error.response.status === 401) {
+            console.error('인증 실패: accessToken이 만료되었거나 유효하지 않습니다.');
             // 401 에러 발생 시 로그아웃 처리
             triggerLogout();
         }

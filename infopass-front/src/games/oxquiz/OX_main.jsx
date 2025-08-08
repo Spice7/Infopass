@@ -213,7 +213,7 @@ const OX_main = () => {
     ...(showShips ? shipPos[name] : shipPos[name])
   })
   const entermultigame=()=>{
-     window.location.href= 'OX_MultiGame';
+      window.location.href='OX_Lobby';
   }
   const enterSingleGame=()=>{
     window.location.href='OX_SingleGame';

@@ -96,5 +96,8 @@ public class OXQuizController {
 	    statusmapper.UserStatus(dto);
 	}
 	
+	//멀티게임 방 
+	
+	
 
 }

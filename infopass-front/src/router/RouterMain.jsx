@@ -7,11 +7,10 @@ import UserRoutes from './UserRoutes'
 import OxQuizRoutes from './OxQuizRoutes'
 import BlockRoutes from './BlockRoutes'
 import Home from '../pages/Home'
-import MyPage from '../pages/mypage/MyPage.jsx'
+import MyPageRoutes from './MyPageRoutes'
 import Ranking from "./Ranking";
 import { LoginContext } from '../user/LoginContextProvider.jsx'
 
-import MyPageRoutes from './MyPageRoutes'
 
 
 const RouterMain = () => {
@@ -50,7 +49,7 @@ const RouterMain = () => {
             </Routes>
             </main>
         </div>
-        
+
     );
 }
 

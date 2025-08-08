@@ -13,10 +13,10 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class RankingService {
-    
+
     private final RedisUtil redisUtil;
     private final RankMapper rankMapper;
-    
+
     public List<RankedUserDto> getRank(String type){
         String redisKey=type.equals("weekly")?"rank:weekly" :"rank:realtime";
         Set<String> ids=redisUtil.getTopRankers(redisKey,30);

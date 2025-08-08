@@ -4,6 +4,8 @@ import * as auth from './auth'
 import UserForm from './UserForm'
 import { LoginContext } from './LoginContextProvider'
 import * as Swal from './alert';
+import OX_SingleGame from '../games/oxquiz/OX_SingleGame'
+import OX_main from '../games/oxquiz/OX_main'
 
 const User = () => {
 
@@ -13,15 +15,6 @@ const User = () => {
   
   // 회원 정보 조회 - /user/info
   const getUserInfo = async () => {
-
-
-    // 비로그인 또는 USER 권한이 없으면 ➡ 로그인 페이지로 이동
-    if( !isLogin || !roles.isUser ) {
-      console.log(`isLogin : ${isLogin}`);
-      console.log(`roles.isUser : ${roles.isUser}`);
-      navigate("/login")
-      return
-    }
 
 
     const response = await auth.info()
@@ -96,14 +89,15 @@ const User = () => {
 
   }
 
-  useEffect( () => {
-    if( !isLogin ) {
-      return
+
+  // 여기서 로그인 여부와 권한을 체크해서 로그인 안되어 있거나 권한 없으면 로그인 페이지로 이동
+  useEffect(() => {
+    if (!isLogin || !roles?.isUser) {
+      navigate('/login')
+    } else {
+      getUserInfo()
     }
-    getUserInfo()
-  }, [isLogin])
-
-
+  }, [isLogin, roles, navigate])
   return (
     <>
         <header />

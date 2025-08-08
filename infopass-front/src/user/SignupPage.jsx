@@ -99,14 +99,14 @@ const SignupPage = () => {
 
     const phone = phonePrefix + userInfo.phone;
     const email = userInfo.id + '@' + userInfo.email;
-
+    const address = roadAddress + ' ' + detailAddress;
     // 사용자 정보에 핸드폰 번호와 아이디 추가
     const sendInfo = {
       email: email,
       password: userInfo.password,
       name: userInfo.name,
       nickname: userInfo.nickName,
-      address: userInfo.address,
+      address: address,
       phone: phone,
 
     };

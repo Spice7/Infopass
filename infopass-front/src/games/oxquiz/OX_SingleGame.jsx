@@ -2,11 +2,13 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import './OX_Quiz.css';
 import axios from 'axios';
 import { LoginContext } from '../../user/LoginContextProvider';
+import * as auth from '../../user/auth';
 
 const MAX_LIFE = 3;
 const TIMER_DURATION = 1800;
 const walkImgs = Array.from({ length: 16 }, (_, i) => `/ox_image/walk${i + 1}.png`);
-
+// const userInfoResponse = await auth.info();
+// console.log("OX_SingleGame userinfo:", userInfoResponse); 
 const OX_SingleGame = () => {
   // =========================
   // 상태 변수 선언
@@ -22,12 +24,18 @@ const OX_SingleGame = () => {
   const [resultMsg, setResultMsg] = useState("");
   const [currentindex, setcurrentindex] = useState(0);
   const [buttonDisabled, setButtonDisabled] = useState(false);
-
+  const { userInfo} = useContext(LoginContext);
   // 사용자 정보
-  const {userinfo} = useContext(LoginContext);
-  console.log("OX_SingleGame userinfo:", userinfo); 
-  const [useridx, setuseridx] = useState(userinfo.id);
-  const [usernickname, setusernickname] = useState(userinfo.nickname);
+  useEffect(() => {
+    if (userInfo) {
+      console.log('로그인 사용자:', userInfo.id, userInfo.nickname);
+    }
+  }, [userInfo]);
+
+  const useridx = userInfo?.id;
+  const usernickname = userInfo?.nickname;
+  // const [useridx] = useState(userInfoResponse.data.id);
+  // const [usernickname] = useState(userInfoResponse.data.nickname);
 
   // 캐릭터 선택
   const [selectedChar, setSelectedChar] = useState(null);
@@ -73,7 +81,6 @@ const OX_SingleGame = () => {
   // API URL
   // =========================
   const quizurl = 'http://localhost:9000/oxquiz/quizlist';
-  const finduserurl = 'http://localhost:9000/user/finduser';
   const usersubmiturl = 'http://localhost:9000/oxquiz/submitOXquiz';
   const wronganswerurl = 'http://localhost:9000/oxquiz/wronganswer';
   const userstatusurl = 'http://localhost:9000/oxquiz/InsertUserStatus';
@@ -149,20 +156,6 @@ const OX_SingleGame = () => {
   }, [gameStarted]);
 
   // =========================
-  // useEffect: 사용자 정보 가져오기
-  // =========================
-  useEffect(() => {
-    axios.post(finduserurl, { idx: useridx })
-      .then((res) => {
-        setusernickname(res.data.nickname);
-        setuseridx(res.data.id);
-      })
-      .catch((error) => {
-        console.error("사용자 정보 에러:", error);
-      });
-  }, [useridx]);
-
-  // =========================
   // 하트 렌더링 함수
   // =========================
   const renderHearts = (life) =>
@@ -176,18 +169,18 @@ const OX_SingleGame = () => {
   // 게임 종료 처리 (중복 방지)
   // =========================
   const handleGameEnd = () => {
-  if (gameEndedRef.current) return;
-  // 점수가 3점 미만일 때 경고 메시지
-  if (myScore < 3 ) {
-    alert("점수가 너무 낮습니다. 다시 시도해주세요.");
-  }else{
-  alert(`게임 종료! 최종 점수: ${myScore}`);
-  }
-  gameEndedRef.current = true;
-  setGameStarted(false);
-  axios.post(userstatusurl, { user_id: useridx, user_score: myScore, remain_time: timeLeft })
-    .then(() => { console.log("사용자 상태 저장 성공") });
-};
+    if (gameEndedRef.current) return;
+    // 점수가 3점 미만일 때 경고 메시지
+    if (myScore < 3) {
+      alert("점수가 너무 낮습니다. 다시 시도해주세요.");
+    } else {
+      alert(`게임 종료! 최종 점수: ${myScore}`);
+    }
+    gameEndedRef.current = true;
+    setGameStarted(false);
+    axios.post(userstatusurl, { user_id: useridx, user_score: myScore, remain_time: timeLeft })
+      .then(() => { console.log("사용자 상태 저장 성공") });
+  };
 
   // =========================
   // useEffect: 게임 종료 조건 감지
@@ -234,8 +227,10 @@ const OX_SingleGame = () => {
       }
     } else {
       setResultMsg("오답입니다!");
-      axios.post(wronganswerurl,{user_id:useridx,game_type:"oxquiz",
-        question_id:quizlist[currentindex]?.id,submitted_answer:ox}).then(()=>{
+      axios.post(wronganswerurl, {
+        user_id: useridx, game_type: "oxquiz",
+        question_id: quizlist[currentindex]?.id, submitted_answer: ox
+      }).then(() => {
         console.log("오답 기록 저장 성공");
       })
       setShowMonster(true);

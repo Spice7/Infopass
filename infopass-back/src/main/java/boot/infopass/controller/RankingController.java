@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 
 
 
-@RestController 
+@RestController
 @RequestMapping("/rank")
 @RequiredArgsConstructor
 
@@ -24,7 +24,7 @@ public class RankingController {
     public List<RankedUserDto> getRanking(@RequestParam String type){
         return rankingService.getRank(type);
     }
-   
+
 
 
 

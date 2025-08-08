@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="boot.infopass.mapper.LobbyMapper">
+	<insert id="CreateOXLobby" parameterType="lobby">
+		insert into multiplayer_lobby (host_user_id, game_type, status, max_players, created_at) values (#{host_user_id}, #{game_type}, #{status}, #{max_players}, now())
+	</insert>
+	<delete id="DeleteOXLobby" parameterType="Integer">
+		delete from multiplayer_lobby where id = #{id}
+	</delete>
+</mapper>

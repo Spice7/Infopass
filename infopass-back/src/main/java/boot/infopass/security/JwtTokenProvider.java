@@ -197,7 +197,7 @@ public class JwtTokenProvider {
         try {
 
             // 🔐➡👩‍💼 JWT 파싱
-	        Jws<Claims> claims = Jwts.parser()
+           Jws<Claims> claims = Jwts.parser()
                                     .verifyWith(getShaKey())
                                     .build()
                                     .parseSignedClaims(jwt);    
@@ -214,8 +214,8 @@ public class JwtTokenProvider {
                     ]   
                 }
             */
-	        return !claims.getPayload().getExpiration().before(new Date());
-	    } catch (ExpiredJwtException exception) {
+           return !claims.getPayload().getExpiration().before(new Date());
+       } catch (ExpiredJwtException exception) {
             log.error("Token Expired");                 // 토큰 만료 
             return false;
         } catch (JwtException exception) {
@@ -225,15 +225,15 @@ public class JwtTokenProvider {
             log.error("Token is null");                 // 토큰 없음
             return false;
         } catch (Exception e) {
-	        return false;
-	    }
+           return false;
+       }
     }
 
 
     // secretKey ➡ signingKey
     private byte[] getSigningKey() {
-		return jwtProps.getSecretKey().getBytes();
-	}
+      return jwtProps.getSecretKey().getBytes();
+   }
 
     // secretKey ➡ (HMAC-SHA algorithms) ➡ signingKey
     private SecretKey getShaKey() {
