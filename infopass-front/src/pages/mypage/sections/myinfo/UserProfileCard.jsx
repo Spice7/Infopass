@@ -139,7 +139,7 @@ const UserProfileCard = ({ user, onUpdate }) => {
             <br />
             <b>주소:</b> {user.address}
             <br />
-            <b>가입일:</b> {user.createdAt?.substring(0, 10)}
+            <b>가입일:</b> {user.created_at?.substring(0, 10)}
           </Typography>
         </Box>
 

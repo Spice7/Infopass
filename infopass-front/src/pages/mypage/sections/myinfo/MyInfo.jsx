@@ -1,34 +1,30 @@
-import React, { useEffect, useState, useContext } from 'react';
-import axios from 'axios';
-import { Box, CircularProgress, Typography } from '@mui/material';
-import { LoginContext } from '../../../../user/LoginContextProvider';
+import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
-import UserProfileCard from './UserProfileCard'; // 새로 생성할 컴포넌트
-import UserStatsSection from './UserStatsSection'; // 새로 생성할 컴포넌트
+import { Box, CircularProgress, Typography } from '@mui/material';
+import UserProfileCard from './UserProfileCard';
+import UserStatsSection from './UserStatsSection';
+import * as auth from '../../../../user/auth';
 
 const primaryColor = '#4a90e2';
 
 const MyInfo = () => {
-  const { accessToken } = useContext(LoginContext);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = accessToken || Cookies.get('accessToken');
+    console.log('MyInfo 컴포넌트가 마운트되었습니다.');
+    const token = Cookies.get('accessToken');
+    console.log('MyInfo - token from cookie:', token);
 
     if (!token) {
+      console.log('토큰이 없습니다.');
       setLoading(false);
       return;
     }
 
-    axios
-      .get('http://localhost:9000/user/info', {
-        withCredentials: true,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+    auth.info(token)
       .then((res) => {
+        console.log('사용자 정보 가져오기 성공:', res.data);
         setUser(res.data);
       })
       .catch((err) => {
@@ -37,7 +33,7 @@ const MyInfo = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [accessToken]);
+  }, []);
 
   if (loading) {
     return (
