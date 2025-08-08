@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Card, CardContent, Typography, LinearProgress } from '@mui/material';
 import { FlashOn, EmojiEvents } from '@mui/icons-material';
+import './UserStatsSection.css';  // CSS 애니메이션 포함 파일 임포트
 
 const primaryColor = '#4a90e2';
 const gradientColor = 'linear-gradient(135deg, #4a90e2 0%, #81d4fa 100%)';
@@ -8,34 +9,31 @@ const cardBgColor = '#ffffff';
 const MAX_EXP_PER_LEVEL = 100;
 
 const UserStatsSection = ({ user }) => {
-  const targetProgress = (user.exp / MAX_EXP_PER_LEVEL) * 100;
-  const expRemaining = MAX_EXP_PER_LEVEL - user.exp;
-
   const [progress, setProgress] = useState(0);
 
+  const expProgress = (user.exp / MAX_EXP_PER_LEVEL) * 100;
+  const expRemaining = MAX_EXP_PER_LEVEL - user.exp;
+
   useEffect(() => {
-    let animationFrameId;
-    let currentProgress = 0;
-
-    const animate = () => {
-      currentProgress += 1; // 1%씩 증가
-      if (currentProgress > targetProgress) {
-        currentProgress = targetProgress;
+    let start = 0;
+    const duration = 1500; // 1.5초
+    const stepTime = 15;
+    const increment = expProgress / (duration / stepTime);
+    const timer = setInterval(() => {
+      start += increment;
+      if (start >= expProgress) {
+        start = expProgress;
+        clearInterval(timer);
       }
-      setProgress(currentProgress);
+      setProgress(start);
+    }, stepTime);
 
-      if (currentProgress < targetProgress) {
-        animationFrameId = requestAnimationFrame(animate);
-      }
-    };
-
-    animate();
-
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [targetProgress]);
+    return () => clearInterval(timer);
+  }, [expProgress]);
 
   return (
     <Box
+      className="fade-in"
       sx={{
         display: 'flex',
         justifyContent: 'center',
@@ -88,7 +86,7 @@ const UserStatsSection = ({ user }) => {
               background: '#e3f2fd',
               '& .MuiLinearProgress-bar': {
                 background: gradientColor,
-                transition: 'width 100ms ease-in-out',
+                transition: 'width 0.15s linear',
               },
             }}
           />

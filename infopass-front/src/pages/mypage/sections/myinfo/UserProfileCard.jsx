@@ -15,6 +15,8 @@ import {
 } from '@mui/material';
 import { AccountCircle, Edit, Star } from '@mui/icons-material';
 
+import './UserProfileCard.css';  // CSS 애니메이션 포함
+
 const primaryColor = '#4a90e2';
 const gradientColor = 'linear-gradient(135deg, #4a90e2 0%, #81d4fa 100%)';
 const cardBgColor = '#ffffff';
@@ -47,16 +49,16 @@ const UserProfileCard = ({ user, onUpdate }) => {
   };
 
   const handleSave = () => {
-    // 여기서 서버 API 호출로 수정 요청 가능
-    // 예: axios.post('/user/update', form) ...
+    // 서버에 업데이트 요청 가능
     console.log('수정된 정보:', form);
-    if (onUpdate) onUpdate(form); // 상위 컴포넌트에 변경 통보
+    if (onUpdate) onUpdate(form);
     setOpen(false);
   };
 
   return (
     <>
       <Paper
+        className="fade-in-up"  // 여기 애니메이션 클래스 추가
         elevation={10}
         sx={{
           p: { xs: 4, md: 6 },
@@ -188,39 +190,19 @@ const UserProfileCard = ({ user, onUpdate }) => {
             noValidate
             autoComplete="off"
           >
-            <TextField
-              label="이름"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              fullWidth
-            />
-            <TextField
-              label="닉네임"
-              name="nickname"
-              value={form.nickname}
-              onChange={handleChange}
-              fullWidth
-            />
-            <TextField
-              label="전화번호"
-              name="phone"
-              value={form.phone}
-              onChange={handleChange}
-              fullWidth
-            />
-            <TextField
-              label="주소"
-              name="address"
-              value={form.address}
-              onChange={handleChange}
-              fullWidth
-            />
+            <TextField label="이름" name="name" value={form.name} onChange={handleChange} fullWidth />
+            <TextField label="닉네임" name="nickname" value={form.nickname} onChange={handleChange} fullWidth />
+            <TextField label="전화번호" name="phone" value={form.phone} onChange={handleChange} fullWidth />
+            <TextField label="주소" name="address" value={form.address} onChange={handleChange} fullWidth />
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="inherit">취소</Button>
-          <Button onClick={handleSave} variant="contained" color="primary">저장</Button>
+          <Button onClick={handleClose} color="inherit">
+            취소
+          </Button>
+          <Button onClick={handleSave} variant="contained" color="primary">
+            저장
+          </Button>
         </DialogActions>
       </Dialog>
     </>
