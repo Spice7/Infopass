@@ -22,7 +22,7 @@ const primaryColor = '#4a90e2';
 const gradientColor = 'linear-gradient(135deg, #4a90e2 0%, #81d4fa 100%)';
 const cardBgColor = '#ffffff';
 
-// 출력용 전화번호 포맷 함수 (선택 사항)
+// 출력용 전화번호 포맷 함수 (보기용)
 const formatPhoneNumber = (phone) => {
   if (!phone) return '';
   const cleaned = phone.replace(/\D/g, '');
@@ -32,6 +32,23 @@ const formatPhoneNumber = (phone) => {
     return cleaned.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
   }
   return phone;
+};
+
+// 입력 폼용 전화번호 자동 하이픈 + 최대 11자리 제한 함수
+const formatInputPhoneNumber = (value) => {
+  // 숫자만 추출하고 최대 11자리로 자르기
+  const cleaned = value.replace(/\D/g, '').slice(0, 11);
+
+  if (cleaned.length <= 3) return cleaned;
+
+  if (cleaned.length <= 7) {
+    return cleaned.replace(/(\d{3})(\d+)/, '$1-$2');
+  }
+
+  // 11자리까지 자동 하이픈, 마지막 번호는 최대 4자리
+  return cleaned.replace(/(\d{3})(\d{4})(\d{0,4})/, (_, a, b, c) =>
+    c ? `${a}-${b}-${c}` : `${a}-${b}`
+  );
 };
 
 const UserProfileCard = ({ user, onUpdate }) => {
@@ -56,22 +73,15 @@ const UserProfileCard = ({ user, onUpdate }) => {
   };
   const handleClose = () => setOpen(false);
 
-  // 전화번호에 하이픈 자동 추가
+  // 변경 핸들러
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     if (name === 'phone') {
-      const onlyNums = value.replace(/\D/g, '');
-      let formatted = onlyNums;
-
-      if (onlyNums.length <= 3) {
-        formatted = onlyNums;
-      } else if (onlyNums.length <= 7) {
-        formatted = onlyNums.replace(/(\d{3})(\d+)/, '$1-$2');
-      } else {
-        formatted = onlyNums.replace(/(\d{3})(\d{4})(\d{0,4})/, '$1-$2-$3');
-      }
-      setForm((prev) => ({ ...prev, [name]: formatted }));
+      setForm((prev) => ({
+        ...prev,
+        [name]: formatInputPhoneNumber(value),
+      }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
