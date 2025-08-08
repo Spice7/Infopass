@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, Card, CardContent, Typography, LinearProgress, Tooltip } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Card, CardContent, Typography, LinearProgress } from '@mui/material';
 import { FlashOn, EmojiEvents } from '@mui/icons-material';
 
 const primaryColor = '#4a90e2';
@@ -8,8 +8,31 @@ const cardBgColor = '#ffffff';
 const MAX_EXP_PER_LEVEL = 100;
 
 const UserStatsSection = ({ user }) => {
-  const expProgress = (user.exp / MAX_EXP_PER_LEVEL) * 100;
+  const targetProgress = (user.exp / MAX_EXP_PER_LEVEL) * 100;
   const expRemaining = MAX_EXP_PER_LEVEL - user.exp;
+
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    let animationFrameId;
+    let currentProgress = 0;
+
+    const animate = () => {
+      currentProgress += 1; // 1%씩 증가
+      if (currentProgress > targetProgress) {
+        currentProgress = targetProgress;
+      }
+      setProgress(currentProgress);
+
+      if (currentProgress < targetProgress) {
+        animationFrameId = requestAnimationFrame(animate);
+      }
+    };
+
+    animate();
+
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [targetProgress]);
 
   return (
     <Box
@@ -58,14 +81,14 @@ const UserStatsSection = ({ user }) => {
         <Box sx={{ mb: 1 }}>
           <LinearProgress
             variant="determinate"
-            value={expProgress}
+            value={progress}
             sx={{
               height: 14,
               borderRadius: 7,
               background: '#e3f2fd',
               '& .MuiLinearProgress-bar': {
                 background: gradientColor,
-                transition: 'width 600ms cubic-bezier(.2,.8,.2,1)',
+                transition: 'width 100ms ease-in-out',
               },
             }}
           />
