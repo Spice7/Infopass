@@ -202,32 +202,62 @@ const blockDefinitions = [
 Blockly.defineBlocksWithJsonArray(blockDefinitions);
 
 // try 블록
-JavaGenerator['try_block'] = function (block) {
+JavaGenerator.forBlock['try_block'] = function (block) {
   const statements_try = JavaGenerator.statementToCode(block, 'TRY_BODY');
   return `try {\n${statements_try}}`;
 };
 
 // catch 블록
-JavaGenerator['catch_arithmetic'] = function (block) {
+JavaGenerator.forBlock['catch_arithmetic'] = function (block) {
   const statements_catch = JavaGenerator.statementToCode(block, 'CATCH_BODY');
   return `catch (ArithmeticException e) {\n${statements_catch}}`;
 };
 
+// catch arrayindex 블록
+JavaGenerator.forBlock['catch_arrayindex'] = function (block) {
+  const statements_catch = JavaGenerator.statementToCode(block, 'CATCH_BODY');
+  return `catch (ArrayIndexOutOfBoundsException e) {\n${statements_catch}}`;
+};
+
+// catch numberformat 블록
+JavaGenerator.forBlock['catch_numberformat'] = function (block) {
+  const statements_catch = JavaGenerator.statementToCode(block, 'CATCH_BODY');
+  return `catch (NumberFormatException e) {\n${statements_catch}}`;
+};
+
+// catch exception 블록
+JavaGenerator.forBlock['catch_exception'] = function (block) {
+  const statements_catch = JavaGenerator.statementToCode(block, 'CATCH_BODY');
+  return `catch (Exception e) {\n${statements_catch}}`;
+};
+
 // finally 블록
-JavaGenerator['finally_block'] = function (block) {
+JavaGenerator.forBlock['finally_block'] = function (block) {
   const statements_finally = JavaGenerator.statementToCode(block, 'FINALLY_BODY');
   return `finally {\n${statements_finally}}`;
 };
 
 // print
-JavaGenerator['print_statement'] = function (block) {
+JavaGenerator.forBlock['print_statement'] = function (block) {
   const text = block.getFieldValue('PRINT_TEXT');
   return `System.out.print("${text}");\n`;
 };
 
 // 나누기
-JavaGenerator['divide_statement'] = function (block) {
+JavaGenerator.forBlock['divide_statement'] = function (block) {
   return ['a / b', JavaGenerator.ORDER_ATOMIC];
+};
+
+// 배열 접근
+JavaGenerator.forBlock['array_access'] = function (block) {
+  const index = block.getFieldValue('INDEX');
+  return [`array[${index}]`, JavaGenerator.ORDER_ATOMIC];
+};
+
+// 문자열을 정수로 변환
+JavaGenerator.forBlock['parse_int'] = function (block) {
+  const stringValue = block.getFieldValue('STRING_VALUE');
+  return [`Integer.parseInt("${stringValue}")`, JavaGenerator.ORDER_ATOMIC];
 };
 
 // 블록 유효성 검사 함수
@@ -280,4 +310,5 @@ export const BLOCK_CATEGORIES = {
 };
 
 export { BLOCK_MESSAGES, BLOCK_COLORS };
-export default Blockly;
+export { JavaGenerator };
+// export default Blockly;
