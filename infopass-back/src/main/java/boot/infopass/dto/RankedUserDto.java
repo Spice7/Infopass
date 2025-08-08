@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 
 public class RankedUserDto {
-    private Long userId;
+    private Long id;
     private String nickname;
-    private String prifileImage;
     private int totalScore;
 }

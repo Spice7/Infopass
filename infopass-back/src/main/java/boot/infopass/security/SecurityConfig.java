@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -58,24 +59,25 @@ public class SecurityConfig {
         // 필터 설정
         // ✅ JWT 요청 필터 1️⃣
         // ✅ JWT 인증 필터 2️⃣
+
+        // 🟢 인가 설정 (authorizeHttpRequests)
         http.addFilterAt(new JwtAuthenticationFilter(authenticationManager, jwtTokenProvider),
                 UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtRequestFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+        // 사용자 정보를 불러오는 서비스 설정
+        http.userDetailsService(customUserDetailService);
 
-        // 🟢 인가 설정 (authorizeHttpRequests)
         http.authorizeHttpRequests(authorize -> authorize
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // ✅ 1. 공개적으로 허용할 정적 리소스 및 경로를 먼저 지정합니다.
-                .requestMatchers("/", "/login", "/user/join", "/user/checkId", "/rank/**").permitAll()
-
+                .requestMatchers("/", "/login", "/user/join", "/user/checkId", "/rank/**", "/rank").permitAll()
+                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // OPTIONS 요청 허용
                 // ✅ 2. 특정 권한이 필요한 경로를 지정합니다.
                 .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
 
                 // ✅ 3. 위의 규칙에 해당하지 않는 모든 요청은 인증이 필요합니다.
                 .anyRequest().authenticated());
-
-        // 사용자 정보를 불러오는 서비스 설정
-        http.userDetailsService(customUserDetailService);
 
         return http.build();
     }

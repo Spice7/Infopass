@@ -10,43 +10,82 @@ const Rank = () => {
 
   // 주간 랭킹 데이터 가져오기
   useEffect(() => {
-    fetch("http://localhost:9000/rank?type=weekly")
-      .then((res) => res.json())
+    fetch("http://localhost:9000/rank?type=weekly", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      // credentials: "include", // ✅ .then()에서도 옵션 지정 가능
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((data) => {
         console.log("Weekly ranking:", data);
-        const formattedData = data.map((user, index) => ({
-          rank: index + 1,
-          name: user.nickname,
-          score: user.totalScore,
-          profile: user.profileImage || "👤",
-          medal: index < 3 ? ["🥇", "🥈", "🥉"][index] : null,
-        }));
-        setWeeklyRanking(formattedData);
+        if (Array.isArray(data)) {
+          const formattedData = data.map((user, index) => ({
+            rank: index + 1,
+            name: user.nickname || user.username || "Unknown",
+            score: user.totalScore || 0,
+            profile: user.profileImage || "👤",
+            medal: index < 3 ? ["🥇", "🥈", "🥉"][index] : null,
+          }));
+          setWeeklyRanking(formattedData);
+        } else {
+          console.error("Weekly ranking data is not an array:", data);
+          setWeeklyRanking([]);
+        }
       })
-      .catch((err) => console.error("Weekly ranking fetch error:", err));
+      .catch((err) => {
+        console.error("Weekly ranking fetch error:", err);
+        setWeeklyRanking([]);
+      });
   }, [selectedWeek]); // 선택된 주가 변경될 때마다 데이터 새로 가져오기
 
   // 실시간 랭킹 데이터 가져오기
   useEffect(() => {
     const fetchRealtimeRanking = () => {
-      fetch("http://localhost:9000/rank?type=realtime")
-        .then((res) => res.json())
+      fetch("http://localhost:9000/rank?type=realtime", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        cache: "no-store", // 캐시 사용하지 않음
+        // credentials: "include", // ✅ .then()에서도 옵션 지정 가능
+      })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          return res.json();
+        })
         .then((data) => {
           console.log("Realtime ranking:", data);
-          const formattedData = data.map((user, index) => ({
-            rank: index + 1,
-            name: user.nickname,
-            score: user.totalScore,
-            profile: user.profileImage || "👤",
-            medal: index < 3 ? ["🥇", "🥈", "🥉"][index] : null,
-          }));
-          setRealtimeRanking(formattedData);
+          if (Array.isArray(data)) {
+            const formattedData = data.map((user, index) => ({
+              rank: index + 1,
+              name: user.nickname || user.username || "Unknown",
+              score: user.totalScore || 0,
+              profile: user.profileImage || "👤",
+              medal: index < 3 ? ["🥇", "🥈", "🥉"][index] : null,
+            }));
+            setRealtimeRanking(formattedData);
+          } else {
+            console.error("Realtime ranking data is not an array:", data);
+            setRealtimeRanking([]);
+          }
         })
-        .catch((err) => console.error("Realtime ranking fetch error:", err));
+        .catch((err) => {
+          console.error("Realtime ranking fetch error:", err);
+          setRealtimeRanking([]);
+        });
     };
 
     fetchRealtimeRanking(); // 초기 데이터 가져오기
-    const interval = setInterval(fetchRealtimeRanking, 10000); // 10초마다 실시간 데이터 업데이트
+    const interval = setInterval(fetchRealtimeRanking, 30000); // 10초마다 실시간 데이터 업데이트
 
     return () => clearInterval(interval); // 컴포넌트 언마운트 시 인터벌 정리
   }, []);

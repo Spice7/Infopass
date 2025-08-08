@@ -3,9 +3,17 @@
 
 <mapper namespace="boot.infopass.mapper.RankMapper">
 
-    <select id="getUserRankingsByIds" resultType="boot.infopass.dto.RankedUserDto"> select u.id as
-        userId, u.username, u.profile_image AS profileImage, coalesce(r.total_score, 0) as
-        totalScore from user u left join multiplayer_rank r on u.id =r.user_id where u.id in <foreach
-            item="id" collection="ids" open="(" separator="," close=")"> #{id} </foreach>
-    </select>
+    <select id="getUserRankingsByIds" resultType="boot.infopass.dto.RankedUserDto"> SELECT u.id as
+        id, u.nickname as nickname, COALESCE(r.total_score, 0) as totalScore FROM user u LEFT JOIN
+        multiplayer_rank r ON u.id = r.user_id WHERE u.id IN <foreach item="id" collection="ids"
+            open="(" separator="," close=")"> #{id} </foreach> ORDER BY r.total_score DESC </select>
+
+    <select id="getTopWeeklyRanks" resultType="boot.infopass.dto.RankedUserDto"> SELECT u.id as id,
+        u.nickname as nickname, COALESCE(r.total_score, 0) as totalScore FROM user u LEFT JOIN
+        multiplayer_rank r ON u.id = r.user_id ORDER BY r.total_score DESC LIMIT 30 </select>
+
+    <select id="getTopRealtimeRanks" resultType="boot.infopass.dto.RankedUserDto"> SELECT u.id as
+        id, u.nickname as nickname, COALESCE(r.total_score, 0) as totalScore FROM user u LEFT JOIN
+        multiplayer_rank r ON u.id = r.user_id ORDER BY r.total_score DESC LIMIT 30 </select>
+
 </mapper>

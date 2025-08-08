@@ -18,9 +18,9 @@ public class RankScheduler {
 
     @Scheduled(cron="0 0 0 * * MON")
     public void updateWeeklyRank(){
-        List<RankedUserDto> weekly=rankMapper.getTopWeeklyRanks();
-        rankingService.cacheRankToRedis("rank:weekly",weekly);
+        List<RankedUserDto> weekly = rankMapper.getTopWeeklyRanks();
+        if (weekly != null && !weekly.isEmpty()) {
+            rankingService.cacheRankToRedis("rank:weekly", weekly);
+        }
     }
-
-
 }
