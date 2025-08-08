@@ -1,39 +1,110 @@
+/* 전체 배경 및 컨테이너 설정 */
 .home-container {
-  padding: 40px;
-  text-align: center;
   background: linear-gradient(to right, #e0f7fa, #fce4ec);
   min-height: 100vh;
   font-family: 'Arial', sans-serif;
+  padding: 40px 0;
 }
 
+/* 콘텐츠 가운데 정렬, 최대 폭 제한 */
+.home-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+/* 헤더 */
 .home-header h1 {
-  font-size: 2.5rem;
+  font-size: 2.8rem;
   margin-bottom: 10px;
 }
 
 .home-header p {
   font-size: 1.2rem;
   color: #444;
+  margin-bottom: 25px;
+}
+
+.login-toggle {
+  padding: 8px 16px;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
   margin-bottom: 30px;
 }
 
+.login-toggle:hover {
+  background-color: #1565c0;
+}
+
+/* 메인 카드 */
+.main-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  margin-bottom: 50px;
+}
+
+.main-card.large {
+  background-color: white;
+  border-radius: 16px;
+  padding: 40px 30px;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  text-decoration: none;
+  color: #333;
+  width: 100%;
+  max-width: 600px;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.main-card.large:hover {
+  transform: scale(1.03);
+  background: #f0f8ff;
+}
+
+.secondary-cards {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.main-card.small {
+  background-color: white;
+  border-radius: 12px;
+  padding: 20px 16px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+  text-decoration: none;
+  color: #333;
+  width: 180px;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.main-card.small:hover {
+  transform: scale(1.05);
+  background: #f5faff;
+}
+
+/* 하단 메뉴 카드 */
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 20px;
-  max-width: 900px;
-  margin: 0 auto;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 24px;
+  margin-top: 40px;
 }
 
 .card {
   background-color: white;
-  border-radius: 12px;
-  padding: 30px 15px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  border-radius: 16px;
+  padding: 30px 20px;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
   text-decoration: none;
   color: #333;
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 1.1rem;
   transition: transform 0.2s, background 0.2s;
 }
 

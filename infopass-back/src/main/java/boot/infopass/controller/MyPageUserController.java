@@ -5,7 +5,8 @@ import boot.infopass.dto.MyPageUserDto;
 import boot.infopass.service.MyPageUserService;
 
 @RestController
-@RequestMapping("/api/mypage/user")
+@CrossOrigin(origins = "http://localhost:5173")
+@RequestMapping("/mypage")
 public class MyPageUserController {
 
     private final MyPageUserService myPageUserService;
@@ -15,7 +16,7 @@ public class MyPageUserController {
     }
 
     @GetMapping("/{id}")
-    public MyPageUserDto getUser(@PathVariable int id) {
+    public MyPageUserDto getUser(@PathVariable("id") int id) {
         return myPageUserService.getUserById(id);
     }
 }

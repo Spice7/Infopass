@@ -25,34 +25,34 @@ import lombok.extern.slf4j.Slf4j;
 @EnableMethodSecurity(prePostEnabled = true, securedEnabled = true) //어노테이션에 prePostEnabled = true를 추가하면 AuthenticationManager를 자동으로 구성합니다.
 public class SecurityConfig  {
 
-	@Autowired
-	private CustomUserDetailService customUserDetailService;
+    @Autowired
+    private CustomUserDetailService customUserDetailService;
 
-    @Autowired 
+    @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
-
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager)
+            throws Exception {
         log.info("securityFilterChain...");
 
         // 폼 기반 로그인 비활성화
-        http.formLogin( login -> login.disable() );
+        http.formLogin(login -> login.disable());
 
         // HTTP 기본 인증 비활성화
-        http.httpBasic( basic -> basic.disable() );
+        http.httpBasic(basic -> basic.disable());
 
         // CSRF(Cross-Site Request Forgery) 공격 방어 기능 비활성화
-        http.csrf( csrf -> csrf.disable() );
+        http.csrf(csrf -> csrf.disable());
 
         // CORS 설정
-        http.cors( cors -> cors.configurationSource(corsConfigurationSource()) );
-
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
         // 필터 설정
         //  JWT 요청 필터 1️
@@ -64,7 +64,7 @@ public class SecurityConfig  {
      //  인가 설정 (authorizeHttpRequests)
         http.authorizeHttpRequests(authorize -> authorize
             //  1. 공개적으로 허용할 정적 리소스 및 경로를 먼저 지정합니다.
-            .requestMatchers("/", "/login", "/user/join", "/user/checkId","/block/**").permitAll()
+            .requestMatchers("/", "/login", "/user/join", "/user/checkId","/block/**", "/rank/**").permitAll()
 
             //  2. 특정 권한이 필요한 경로를 지정합니다.
             .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
@@ -72,47 +72,43 @@ public class SecurityConfig  {
 
             //  3. 위의 규칙에 해당하지 않는 모든 요청은 인증이 필요합니다.
             .anyRequest().authenticated()
-        );
-    					
+        );    					
+
         // 사용자 정보를 불러오는 서비스 설정
         http.userDetailsService(customUserDetailService);
 
-
-		return http.build();
-	}
+        return http.build();
+    }
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
-    }    
+    }
 
     // CORS 설정
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        
+
         // 허용할 오리진 설정
         configuration.addAllowedOrigin("http://localhost:5173");
-        
+
         // 허용할 헤더 설정
         configuration.addAllowedHeader("*");
-        
+
         // 허용할 HTTP 메소드 설정
         configuration.addAllowedMethod("*");
-        
+
         // 인증 정보 포함 허용
         configuration.setAllowCredentials(true);
-        
+
         // Authorization 헤더 노출 허용
         configuration.addExposedHeader("Authorization");
-        
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
-        
+
         return source;
     }
 
 }
-
-
-

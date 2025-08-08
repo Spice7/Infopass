@@ -18,6 +18,12 @@ mybatis:
    - /mapper/*.xml	 
 jwt:
   secret-key: 2Jo!]8VlO)ohjFt5]9.h=n>}Knn!icdHTdT-7ra!:c."$oD#rh"#*kO*#y}^}{ZE}
+  spring:
+  redis:
+    host: localhost
+    port: 6379
+    password:  # 비밀번호가 없다면 생략
+
 
 
    
