@@ -9,4 +9,23 @@
          <foreach item="id"
             collection="list" open="(" separator="," close=")"> #{id} </foreach>
     </select>
+    
+    
+    
+    
+    
+    
+
+
+  <update id="updateUser" parameterType="boot.infopass.dto.UserDto">
+    UPDATE user
+    SET
+      name = #{name},
+      nickname = #{nickname},
+      phone = #{phone},
+      address = #{address}
+    WHERE id = #{id}
+  </update>
+
+    
 </mapper>

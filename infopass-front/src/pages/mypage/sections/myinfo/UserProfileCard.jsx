@@ -15,20 +15,52 @@ import {
 } from '@mui/material';
 import { AccountCircle, Edit, Star } from '@mui/icons-material';
 
+import './UserProfileCard.css';
+import { update } from '../../../../user/auth';
+
 const primaryColor = '#4a90e2';
 const gradientColor = 'linear-gradient(135deg, #4a90e2 0%, #81d4fa 100%)';
 const cardBgColor = '#ffffff';
 
+// 출력용 전화번호 포맷 함수 (보기용)
+const formatPhoneNumber = (phone) => {
+  if (!phone) return '';
+  const cleaned = phone.replace(/\D/g, '');
+  if (cleaned.length === 11) {
+    return cleaned.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+  } else if (cleaned.length === 10) {
+    return cleaned.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+  }
+  return phone;
+};
+
+// 입력 폼용 전화번호 자동 하이픈 + 최대 11자리 제한 함수
+const formatInputPhoneNumber = (value) => {
+  // 숫자만 추출하고 최대 11자리로 자르기
+  const cleaned = value.replace(/\D/g, '').slice(0, 11);
+
+  if (cleaned.length <= 3) return cleaned;
+
+  if (cleaned.length <= 7) {
+    return cleaned.replace(/(\d{3})(\d+)/, '$1-$2');
+  }
+
+  // 11자리까지 자동 하이픈, 마지막 번호는 최대 4자리
+  return cleaned.replace(/(\d{3})(\d{4})(\d{0,4})/, (_, a, b, c) =>
+    c ? `${a}-${b}-${c}` : `${a}-${b}`
+  );
+};
+
 const UserProfileCard = ({ user, onUpdate }) => {
   const [open, setOpen] = useState(false);
-
-  // 폼 상태
   const [form, setForm] = useState({
     name: user.name ?? '',
     nickname: user.nickname ?? '',
     phone: user.phone ?? '',
     address: user.address ?? '',
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleOpen = () => {
     setForm({
@@ -41,22 +73,44 @@ const UserProfileCard = ({ user, onUpdate }) => {
   };
   const handleClose = () => setOpen(false);
 
+  // 변경 핸들러
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+
+    if (name === 'phone') {
+      setForm((prev) => ({
+        ...prev,
+        [name]: formatInputPhoneNumber(value),
+      }));
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
-  const handleSave = () => {
-    // 여기서 서버 API 호출로 수정 요청 가능
-    // 예: axios.post('/user/update', form) ...
-    console.log('수정된 정보:', form);
-    if (onUpdate) onUpdate(form); // 상위 컴포넌트에 변경 통보
-    setOpen(false);
+  const handleSave = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await update(user.id, form);
+
+      if (response.status === 200) {
+        if (onUpdate) onUpdate(response.data);
+        setOpen(false);
+      } else {
+        setError('업데이트에 실패했습니다.');
+      }
+    } catch (err) {
+      console.error(err);
+      setError('서버와 통신 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <>
       <Paper
+        className="fade-in-up"
         elevation={10}
         sx={{
           p: { xs: 4, md: 6 },
@@ -71,13 +125,9 @@ const UserProfileCard = ({ user, onUpdate }) => {
           position: 'relative',
           background: cardBgColor,
           boxShadow: '0 12px 48px rgba(0,0,0,0.1)',
-          transition: 'none',
-          '&:hover': {
-            transform: 'none',
-            boxShadow: '0 12px 48px rgba(0,0,0,0.1)',
-          },
         }}
       >
+        {/* 프로필 아바타 + 레벨 칩 */}
         <Box sx={{ position: 'relative', mr: { md: 4 } }}>
           <Avatar
             sx={{
@@ -124,10 +174,16 @@ const UserProfileCard = ({ user, onUpdate }) => {
           </Tooltip>
         </Box>
 
+        {/* 사용자 정보 */}
         <Box sx={{ flexGrow: 1, textAlign: { xs: 'center', md: 'left' } }}>
           <Typography variant="h2" fontWeight={800} gutterBottom sx={{ color: primaryColor }}>
             {user.name}
-            <Typography component="span" variant="h5" color="text.secondary" sx={{ ml: 1, fontWeight: 500 }}>
+            <Typography
+              component="span"
+              variant="h5"
+              color="text.secondary"
+              sx={{ ml: 1, fontWeight: 500 }}
+            >
               ({user.nickname ?? '닉네임 없음'})
             </Typography>
           </Typography>
@@ -135,7 +191,7 @@ const UserProfileCard = ({ user, onUpdate }) => {
             {user.email}
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
-            <b>전화번호:</b> {user.phone}
+            <b>전화번호:</b> {formatPhoneNumber(user.phone)}
             <br />
             <b>주소:</b> {user.address}
             <br />
@@ -143,6 +199,7 @@ const UserProfileCard = ({ user, onUpdate }) => {
           </Typography>
         </Box>
 
+        {/* 수정 버튼 */}
         <Button
           variant="contained"
           startIcon={<Edit />}
@@ -179,48 +236,28 @@ const UserProfileCard = ({ user, onUpdate }) => {
         <DialogContent dividers>
           <Box
             component="form"
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 3,
-              mt: 1,
-            }}
+            sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 1 }}
             noValidate
             autoComplete="off"
           >
-            <TextField
-              label="이름"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              fullWidth
-            />
-            <TextField
-              label="닉네임"
-              name="nickname"
-              value={form.nickname}
-              onChange={handleChange}
-              fullWidth
-            />
-            <TextField
-              label="전화번호"
-              name="phone"
-              value={form.phone}
-              onChange={handleChange}
-              fullWidth
-            />
-            <TextField
-              label="주소"
-              name="address"
-              value={form.address}
-              onChange={handleChange}
-              fullWidth
-            />
+            <TextField label="이름" name="name" value={form.name} onChange={handleChange} fullWidth />
+            <TextField label="닉네임" name="nickname" value={form.nickname} onChange={handleChange} fullWidth />
+            <TextField label="전화번호" name="phone" value={form.phone} onChange={handleChange} fullWidth />
+            <TextField label="주소" name="address" value={form.address} onChange={handleChange} fullWidth />
+            {error && (
+              <Typography color="error" variant="body2" sx={{ mt: 1 }}>
+                {error}
+              </Typography>
+            )}
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="inherit">취소</Button>
-          <Button onClick={handleSave} variant="contained" color="primary">저장</Button>
+          <Button onClick={handleClose} color="inherit" disabled={loading}>
+            취소
+          </Button>
+          <Button onClick={handleSave} variant="contained" color="primary" disabled={loading}>
+            {loading ? '저장 중...' : '저장'}
+          </Button>
         </DialogActions>
       </Dialog>
     </>

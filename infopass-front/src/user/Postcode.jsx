@@ -1,4 +1,3 @@
-import React,{useState} from "react";
 import DaumPostcode from "react-daum-postcode";
 import Modal from "react-modal"; // 추가
 

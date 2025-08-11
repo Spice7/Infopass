@@ -226,7 +226,7 @@ div.SignupPage-modal-container {
 }
 
 /* 애니메이션 효과 */
-@keyframes fadeInUp {
+@keyframes signup-fadeInUp {
   from {
     opacity: 0;
     transform: translate(-50%, -40%);
@@ -238,7 +238,7 @@ div.SignupPage-modal-container {
 }
 
 .SignupPage-modal-container {
-  animation: fadeInUp 0.5s ease-out;
+  animation: signup-fadeInUp 0.5s ease-out;
 }
 
 /* 스크롤바 스타일 */

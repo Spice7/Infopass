@@ -29,8 +29,9 @@ const Home = () => {
             <h2>🎮 퀴즈 게임 시작하기</h2>
             <p>오늘의 퀴즈를 풀고 실력을 점검해 보세요!</p>
           </Link>
+         
+          <Link to="/oxquiz/OX_main" className="main-card large">
 
-          <Link to="/oxquiz" className="main-card large">
             <h2>🎮 ox퀴즈 게임 시작하기</h2>
             <p>오늘의 퀴즈를 풀고 실력을 점검해 보세요!</p>
           </Link>

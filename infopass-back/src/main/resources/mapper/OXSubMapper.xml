@@ -2,6 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="boot.infopass.mapper.OXSubMapper">
 	<insert id="insertOxSub" parameterType="oxsub">
-		insert into QuizSubmisson (user_id, question_id, submitted_answer, is_correct, created_at) values(#{user_id},#{question_id},#{submitted_answer},#{is_correct},now())
+		insert into oxquiz_submission (user_id, question_id, submitted_answer, is_correct, created_at) values(#{user_id},#{question_id},#{submitted_answer},#{is_correct},now())
 	</insert>
 </mapper>ㅎ

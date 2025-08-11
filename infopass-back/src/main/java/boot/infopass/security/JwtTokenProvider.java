@@ -47,7 +47,7 @@ public class JwtTokenProvider {
     /*
      * 👩‍💼➡🔐 토큰 생성
      */
-    public String createToken(int id, String email, List<String> roles) {
+    public String createToken(int id, String email, String nickname, List<String> roles) {
         byte[] signingKey = getSigningKey();
 
         // JWT 토큰 생성
@@ -56,11 +56,13 @@ public class JwtTokenProvider {
                 // .setHeaderParam("typ", SecurityConstants.TOKEN_TYPE)        // deprecated (version: before 1.0)
                 .header()                                                      // update (version : after 1.0)
                     .add("typ", SecurityConstants.TOKEN_TYPE)              // 헤더 설정
-                .and()
-                .expiration(new Date(System.currentTimeMillis() + 864000000))  // 토큰 만료 시간 설정 (10일)
+                .and() 
+                .expiration(new Date(System.currentTimeMillis() + (1000 *60 *60 *24 *10)))  // 토큰 만료 시간 설정 (10일) (1000 *60 *60 *24 *10)
                 .claim("uno", "" + id)                                // 클레임 설정: 사용자 번호
-                .claim("uid", email)                                     // 클레임 설정: 사용자 아이디
-                .claim("rol", roles)                                      // 클레임 설정: 권한
+                .claim("uid", email)                                  // 클레임 설정: 사용자 아이디
+                .claim("nickname", nickname)						  // 클레임 설정: 닉네임
+                .claim("rol", roles)								  // 클레임 설정: 권한
+                
                 .compact();      
 
         log.info("jwt : " + jwt);
@@ -197,7 +199,7 @@ public class JwtTokenProvider {
         try {
 
             // 🔐➡👩‍💼 JWT 파싱
-	        Jws<Claims> claims = Jwts.parser()
+           Jws<Claims> claims = Jwts.parser()
                                     .verifyWith(getShaKey())
                                     .build()
                                     .parseSignedClaims(jwt);    
@@ -214,8 +216,8 @@ public class JwtTokenProvider {
                     ]   
                 }
             */
-	        return !claims.getPayload().getExpiration().before(new Date());
-	    } catch (ExpiredJwtException exception) {
+           return !claims.getPayload().getExpiration().before(new Date());
+       } catch (ExpiredJwtException exception) {
             log.error("Token Expired");                 // 토큰 만료 
             return false;
         } catch (JwtException exception) {
@@ -225,15 +227,15 @@ public class JwtTokenProvider {
             log.error("Token is null");                 // 토큰 없음
             return false;
         } catch (Exception e) {
-	        return false;
-	    }
+           return false;
+       }
     }
 
 
     // secretKey ➡ signingKey
     private byte[] getSigningKey() {
-		return jwtProps.getSecretKey().getBytes();
-	}
+      return jwtProps.getSecretKey().getBytes();
+   }
 
     // secretKey ➡ (HMAC-SHA algorithms) ➡ signingKey
     private SecretKey getShaKey() {

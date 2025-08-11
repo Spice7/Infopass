@@ -14,4 +14,7 @@ public interface UserMapper {
 	public UserDto getUserData(Integer id);
 	public UserDto login(String email);
 	public boolean findById(String email);
+	
+	public int updateUser(UserDto userDto);
+	public boolean findByNickName(String nickname);
 }

@@ -4,6 +4,8 @@ import * as auth from './auth'
 import UserForm from './UserForm'
 import { LoginContext } from './LoginContextProvider'
 import * as Swal from './alert';
+import OX_SingleGame from '../games/oxquiz/OX_SingleGame'
+import OX_main from '../games/oxquiz/OX_main'
 
 const User = () => {
 
@@ -108,7 +110,7 @@ const User = () => {
     <>
         <header />
         <div className="container">
-            <UserForm userInfo={userInfo} updateUser={updateUser} deleteUser={deleteUser} />
+            <UserForm userInfo={userInfo} updateUser={updateUser} deleteUser={deleteUser} />           
         </div>
     </>
   )
