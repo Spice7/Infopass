@@ -16,15 +16,12 @@ import {
 import { AccountCircle, Edit, Star } from '@mui/icons-material';
 import Cookies from 'js-cookie';
 
-import { update } from '../../../../user/auth';  // update 함수 임포트
-
-import './UserProfileCard.css';
+import { update } from '../../../../user/auth';
 
 const primaryColor = '#4a90e2';
 const gradientColor = 'linear-gradient(135deg, #4a90e2 0%, #81d4fa 100%)';
 const cardBgColor = '#ffffff';
 
-// 보기용 전화번호 포맷 함수
 const formatPhoneNumber = (phone) => {
   if (!phone) return '';
   const cleaned = phone.replace(/\D/g, '');
@@ -36,7 +33,6 @@ const formatPhoneNumber = (phone) => {
   return phone;
 };
 
-// 입력폼용 전화번호 자동 하이픈 함수
 const formatInputPhoneNumber = (value) => {
   const cleaned = value.replace(/\D/g, '').slice(0, 11);
   if (cleaned.length <= 3) return cleaned;
@@ -49,22 +45,17 @@ const formatInputPhoneNumber = (value) => {
 };
 
 const UserProfileCard = ({ user, onUpdate }) => {
-  // 프로필 수정 모달 열림 상태
   const [open, setOpen] = useState(false);
-  // 회원탈퇴 확인 모달 상태
   const [deleteOpen, setDeleteOpen] = useState(false);
-  // 프로필 수정 폼 상태
   const [form, setForm] = useState({
     name: user.name ?? '',
     nickname: user.nickname ?? '',
     phone: user.phone ?? '',
     address: user.address ?? '',
   });
-  // 로딩 및 에러 상태
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // 프로필 수정 모달 열기 (기존 유저정보로 초기화)
   const handleOpen = () => {
     setForm({
       name: user.name ?? '',
@@ -78,7 +69,6 @@ const UserProfileCard = ({ user, onUpdate }) => {
 
   const handleClose = () => setOpen(false);
 
-  // 폼 입력 변경 처리
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === 'phone') {
@@ -91,12 +81,10 @@ const UserProfileCard = ({ user, onUpdate }) => {
     }
   };
 
-  // 프로필 수정 저장
   const handleSave = async () => {
     setLoading(true);
     setError(null);
     try {
-      // 기존 user.enabled를 포함해서 보냄
       const updatedData = {
         ...form,
         enabled: user.enabled,
@@ -116,11 +104,9 @@ const UserProfileCard = ({ user, onUpdate }) => {
     }
   };
 
-  // 회원탈퇴 확인 모달 열기/닫기
   const handleDeleteConfirm = () => setDeleteOpen(true);
   const handleDeleteCancel = () => setDeleteOpen(false);
 
-  // 회원탈퇴 실행 (enabled = 0으로 업데이트)
   const handleDelete = async () => {
     setLoading(true);
     setError(null);
@@ -133,10 +119,10 @@ const UserProfileCard = ({ user, onUpdate }) => {
       if (res.status === 200) {
         alert('회원탈퇴가 완료되었습니다.');
 
-        Cookies.remove('accessToken');  // 쿠키명에 맞게 변경
+        Cookies.remove('accessToken');
         localStorage.removeItem('accessToken');
 
-        window.location.href = '/';  // 메인 페이지로 이동
+        window.location.href = '/';
       } else {
         alert('회원탈퇴 처리에 실패했습니다.');
       }
@@ -169,7 +155,6 @@ const UserProfileCard = ({ user, onUpdate }) => {
           boxShadow: '0 12px 48px rgba(0,0,0,0.1)',
         }}
       >
-        {/* 아바타 + 레벨 */}
         <Box sx={{ position: 'relative', mr: { md: 4 } }}>
           <Avatar
             sx={{
@@ -205,7 +190,6 @@ const UserProfileCard = ({ user, onUpdate }) => {
           </Tooltip>
         </Box>
 
-        {/* 유저 정보 */}
         <Box sx={{ flexGrow: 1, textAlign: { xs: 'center', md: 'left' } }}>
           <Typography variant="h2" fontWeight={800} gutterBottom sx={{ color: primaryColor }}>
             {user.name}
@@ -230,7 +214,6 @@ const UserProfileCard = ({ user, onUpdate }) => {
           </Typography>
         </Box>
 
-        {/* 수정 버튼 */}
         <Button
           variant="contained"
           startIcon={<Edit />}
@@ -251,45 +234,151 @@ const UserProfileCard = ({ user, onUpdate }) => {
         </Button>
       </Paper>
 
-      {/* 프로필 수정 모달 */}
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-        <DialogTitle>프로필 수정</DialogTitle>
-        <DialogContent dividers>
+        <DialogTitle
+          sx={{
+            fontWeight: 'bold',
+            fontSize: 24,
+            color: primaryColor,
+            pb: 1,
+            mb: 2,
+            textAlign: 'center',
+          }}
+        >
+          프로필 수정
+        </DialogTitle>
+        <DialogContent
+          dividers
+          sx={{
+            bgcolor: '#f9fafe',
+            borderRadius: '0 0 8px 8px',
+            p: 3,
+            pt: 2,
+          }}
+        >
           <Box
             component="form"
-            sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 1 }}
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 3,
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: 260,
+            }}
             noValidate
             autoComplete="off"
           >
-            <TextField label="이름" name="name" value={form.name} onChange={handleChange} fullWidth />
-            <TextField label="닉네임" name="nickname" value={form.nickname} onChange={handleChange} fullWidth />
-            <TextField label="전화번호" name="phone" value={form.phone} onChange={handleChange} fullWidth />
-            <TextField label="주소" name="address" value={form.address} onChange={handleChange} fullWidth />
+            {['name', 'nickname', 'phone', 'address'].map((field) => (
+              <TextField
+                key={field}
+                label={
+                  field === 'name'
+                    ? '이름'
+                    : field === 'nickname'
+                    ? '닉네임'
+                    : field === 'phone'
+                    ? '전화번호'
+                    : '주소'
+                }
+                name={field}
+                value={form[field]}
+                onChange={handleChange}
+                fullWidth
+                variant="outlined"
+                size="medium"
+                sx={{
+                  maxWidth: 400,
+                  bgcolor: 'white',
+                  borderRadius: 1,
+                  '& .MuiOutlinedInput-root': {
+                    boxShadow: '0 2px 8px rgb(0 0 0 / 0.1)',
+                    transition: 'box-shadow 0.3s ease',
+                    '&:hover': {
+                      boxShadow: '0 4px 14px rgb(0 0 0 / 0.15)',
+                    },
+                  },
+                }}
+              />
+            ))}
             {error && (
-              <Typography color="error" variant="body2" sx={{ mt: 1 }}>
+              <Typography
+                color="error"
+                variant="body2"
+                sx={{ mt: 1, fontWeight: 600, textAlign: 'center' }}
+              >
                 {error}
               </Typography>
             )}
           </Box>
         </DialogContent>
-        <DialogActions sx={{ justifyContent: 'space-between' }}>
-          <Button onClick={handleClose} color="inherit" disabled={loading}>
+
+        {/* 버튼 영역 */}
+        <DialogActions
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',   // 위아래 중앙 정렬
+            justifyContent: 'space-between',
+            px: 3,
+            py: 3, // 위아래 패딩 여유 있게
+            gap: 1.5,
+          }}
+        >
+          <Button
+            onClick={handleClose}
+            color="inherit"
+            disabled={loading}
+            sx={{
+              fontWeight: 600,
+              px: 2.5,
+              py: 1, // 패딩 조금 키움
+              border: `1px solid ${primaryColor}`,
+              borderRadius: 2,
+              color: primaryColor,
+              textTransform: 'none',
+              fontSize: '0.85rem',
+              transition: 'background-color 0.3s ease',
+              ':hover': { bgcolor: `${primaryColor}22` },
+            }}
+          >
             취소
           </Button>
-          <Box>
+
+          <Box sx={{ display: 'flex', gap: 1 }}>
             <Button
               onClick={handleDeleteConfirm}
-              color="error"
               disabled={loading}
-              sx={{ mr: 2 }}
+              sx={{
+                bgcolor: 'black',
+                color: 'white',
+                fontWeight: 600,
+                px: 2.5,
+                py: 1, // 패딩 조금 키움
+                borderRadius: 2,
+                textTransform: 'none',
+                fontSize: '0.85rem',
+                transition: 'background-color 0.3s ease',
+                ':hover': { bgcolor: '#222' },
+              }}
             >
               회원 탈퇴
             </Button>
             <Button
               onClick={handleSave}
-              variant="contained"
-              color="primary"
               disabled={loading}
+              sx={{
+                fontWeight: 600,
+                px: 2.5,
+                py: 1, // 패딩 조금 키움
+                borderRadius: 2,
+                textTransform: 'none',
+                fontSize: '0.85rem',
+                border: `1px solid ${primaryColor}`,
+                color: primaryColor,
+                transition: 'background-color 0.3s ease',
+                ':hover': { bgcolor: `${primaryColor}22` },
+              }}
             >
               {loading ? '저장 중...' : '저장'}
             </Button>
@@ -297,15 +386,62 @@ const UserProfileCard = ({ user, onUpdate }) => {
         </DialogActions>
       </Dialog>
 
-      {/* 회원탈퇴 확인 모달 */}
       <Dialog open={deleteOpen} onClose={handleDeleteCancel}>
-        <DialogTitle>회원 탈퇴 확인</DialogTitle>
+        <DialogTitle sx={{ textAlign: 'center', fontWeight: 'bold' }}>
+          회원 탈퇴 확인
+        </DialogTitle>
         <DialogContent>
-          <Typography>정말 탈퇴하시겠습니까? 이 작업은 언제든 복구 가능합니다.</Typography>
+          <Typography textAlign="center" sx={{ mb: 2 }}>
+            정말 탈퇴하시겠습니까? 이 작업은 언제든 복구 가능합니다.
+          </Typography>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDeleteCancel}>취소</Button>
-          <Button onClick={handleDelete} color="error" variant="contained" disabled={loading}>
+
+        <DialogActions
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            px: 3,
+            py: 3,
+            gap: 1.5,
+          }}
+        >
+          <Button
+            onClick={handleDeleteCancel}
+            color="inherit"
+            sx={{
+              fontWeight: 600,
+              px: 2.5,
+              py: 1,
+              border: `1px solid ${primaryColor}`,
+              borderRadius: 2,
+              color: primaryColor,
+              textTransform: 'none',
+              fontSize: '0.85rem',
+              transition: 'background-color 0.3s ease',
+              ':hover': { bgcolor: `${primaryColor}22` },
+            }}
+          >
+            취소
+          </Button>
+          <Button
+            onClick={handleDelete}
+            disabled={loading}
+            sx={{
+              bgcolor: 'black',
+              color: 'white',
+              fontWeight: 600,
+              px: 2.5,
+              py: 1,
+              borderRadius: 2,
+              textTransform: 'none',
+              fontSize: '0.85rem',
+              ':hover': {
+                bgcolor: '#222',
+              },
+            }}
+          >
             탈퇴
           </Button>
         </DialogActions>
