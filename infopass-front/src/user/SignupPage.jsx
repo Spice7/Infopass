@@ -34,6 +34,8 @@ const SignupPage = () => {
   //중복체크 메세지
   const [idmsg, setIdmsg] = useState('');
   const [nickNameMsg, setNickNameMsg] = useState('');
+  // 비밀번호 유효성 검사 포커스
+  const [passwordConfirmFocused, setPasswordConfirmFocused] = useState(false);
 
   // 핸드폰 번호 옵션
   const PHONENUMBER_LIST = ['010', '011', '016', '018', '019'];
@@ -255,7 +257,9 @@ const SignupPage = () => {
                 name = "passwordConfirm" 
                 value = {userInfo.passwordConfirm} 
                 onChange = {inputChangeEvent}
-                /> 
+                 onFocus={() => setPasswordConfirmFocused(true)}
+                 onBlur={() => setPasswordConfirmFocused(false)}
+                />
                 {userInfo.password !== userInfo.passwordConfirm && (
                   <span style={{ color : "red" }}>
                      비밀번호가 일치하지 않습니다.

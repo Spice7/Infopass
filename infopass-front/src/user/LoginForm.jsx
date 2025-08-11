@@ -17,7 +17,9 @@ const LoginForm = () => {
                   // 로그인 처리 요청
         login(username, password, location) // LoginContextProvider 의 login 함수 호출
     }
+
     return (
+
         <div className="form">
             <h2 className="login-title">Login</h2>
 
@@ -44,6 +46,9 @@ const LoginForm = () => {
                 </div>
                 <button type='submit' className='btn btn--form btn-login'>
                     Login                    
+                </button>
+                <button type='button' className='btn btn--form btn-signup'>
+                    Sign Up
                 </button>
             </form>
         </div>
