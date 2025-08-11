@@ -37,8 +37,8 @@ const OX_Lobby = () => {
     const processRoomList = (rawList) => {
         const list = (rawList || []).map(r => ({
             ...r,
-            hostId: r.hostId ?? r.host_id ?? r.hostID,
-            current: r.current ?? r.playerCount ?? r.count
+            hostId: r.hostId ?? r.host_user_id ?? r.host_id ?? r.hostID,
+            current: r.current ?? r.playerCount ?? r.count ?? 0
         }));
         setRooms(list);
 
@@ -148,7 +148,7 @@ const OX_Lobby = () => {
                 hostNick: nickname
             })
         });
-        
+
         setShowCreate(false);
         setNewTitle('');
         setNewMax(2);
@@ -162,8 +162,8 @@ const OX_Lobby = () => {
             status: 'WAITING',
             max_players: newMax
         }).then(res => {
-                console.log('방 생성 성공:', res.data);
-            })
+            console.log('방 생성 성공:', res.data);
+        })
             .catch(err => {
                 console.log('호스트ID:', userInfo?.id);
                 console.log('게임 타입:', 'OxQuiz');
@@ -326,7 +326,7 @@ const OX_Lobby = () => {
                                         >입장</button>
                                     </td>
                                     <td style={{ padding: 6, textAlign: 'center' }}>
-                                        {r.current >= r.max ? '마감' : '대기중'}
+                                        {r.current >= r.max ? '마감' : '입장가능'}
                                     </td>
                                 </tr>
                             ))}

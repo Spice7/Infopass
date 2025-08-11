@@ -2,13 +2,11 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import './OX_Quiz.css';
 import axios from 'axios';
 import { LoginContext } from '../../user/LoginContextProvider';
-import * as auth from '../../user/auth';
 
 const MAX_LIFE = 3;
 const TIMER_DURATION = 1800;
 const walkImgs = Array.from({ length: 16 }, (_, i) => `/ox_image/walk${i + 1}.png`);
-// const userInfoResponse = await auth.info();
-// console.log("OX_SingleGame userinfo:", userInfoResponse); 
+
 const OX_SingleGame = () => {
   // =========================
   // 상태 변수 선언
@@ -25,6 +23,7 @@ const OX_SingleGame = () => {
   const [currentindex, setcurrentindex] = useState(0);
   const [buttonDisabled, setButtonDisabled] = useState(false);
   const { userInfo} = useContext(LoginContext);
+  
   // 사용자 정보
   useEffect(() => {
     if (userInfo) {
@@ -34,8 +33,6 @@ const OX_SingleGame = () => {
 
   const useridx = userInfo?.id;
   const usernickname = userInfo?.nickname;
-  // const [useridx] = useState(userInfoResponse.data.id);
-  // const [usernickname] = useState(userInfoResponse.data.nickname);
 
   // 캐릭터 선택
   const [selectedChar, setSelectedChar] = useState(null);

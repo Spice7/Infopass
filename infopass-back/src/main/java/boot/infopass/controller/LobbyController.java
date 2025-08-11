@@ -21,7 +21,7 @@ public class LobbyController {
 	
 	@PostMapping("/ox")
 	public void InsertOxlobby(@RequestBody LobbyDto dto) {
-		mapper.CreateOXLobby(dto);
+		//mapper.CreateOXLobby(dto);
 		log.info("dto : " + dto);
 	}
 	
