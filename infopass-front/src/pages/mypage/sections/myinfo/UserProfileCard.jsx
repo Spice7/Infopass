@@ -96,7 +96,12 @@ const UserProfileCard = ({ user, onUpdate }) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await update(user.id, form);
+      // 기존 user.enabled를 포함해서 보냄
+      const updatedData = {
+        ...form,
+        enabled: user.enabled,
+      };
+      const response = await update(user.id, updatedData);
       if (response.status === 200) {
         if (onUpdate) onUpdate(response.data);
         setOpen(false);
@@ -117,32 +122,32 @@ const UserProfileCard = ({ user, onUpdate }) => {
 
   // 회원탈퇴 실행 (enabled = 0으로 업데이트)
   const handleDelete = async () => {
-  setLoading(true);
-  setError(null);
-  try {
-    const updatedData = {
-      ...form,
-      enabled: 0,
-    };
-    const res = await update(user.id, updatedData);
-    if (res.status === 200) {
-      alert('회원탈퇴가 완료되었습니다.');
+    setLoading(true);
+    setError(null);
+    try {
+      const updatedData = {
+        ...form,
+        enabled: 0,
+      };
+      const res = await update(user.id, updatedData);
+      if (res.status === 200) {
+        alert('회원탈퇴가 완료되었습니다.');
 
-      Cookies.remove('accessToken');  // 쿠키명에 맞게 변경
-      localStorage.removeItem('accessToken');
+        Cookies.remove('accessToken');  // 쿠키명에 맞게 변경
+        localStorage.removeItem('accessToken');
 
-      window.location.href = '/';  // 메인 페이지로 이동
-    } else {
-      alert('회원탈퇴 처리에 실패했습니다.');
+        window.location.href = '/';  // 메인 페이지로 이동
+      } else {
+        alert('회원탈퇴 처리에 실패했습니다.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('서버와 통신 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+      setDeleteOpen(false);
     }
-  } catch (err) {
-    console.error(err);
-    alert('서버와 통신 중 오류가 발생했습니다.');
-  } finally {
-    setLoading(false);
-    setDeleteOpen(false);
-  }
-};
+  };
 
   return (
     <>
