@@ -1,7 +1,10 @@
 import React, { useRef, useState, useEffect, useMemo, useCallback } from 'react'
 import { getSingleQuestion } from './BlockAPI.js';
 import { JavaGenerator, Blockly, BLOCK_MESSAGES, BLOCK_COLORS } from './index.js';
+import * as auth from '../../user/auth.js'
 import Cookies from 'js-cookie'
+import { useNavigate } from 'react-router-dom'
+import BlockLoading from './loading/BlockLoading.jsx'
 
 const BlockMain = ({ questionId = null }) => {
   const [user, setUser] = useState(null);                   // 플레이중인 유저 정보
@@ -12,11 +15,36 @@ const BlockMain = ({ questionId = null }) => {
   const [questionData, setQuestionData] = useState(null);   // DB에서 추출해 화면에 출력할 문제
   const [loading, setLoading] = useState(true);             // 로딩 관련
   const [error, setError] = useState(null);                 // 디버깅용   // 배포시 삭제
+  const navigate = useNavigate();
 
   // 랜덤 문제 ID 생성 또는 props로 받은 ID 사용  // 백엔드로 옮겨야함
   const getQuestionId = useCallback(() => {
     return questionId || Math.floor(Math.random() * 10) + 1; // 1-10 범위의 랜덤 ID
   }, [questionId]);
+
+  useEffect(() => {
+    const token = Cookies.get('accessToken');
+    console.log(token);
+
+    if (!token) {
+      console.log("토큰이 없습니다");
+      navigate("/login", { replace: true, state: { from: location.pathname } });
+      return;
+    }
+
+    auth.info(token)
+      .then((res) => setUser(res.data))
+      .catch((err) => {
+        // !token으로만 로그인 여부를 체크하면 토큰이 만료되거나 폐기되었을 때도 user 정보에 담으려고 할 수 있음
+        if (err?.response?.status === 401 || err?.response?.status === 403) {
+          Cookies.remove('accessToken');
+          navigate("/login", { replace: true, state: { from: location.pathname } });
+        } else {
+          console.error(err);
+          setError('유저 정보를 불러오지 못했습니다.');
+        }
+      });
+  }, [navigate]);
 
   useEffect(() => {
     const fetchQuestionData = async () => {
@@ -25,7 +53,12 @@ const BlockMain = ({ questionId = null }) => {
         setError(null);
         const id = getQuestionId();
         const data = await getSingleQuestion(2);  // 일단 하드코딩으로 테스트
+        
+        // 로딩화면 보여주려고 대기 시간 만들었다   // 잊지 말고 지우자
+        await new Promise(resolve => setTimeout(resolve, 10000));
+        
         setQuestionData(data);
+        
       } catch (err) {
         setError('문제 데이터를 불러오는데 실패했습니다.');
         console.error('Question fetch error:', err);
@@ -125,12 +158,12 @@ const BlockMain = ({ questionId = null }) => {
   // 여러 정답을 처리하는 유틸리티 함수
   const parseAnswers = useCallback((answerData) => {
     if (!answerData) return [];
-    
+
     // 배열인 경우
     if (Array.isArray(answerData)) {
       return answerData;
     }
-    
+
     // 문자열인 경우
     if (typeof answerData === 'string') {
       try {
@@ -142,7 +175,7 @@ const BlockMain = ({ questionId = null }) => {
         return [answerData];
       }
     }
-    
+
     // 기타 경우
     return [answerData];
   }, []);
@@ -150,14 +183,14 @@ const BlockMain = ({ questionId = null }) => {
   // 정답 비교 함수
   const compareAnswers = useCallback((userXml, answers) => {
     const normalizedUserXml = normalizeXml(userXml);
-    
+
     for (const answer of answers) {
       const normalizedAnswerXml = normalizeXml(answer);
       if (normalizedUserXml === normalizedAnswerXml) {
         return true;
       }
     }
-    
+
     return false;
   }, [normalizeXml]);
 
@@ -171,7 +204,7 @@ const BlockMain = ({ questionId = null }) => {
     try {
       const userXml = Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspaceRef.current));
       const answers = parseAnswers(questionData.answer);
-      
+
       const isCorrect = compareAnswers(userXml, answers);
 
       if (isCorrect) {
@@ -222,7 +255,7 @@ const BlockMain = ({ questionId = null }) => {
     if (workspaceRef.current) {
       console.log('JavaGenerator 객체:', JavaGenerator);
       console.log('JavaGenerator에 정의된 블록 타입들:', Object.keys(JavaGenerator));
-      
+
       try {
         const javaCode = JavaGenerator.workspaceToCode(workspaceRef.current);
         console.log('생성된 Java 코드:', javaCode);
@@ -238,11 +271,7 @@ const BlockMain = ({ questionId = null }) => {
 
   // 로딩 상태
   if (loading) {
-    return (
-      <div style={{ textAlign: 'center', padding: '2rem' }}>
-        <div>문제 데이터를 불러오는 중...</div>
-      </div>
-    );
+    return <BlockLoading />;
   }
 
   // 에러 상태
