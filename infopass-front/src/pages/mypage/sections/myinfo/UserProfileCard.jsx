@@ -12,6 +12,7 @@ import {
   DialogContent,
   DialogActions,
   TextField,
+  CircularProgress,
 } from '@mui/material';
 import { AccountCircle, Edit, Star } from '@mui/icons-material';
 import Cookies from 'js-cookie';
@@ -25,23 +26,10 @@ const cardBgColor = '#ffffff';
 const formatPhoneNumber = (phone) => {
   if (!phone) return '';
   const cleaned = phone.replace(/\D/g, '');
-  if (cleaned.length === 11) {
-    return cleaned.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
-  } else if (cleaned.length === 10) {
-    return cleaned.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+  if (cleaned.length >= 10) {
+    return cleaned.replace(/(\d{3})(\d{3,4})(\d{4})/, '$1-$2-$3');
   }
   return phone;
-};
-
-const formatInputPhoneNumber = (value) => {
-  const cleaned = value.replace(/\D/g, '').slice(0, 11);
-  if (cleaned.length <= 3) return cleaned;
-  if (cleaned.length <= 7) {
-    return cleaned.replace(/(\d{3})(\d+)/, '$1-$2');
-  }
-  return cleaned.replace(/(\d{3})(\d{4})(\d{0,4})/, (_, a, b, c) =>
-    c ? `${a}-${b}-${c}` : `${a}-${b}`
-  );
 };
 
 const UserProfileCard = ({ user, onUpdate }) => {
@@ -69,16 +57,18 @@ const UserProfileCard = ({ user, onUpdate }) => {
 
   const handleClose = () => setOpen(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (name === 'phone') {
-      setForm((prev) => ({
-        ...prev,
-        [name]: formatInputPhoneNumber(value),
-      }));
-    } else {
-      setForm((prev) => ({ ...prev, [name]: value }));
+  const handlePhoneChange = (e) => {
+    const { value } = e.target;
+    const cleaned = value.replace(/\D/g, '').slice(0, 11);
+    let formattedValue = cleaned;
+
+    if (cleaned.length > 3 && cleaned.length <= 7) {
+      formattedValue = `${cleaned.slice(0, 3)}-${cleaned.slice(3)}`;
+    } else if (cleaned.length > 7) {
+      formattedValue = `${cleaned.slice(0, 3)}-${cleaned.slice(3, 7)}-${cleaned.slice(7)}`;
     }
+
+    setForm((prev) => ({ ...prev, phone: formattedValue }));
   };
 
   const handleSave = async () => {
@@ -87,6 +77,7 @@ const UserProfileCard = ({ user, onUpdate }) => {
     try {
       const updatedData = {
         ...form,
+        phone: form.phone.replace(/-/g, ''),
         enabled: user.enabled,
       };
       const response = await update(user.id, updatedData);
@@ -118,10 +109,7 @@ const UserProfileCard = ({ user, onUpdate }) => {
       const res = await update(user.id, updatedData);
       if (res.status === 200) {
         alert('회원탈퇴가 완료되었습니다.');
-
         Cookies.remove('accessToken');
-        localStorage.removeItem('accessToken');
-
         window.location.href = '/';
       } else {
         alert('회원탈퇴 처리에 실패했습니다.');
@@ -137,6 +125,7 @@ const UserProfileCard = ({ user, onUpdate }) => {
 
   return (
     <>
+      {/* (UserProfileCard 컴포넌트 본문은 변경 없음) */}
       <Paper
         className="fade-in-up"
         elevation={10}
@@ -234,6 +223,7 @@ const UserProfileCard = ({ user, onUpdate }) => {
         </Button>
       </Paper>
 
+      {/* 프로필 수정 다이얼로그 (변경 없음) */}
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
         <DialogTitle
           sx={{
@@ -283,7 +273,7 @@ const UserProfileCard = ({ user, onUpdate }) => {
                 }
                 name={field}
                 value={form[field]}
-                onChange={handleChange}
+                onChange={field === 'phone' ? handlePhoneChange : (e) => setForm({ ...form, [field]: e.target.value })}
                 fullWidth
                 variant="outlined"
                 size="medium"
@@ -299,6 +289,8 @@ const UserProfileCard = ({ user, onUpdate }) => {
                     },
                   },
                 }}
+                type={field === 'phone' ? 'tel' : 'text'}
+                InputProps={{ readOnly: field === 'name' }}
               />
             ))}
             {error && (
@@ -312,16 +304,14 @@ const UserProfileCard = ({ user, onUpdate }) => {
             )}
           </Box>
         </DialogContent>
-
-        {/* 버튼 영역 */}
         <DialogActions
           sx={{
             display: 'flex',
             flexDirection: 'row',
-            alignItems: 'center',   // 위아래 중앙 정렬
+            alignItems: 'center',
             justifyContent: 'space-between',
             px: 3,
-            py: 3, // 위아래 패딩 여유 있게
+            py: 3,
             gap: 1.5,
           }}
         >
@@ -332,7 +322,7 @@ const UserProfileCard = ({ user, onUpdate }) => {
             sx={{
               fontWeight: 600,
               px: 2.5,
-              py: 1, // 패딩 조금 키움
+              py: 1,
               border: `1px solid ${primaryColor}`,
               borderRadius: 2,
               color: primaryColor,
@@ -354,7 +344,7 @@ const UserProfileCard = ({ user, onUpdate }) => {
                 color: 'white',
                 fontWeight: 600,
                 px: 2.5,
-                py: 1, // 패딩 조금 키움
+                py: 1,
                 borderRadius: 2,
                 textTransform: 'none',
                 fontSize: '0.85rem',
@@ -367,84 +357,83 @@ const UserProfileCard = ({ user, onUpdate }) => {
             <Button
               onClick={handleSave}
               disabled={loading}
+              variant="contained"
               sx={{
                 fontWeight: 600,
                 px: 2.5,
-                py: 1, // 패딩 조금 키움
+                py: 1,
                 borderRadius: 2,
                 textTransform: 'none',
                 fontSize: '0.85rem',
-                border: `1px solid ${primaryColor}`,
-                color: primaryColor,
-                transition: 'background-color 0.3s ease',
-                ':hover': { bgcolor: `${primaryColor}22` },
+                bgcolor: primaryColor,
+                '&:hover': {
+                  bgcolor: '#3a7bd5',
+                },
               }}
             >
-              {loading ? '저장 중...' : '저장'}
+              {loading ? <CircularProgress size={24} color="inherit" /> : '저장'}
             </Button>
           </Box>
         </DialogActions>
       </Dialog>
 
-      <Dialog open={deleteOpen} onClose={handleDeleteCancel}>
-        <DialogTitle sx={{ textAlign: 'center', fontWeight: 'bold' }}>
-          회원 탈퇴 확인
-        </DialogTitle>
-        <DialogContent>
-          <Typography textAlign="center" sx={{ mb: 2 }}>
-            정말 탈퇴하시겠습니까? 이 작업은 언제든 복구 가능합니다.
+      {/* 회원 탈퇴 확인 다이얼로그 (이미지 기반 수정) */}
+      <Dialog open={deleteOpen} onClose={handleDeleteCancel} maxWidth="xs" fullWidth>
+        <DialogContent sx={{ p: 4 }}>
+          <Typography
+            variant="h6"
+            sx={{
+              textAlign: 'center',
+              fontWeight: 'bold',
+              color: '#333',
+              mb: 1,
+            }}
+          >
+            정말 탈퇴하시겠어요?
           </Typography>
-        </DialogContent>
-
-        <DialogActions
-          sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            px: 3,
-            py: 3,
-            gap: 1.5,
-          }}
-        >
-          <Button
-            onClick={handleDeleteCancel}
-            color="inherit"
-            sx={{
-              fontWeight: 600,
-              px: 2.5,
-              py: 1,
-              border: `1px solid ${primaryColor}`,
-              borderRadius: 2,
-              color: primaryColor,
-              textTransform: 'none',
-              fontSize: '0.85rem',
-              transition: 'background-color 0.3s ease',
-              ':hover': { bgcolor: `${primaryColor}22` },
-            }}
-          >
-            취소
-          </Button>
-          <Button
-            onClick={handleDelete}
-            disabled={loading}
-            sx={{
-              bgcolor: 'black',
-              color: 'white',
-              fontWeight: 600,
-              px: 2.5,
-              py: 1,
-              borderRadius: 2,
-              textTransform: 'none',
-              fontSize: '0.85rem',
-              ':hover': {
+          <Typography textAlign="center" color="text.secondary" sx={{ mb: 4 }}>
+  정말 탈퇴하시겠습니까?<br />탈퇴 후 30일 이내에 재로그인하면<br /> 계정이 복구됩니다.
+</Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            <Button
+              onClick={handleDelete}
+              disabled={loading}
+              variant="contained"
+              sx={{
                 bgcolor: '#222',
-              },
-            }}
-          >
-            탈퇴
-          </Button>
-        </DialogActions>
+                color: 'white',
+                fontWeight: 600,
+                py: 1.5,
+                borderRadius: 2,
+                textTransform: 'none',
+                fontSize: '1rem',
+                ':hover': {
+                  bgcolor: '#444',
+                },
+              }}
+            >
+              {loading ? <CircularProgress size={24} color="inherit" /> : '탈퇴'}
+            </Button>
+            <Button
+              onClick={handleDeleteCancel}
+              color="inherit"
+              disabled={loading}
+              sx={{
+                fontWeight: 600,
+                py: 1.5,
+                borderRadius: 2,
+                color: '#666',
+                textTransform: 'none',
+                fontSize: '1rem',
+                ':hover': {
+                  bgcolor: '#eee',
+                },
+              }}
+            >
+              취소
+            </Button>
+          </Box>
+        </DialogContent>
       </Dialog>
     </>
   );
