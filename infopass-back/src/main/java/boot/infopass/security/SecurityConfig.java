@@ -75,14 +75,8 @@ public class SecurityConfig  {
      //  인가 설정 (authorizeHttpRequests)
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // ✅ 1. 공개적으로 허용할 정적 리소스 및 경로를 먼저 지정합니다.
-                .requestMatchers("/", "/login", "/user/join", "/user/checkId", "/rank/**", "/rank").permitAll()
-                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // OPTIONS 요청 허용
-                // ✅ 2. 특정 권한이 필요한 경로를 지정합니다.
-                .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-            //  1. 공개적으로 허용할 정적 리소스 및 경로를 먼저 지정합니다.
-            .requestMatchers("/", "/login", "/user/**","/block/**", "/rank/**").permitAll()
+            // ✅ 1. 공개적으로 허용할 정적 리소스 및 경로를 먼저 지정합니다.
+            .requestMatchers("/", "/login", "/user/**", "/oxquiz/**", "/ws/**", "/ws*","/block/**", "/rank/**", "/lobby/**").permitAll()
 
             //  2. 특정 권한이 필요한 경로를 지정합니다.
             .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
@@ -94,8 +88,8 @@ public class SecurityConfig  {
         // 사용자 정보를 불러오는 서비스 설정
         http.userDetailsService(customUserDetailService);
 
-        return http.build();
-    }
+	    return http.build();
+	}
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -127,5 +121,6 @@ public class SecurityConfig  {
 
         return source;
     }
+
 
 }
