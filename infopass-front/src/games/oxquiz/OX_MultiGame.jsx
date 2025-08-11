@@ -6,7 +6,7 @@ import { Client } from '@stomp/stompjs';
 import { LoginContext } from '../../user/LoginContextProvider';
 
 const MAX_LIFE = 3;
-const TIMER_DURATION = 1800;
+const TIMER_DURATION = 5;
 const walkImgs = Array.from({ length: 16 }, (_, i) => `/ox_image/walk${i + 1}.png`);
 
 const OX_MultiGame = () => {
@@ -25,7 +25,10 @@ const OX_MultiGame = () => {
   const [stompClient, setStompClient] = useState(null);
   const [correctOX, setCorrectOX] = useState(null);
   const [showResult, setShowResult] = useState(false);
+  const [showCorrectOverlay, setShowCorrectOverlay] = useState(false);
   const { userInfo } = useContext(LoginContext);
+  // 서버 reveal 지연시 폴백 타임아웃 저장
+  const revealTimeoutRef = useRef(null);
 
   // 로그인 사용자
   useEffect(() => {
@@ -36,11 +39,11 @@ const OX_MultiGame = () => {
   const useridx = userInfo?.id;
   const usernickname = userInfo?.nickname;
 
-  // 상대방 정보 (실제에서는 매칭 로직 필요)
+  // 상대방 정보
   const [enemynickname, setEnemynickname] = useState('상대방닉네임');
   const [enemyidx, setEnemyidx] = useState(null);
 
-  // 애니메이션 상태
+  // 애니메이션 상태(내 피격)
   const [showMonster, setShowMonster] = useState(false);
   const [showLaser, setShowLaser] = useState(false);
   const [showBoom, setShowBoom] = useState(false);
@@ -48,6 +51,11 @@ const OX_MultiGame = () => {
   const [monsterFade, setMonsterFade] = useState(false);
   const [laserFade, setLaserFade] = useState(false);
   const [boomFade, setBoomFade] = useState(false);
+
+  // 상대 피격 연출
+  const [showEnemyBoom, setShowEnemyBoom] = useState(false);
+  const [showEnemyMonster, setShowEnemyMonster] = useState(false);
+  const [showEnemyLaser, setShowEnemyLaser] = useState(false);
 
   // UI 상태
   const [loading, setLoading] = useState(true);
@@ -61,14 +69,16 @@ const OX_MultiGame = () => {
   const [enemySelectedChar, setEnemySelectedChar] = useState(null);
   const [takenChars, setTakenChars] = useState(new Set());     // 선택된 번호 집합
   const [showCharSelect, setShowCharSelect] = useState(false);
+
   // 종료 ref
   const gameEndedRef = useRef(false);
 
+  // 정답 공개(reveal) 중복 요청 방지
+  const revealSentRef = useRef(false);
+
   // API URL
-  const quizurl = 'http://localhost:9000/oxquiz/quizlist';
   const usersubmiturl = 'http://localhost:9000/oxquiz/submitOXquiz';
   const wronganswerurl = 'http://localhost:9000/oxquiz/wronganswer';
-  
 
   // 로딩 애니메이션
   useEffect(() => {
@@ -79,21 +89,18 @@ const OX_MultiGame = () => {
     return () => clearInterval(walkTimer);
   }, [loading]);
 
-  // =========================
-    // useEffect: 캐릭터 선택창 띄우기
-    // =========================
-    useEffect(() => {
-      if (!loading) return;
-      const timer = setTimeout(() => {
-        setLoading(false);
-        setShowCharSelect(true);
-      }, 1500);
-      return () => clearTimeout(timer);
-    }, [loading]);
+  // 캐릭터 선택창 띄우기
+  useEffect(() => {
+    if (!loading) return;
+    const timer = setTimeout(() => {
+      setLoading(false);
+      setShowCharSelect(true);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [loading]);
 
-  // =========================
-  // 캐릭터 선택 후 카운트다운
-  // =========================
+  // 캐릭터 선택
+  const roomId = useRef(new URLSearchParams(window.location.search).get('roomId') || null).current;
   const handleCharSelect = (num) => {
     if (takenChars.has(num)) return;         // 이미 점유
     setSelectedChar(num);                    // 낙관적 표시
@@ -111,106 +118,21 @@ const OX_MultiGame = () => {
     }
   };
 
-  // 퀴즈 로드
-  useEffect(() => {
-    if (!gameStarted) return;
-    axios.get(quizurl)
-      .then(res => {
-        setquizlist(res.data);
-        console.log('퀴즈 데이터:', res.data);
-      })
-      .catch(e => console.error('퀴즈 로드 실패:', e));
-  }, [gameStarted]);
-
-  // 타이머 + 판정
-  useEffect(() => {
-    if (!showQuiz) return;
-    if (timeLeft <= 0) {
-      setButtonDisabled(true);
-      if (!showResult) {
-        const answerOX = quizlist[currentindex]?.answer === 1 ? 'O' : 'X';
-        setCorrectOX(answerOX);
-        setShowResult(true);
-
-        // 내 판정
-        let myCorrect = myOX === answerOX;
-        if (myOX !== 'O' && myOX !== 'X') myCorrect = false;
-
-        axios.post(usersubmiturl, {
-          user_id: useridx,
-            quiz_id: quizlist[currentindex]?.id,
-            submitted_answer: myOX,
-            is_correct: myCorrect
-        }).catch(()=>{});
-
-        if (!myCorrect) {
-          setShowMonster(true);
-            setTimeout(() => setShowLaser(true), 800);
-          setTimeout(() => {
-            setShowBoom(true);
-              setIsShaking(true);
-              setMyLife(prev => (prev > 0 ? prev - 1 : 0));
-          }, 1200);
-          setTimeout(() => {
-            setShowBoom(false);
-              setIsShaking(false);
-              setShowLaser(false);
-              setShowMonster(false);
-              setMonsterFade(false);
-              setLaserFade(false);
-              setBoomFade(false);
-          }, 2000);
-
-          axios.post(wronganswerurl, {
-            user_id: useridx,
-            game_type: 'oxquiz',
-            question_id: quizlist[currentindex]?.id,
-            submitted_answer: myOX
-          }).then(() => console.log('오답 기록 저장 성공'))
-            .catch(()=>{});
-        } else {
-          setMyScore(prev => prev + 1);
-        }
-
-        // 상대방 판정
-        let enemyCorrect = enemyOX === answerOX;
-        if (!enemyOX) enemyCorrect = false;
-        if (!enemyCorrect) {
-          setEnemyLife(prev => (prev > 0 ? prev - 1 : 0));
-        } else {
-          setEnemyScore(prev => prev + 1);
-        }
-      }
-      return;
-    }
-    const t = setInterval(() => {
-      setTimeLeft(prev => prev > 0 ? +(prev - 0.1).toFixed(1) : 0.0);
-    }, 100);
-    return () => clearInterval(t);
-  }, [showQuiz, timeLeft, quizlist, currentindex, myOX, enemyOX, showResult, useridx]);
-
-  // 문제 이동 시 초기화
+  // 문제 이동 시 라운드 상태 초기화
   useEffect(() => {
     setShowResult(false);
     setCorrectOX(null);
-    setMyOX(null);
-    setEnemyOX(null);
     setButtonDisabled(false);
     setTimeLeft(TIMER_DURATION);
+    setShowEnemyBoom(false);
+    setShowEnemyMonster(false);
+    setShowEnemyLaser(false);
+    setResultMsg(''); // 문제란 메시지 초기화
+    revealSentRef.current = false;
+    try { if (revealTimeoutRef.current) { clearTimeout(revealTimeoutRef.current); revealTimeoutRef.current = null; } } catch { /* noop */ }
   }, [currentindex]);
 
-  // 정답 공개 후 다음 문제
-  useEffect(() => {
-    if (!showResult) return;
-    if (currentindex < quizlist.length - 1) {
-      const t = setTimeout(() => {
-        setcurrentindex(prev => prev + 1);
-      }, 2000);
-      return () => clearTimeout(t);
-    }
-  }, [showResult, currentindex, quizlist.length]);
-
-  const roomId = useRef(new URLSearchParams(window.location.search).get('roomId') || null).current;
+  // 정답 공개 후 즉시 다음 문제로 이동: reveal 핸들러에서 처리
 
   // 웹소켓 연결
   useEffect(() => {
@@ -224,21 +146,7 @@ const OX_MultiGame = () => {
     let roomSub; // 방 토픽 구독 핸들
 
     client.onConnect = () => {
-      // 기존 oxquiz 브로드캐스트
-      client.subscribe('/topic/oxquiz', (message) => {
-        const data = JSON.parse(message.body);
-        if (data.type === 'ox') {
-          const enemyAnswer = data.answer ?? data.ox;
-          setEnemynickname(prev => prev || data.user || data.nickname || '상대방');
-          setEnemyOX(enemyAnswer);
-          console.log('[RECV OX]', data);
-        }
-        if (data.type === 'score') {
-          setEnemyScore(data.score);
-        }
-      });
-
-      // 방 정보 구독 -> 상대 닉네임 세팅
+      // 방 정보 구독 -> 상대 닉네임/ID 세팅 및 게임 이벤트 수신
       if (roomId) {
         roomSub = client.subscribe(`/topic/ox/room.${roomId}`, (message) => {
           const data = JSON.parse(message.body);
@@ -259,41 +167,44 @@ const OX_MultiGame = () => {
             const myNo = data.selections?.[String(useridx)] ?? null;
             const otherEntry = Object.entries(data.selections || {})
               .find(([uid]) => String(uid) !== String(useridx));
-            setSelectedChar(myNo || selectedChar);
+            setSelectedChar(prev => (myNo ?? prev));
             setEnemySelectedChar(otherEntry ? otherEntry[1] : null);
           }
 
           if (data.type === 'charDenied') {
-            // 내 선택이 거부되었으면 원복
             if (String(data.userId) === String(useridx)) {
               alert('이미 선택된 캐릭터입니다.');
               setSelectedChar(null);
             }
           }
 
-          if (data.type === 'bothSelected') {
-            // 양쪽 모두 선택됨 → 동시 카운트다운 시작
-            let c = data.startIn ?? 3;
-            setCountdown(c);
+          // 서버가 동일 문제 세트/시작시각을 전송
+          if (data.type === 'quizSet') {
+            const now = Date.now();
+            const startAt = Number(data.startAt || now + 3000);
+            const sec = Math.max(0, Math.ceil((startAt - now) / 1000));
+            const duration = Number(data.duration || TIMER_DURATION);
+
+            setquizlist(Array.isArray(data.quizList) ? data.quizList : []);
+            setcurrentindex(0);
+
+            // 카운트다운 동안 선택 화면 유지
+            setCountdown(sec);
+            setGameStarted(true);
+
+            let c = sec;
             const iv = setInterval(() => {
               c -= 1;
               if (c <= 0) {
                 clearInterval(iv);
                 setCountdown(null);
                 setShowCharSelect(false);
-                setGameStarted(true);
                 setShowQuiz(true);
-                setTimeLeft(TIMER_DURATION);
-                // 같은 문제 보장을 원하면 서버에서 seed/퀴즈 목록을 브로드캐스트 하거나
-                // axios.get(quizurl, { params: { seed: roomId } }) 식으로 통일된 seed 사용.
+                setTimeLeft(duration);
               } else {
                 setCountdown(c);
               }
             }, 1000);
-          }
-
-          if (data.type === 'start') {
-            // ...existing start from lobby if needed...
           }
         });
 
@@ -308,9 +219,11 @@ const OX_MultiGame = () => {
     client.activate();
     setStompClient(client);
     return () => {
-      try { roomSub?.unsubscribe(); } catch {}
+  try { roomSub?.unsubscribe(); } catch { /* noop */ }
       client.deactivate();
     };
+  // roomId 또는 사용자 변경 때만 재연결
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId, useridx]);
 
   // 승패 판정
@@ -337,24 +250,22 @@ const OX_MultiGame = () => {
     }
   }, [showResult, currentindex, myLife, enemyLife, myScore, enemyScore, quizlist.length]);
 
-  // OX 클릭
+  // OX 클릭 → 내 답 전송
   const handleOXClick = (ox) => {
     if (buttonDisabled || showResult) return;
     setMyOX(ox);
 
-    if (stompClient && stompClient.connected) {
-      const payload = {
-        type: 'ox',
-        user: usernickname,
-        userId: useridx,
-        questionId: quizlist[currentindex]?.id,
-        answer: ox,
-      };
+    if (stompClient && stompClient.connected && roomId) {
       stompClient.publish({
-        destination: '/app/oxquiz',
-        body: JSON.stringify(payload)
+        destination: '/app/ox/room.answer',
+        body: JSON.stringify({
+          type: 'answer',
+          roomId: +roomId,
+          userId: useridx,
+          qIndex: currentindex,
+          answer: ox // 'O' or 'X'
+        })
       });
-      console.log('[SEND OX]', payload);
     }
   };
 
@@ -377,7 +288,7 @@ const OX_MultiGame = () => {
   }
 
   // 캐릭터 선택 화면
-if (showCharSelect) {
+  if (showCharSelect) {
     return (
       <div className="ox-charselect-bg">
         <div className="ox-charselect-box">
@@ -407,7 +318,6 @@ if (showCharSelect) {
                   >
                     <img src={`/ox_image/char${num}.png`} alt={`캐릭터${num}`} style={{ width: 80, height: 80 }} />
                   </button>
-                  {/* 선택자 이름 표시 */}
                   {isMine && (
                     <div style={{ position: 'absolute', width: '100%', textAlign: 'center', top: 90, color: 'black', fontSize: '25px'  }}>
                       {usernickname}
@@ -422,8 +332,6 @@ if (showCharSelect) {
               );
             })}
           </div>
-
-          {/* 선택 완료되면 서버가 bothSelected를 보냄. 수동 버튼 제거 가능 */}
           {countdown !== null && (
             <div className="ox-countdown-overlay">
               <h1>{countdown}</h1>
@@ -483,15 +391,16 @@ if (showCharSelect) {
     }}>
       <div className="ox-container">
         {/* 문제 */}
-        <div className="ox-quiz">
-          {showResult ? (
-            <div>정답은 <b>{correctOX}</b> 입니다!!!</div>
+       <div className="ox-quiz">
+          {showCorrectOverlay ? (
+            <span className="resultMsg">정답은 <b>{correctOX}</b> 입니다!!!</span>
+          ) : resultMsg ? (
+            <span className="resultMsg">{resultMsg}</span>
           ) : (
-            resultMsg ? <span className="resultMsg">{resultMsg}</span> :
-              (showQuiz ? `${currentindex + 1} ${quizlist[currentindex]?.question}` : '')
+            showQuiz ? `${currentindex + 1} ${quizlist[currentindex]?.question}` : ''
           )}
         </div>
-
+        
         {/* 타이머 */}
         {showQuiz && (
           <div style={{
@@ -522,7 +431,6 @@ if (showCharSelect) {
               className={`ox-oximg${myOX === 'O' ? ' ox-oximg-active' : ''}`}
               onClick={() => handleOXClick('O')}
               draggable={false}
-              disabled={buttonDisabled || showResult}
             />
             <img
               src="/ox_image/X.png"
@@ -530,7 +438,6 @@ if (showCharSelect) {
               className={`ox-oximg${myOX === 'X' ? ' ox-oximg-active' : ''}`}
               onClick={() => handleOXClick('X')}
               draggable={false}
-              disabled={buttonDisabled || showResult}
             />
           </div>
         )}
@@ -538,7 +445,7 @@ if (showCharSelect) {
         {/* 캐릭터 영역 */}
         <div className="ox-charwrap">
           {/* 내 캐릭터 */}
-            <div className={`ox-char${isShaking ? ' ox-shake' : ''}`}>
+          <div className={`ox-char${isShaking ? ' ox-shake' : ''}`}>
             {showMonster && (
               <img
                 src="/ox_image/monster.png"
@@ -632,6 +539,23 @@ if (showCharSelect) {
 
           {/* 상대방 */}
           <div className="ox-char">
+            {showEnemyMonster && (
+              <img
+                src="/ox_image/monster.png"
+                alt="enemy-monster"
+                className="ox-monster"
+                draggable={false}
+              />
+            )}
+            {showEnemyLaser && (
+              <img
+                src="/ox_image/laserYellow1.png"
+                alt="enemy-laser"
+                className="ox-laser"
+                style={{ transformOrigin: 'top' }}
+                draggable={false}
+              />
+            )}
             <img src={`/ox_image/char${enemySelectedChar}.png`} alt="플레이어2" style={{ width: 90, height: 90 }} />
             <div className="ox-nick">{enemynickname}</div>
             <div className="ox-scoreboard">{enemyScore}</div>
@@ -645,6 +569,14 @@ if (showCharSelect) {
                   draggable={false}
                 />
               </div>
+            )}
+            {showEnemyBoom && (
+              <img
+                src="/ox_image/laserboom2.png"
+                alt="enemyBoom"
+                className="ox-boom"
+                draggable={false}
+              />
             )}
           </div>
         </div>

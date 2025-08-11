@@ -8,13 +8,18 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
+import boot.infopass.dto.OXQuizDto;
 import boot.infopass.mapper.LobbyMapper;
+import boot.infopass.mapper.OxQuizMapper;
 
 @Controller
 public class OXWebController {
 
     @Autowired
     private LobbyMapper lobby;
+    
+    @Autowired
+    private OxQuizMapper quizlist;
 
     static class Player {
         public String userId;
@@ -40,8 +45,11 @@ public class OXWebController {
         public List<Player> players = new ArrayList<>();
         public Map<String, Integer> selectedChars = new HashMap<>(); // 캐릭터 선택
         //동일 문제용
-        public List<Map<String, Object>> quizList; // [{id,question,answer}, ...]
+        public List<OXQuizDto> quizList; // [{id,question,answer}, ...]
         public Long quizStartAt; // epoch ms
+        public String myselcet; //내가 선택한 답
+        public String enemyselect; // 상대방이 선택한 답
+        public Map<Integer, Map<String, String>> answers = new ConcurrentHashMap<>();
         public int current() { return players.size(); }
     }
 
@@ -55,6 +63,8 @@ public class OXWebController {
         private String nickname;
         private int roomId;
         private Integer charNo; // 추가: 선택 캐릭터 번호
+        private Integer qIndex;
+        private String answer;
         // Getters/Setters
         public String getType() { return type; }
         public void setType(String type) { this.type = type; }
@@ -74,6 +84,10 @@ public class OXWebController {
         public void setRoomId(int roomId) { this.roomId = roomId; }
         public Integer getCharNo() { return charNo; }
         public void setCharNo(Integer charNo) { this.charNo = charNo; }
+        public Integer getQIndex() { return qIndex; }
+        public void setQIndex(Integer qIndex) { this.qIndex = qIndex; }
+        public String getAnswer() { return answer; }
+        public void setAnswer(String answer) { this.answer = answer; }
     }
 
     private Map<Integer, Room> rooms = new ConcurrentHashMap<>();
@@ -82,7 +96,7 @@ public class OXWebController {
     public OXWebController(SimpMessagingTemplate template) {
         this.template = template;
     }
-
+    
     @MessageMapping("/ox/rooms")
     public void rooms(GenericMsg msg) {
     	checkemptyRooms();
@@ -195,11 +209,32 @@ public class OXWebController {
                         "taken", taken,
                         "selections", r.selectedChars));
 
-        // 모두 선택 완료 시 카운트다운 트리거
+        // 모두 선택 완료 → 동일 퀴즈 세트 생성 및 전송
         if (r.selectedChars.size() == r.current() && r.current() >= 2) {
+        	ensureQuizSet(r); // 퀴즈 세트가 없으면 생성
+            r.status = "PLAYING";
+            try { lobby.UpdateStatus(r); } catch (Exception ignore) {}
             template.convertAndSend("/topic/ox/room." + r.id,
-                    Map.of("type", "bothSelected", "startIn", 3));
+                    Map.of(
+                        "type", "quizSet",
+                        "roomId", r.id,
+                        "startAt", r.quizStartAt,      // 동시 시작용 타임스탬프(ms)
+                        "duration", 5,              // 초 단위(프론트 TIMER_DURATION과 동일)
+                        "quizList", r.quizList         // 동일 문제 세트
+                    ));
         }
+    }
+    
+    private void ensureQuizSet(Room r) {
+        if (r.quizList != null && !r.quizList.isEmpty() && r.quizStartAt != null) return;
+
+        // TODO: 실제 DB에서 동일한 문제 세트를 가져오도록 변경
+        // 예시용 더미(프론트와 동일 구조 {id,question,answer})
+        List<OXQuizDto> list = new ArrayList<>();
+        list = quizlist.GetAllQuiz();
+        // 예: 10문제 샘플
+        r.quizList = list;
+        r.quizStartAt = System.currentTimeMillis() + 3000; // 3초 뒤 동시 시작
     }
     
     @MessageMapping("/ox/room.info")
