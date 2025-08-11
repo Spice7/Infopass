@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="boot.infopass.mapper.LobbyMapper">
-	<insert id="CreateOXLobby" parameterType="lobby">
-		insert into multiplayer_lobby (host_user_id, game_type, status, max_players, created_at) values (#{host_user_id}, #{game_type}, #{status}, #{max_players}, now())
+ 	<insert id="CreateOXLobby" parameterType="boot.infopass.controller.OXWebController$Room" useGeneratedKeys="true" keyProperty="id">
+		insert into multiplayer_lobby (host_user_id,title, game_type, status, max_players, created_at) values (#{host_user_id},#{title},'oxquiz','WAITING',#{max_players}, NOW())
 	</insert>
+	<select id="GetAllLobbys" resultType="boot.infopass.controller.OXWebController$Room">
+		SELECT l.*, u.nickname AS hostNick FROM multiplayer_lobby l LEFT JOIN user u ON l.host_user_id = u.id ORDER BY l.id;
+	</select>
 	<delete id="DeleteOXLobby" parameterType="Integer">
-		delete from multiplayer_lobby where id = #{id}
+	 	delete from  multiplayer_lobby where id = #{id}
 	</delete>
+	<update id="UpdateHost" parameterType="boot.infopass.controller.OXWebController$Room">
+		update multiplayer_lobby set host_user_id = #{hostId} where id = #{id}
+	</update>
+	<update id="UpdateStatus" parameterType="boot.infopass.controller.OXWebController$Room">
+		update multiplayer_lobby set status = #{status} where id = #{id}
+	</update>
 </mapper>

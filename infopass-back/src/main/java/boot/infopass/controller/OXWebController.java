@@ -2,7 +2,6 @@ package boot.infopass.controller;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -14,9 +13,9 @@ import boot.infopass.mapper.LobbyMapper;
 @Controller
 public class OXWebController {
 
-	@Autowired
-	private LobbyMapper lobby;
-	
+    @Autowired
+    private LobbyMapper lobby;
+
     static class Player {
         public String userId;
         public String nickname;
@@ -29,13 +28,20 @@ public class OXWebController {
         }
     }
 
-    static class Room {
-        public int id;
+    public static class Room {
+        public int id;			//DB PK
         public String title;
-        public int max;
-        public String hostId;
+        public int max_players;
+        public String host_user_id;
         public String hostNick;
+        public String gameType = "oxquiz";
+        public String mode = "MULTI";
+        public String status = "WAITING";
         public List<Player> players = new ArrayList<>();
+        public Map<String, Integer> selectedChars = new HashMap<>(); // 캐릭터 선택
+        //동일 문제용
+        public List<Map<String, Object>> quizList; // [{id,question,answer}, ...]
+        public Long quizStartAt; // epoch ms
         public int current() { return players.size(); }
     }
 
@@ -48,6 +54,8 @@ public class OXWebController {
         private String userId;
         private String nickname;
         private int roomId;
+        private Integer charNo; // 추가: 선택 캐릭터 번호
+        // Getters/Setters
         public String getType() { return type; }
         public void setType(String type) { this.type = type; }
         public String getTitle() { return title; }
@@ -64,9 +72,10 @@ public class OXWebController {
         public void setNickname(String nickname) { this.nickname = nickname; }
         public int getRoomId() { return roomId; }
         public void setRoomId(int roomId) { this.roomId = roomId; }
+        public Integer getCharNo() { return charNo; }
+        public void setCharNo(Integer charNo) { this.charNo = charNo; }
     }
 
-    private AtomicInteger seq = new AtomicInteger(1000);
     private Map<Integer, Room> rooms = new ConcurrentHashMap<>();
     private final SimpMessagingTemplate template;
 
@@ -76,28 +85,31 @@ public class OXWebController {
 
     @MessageMapping("/ox/rooms")
     public void rooms(GenericMsg msg) {
+    	checkemptyRooms();
         broadcastRooms();
     }
 
     @MessageMapping("/ox/room.create")
     public void create(GenericMsg msg) {
         Room r = new Room();
-        r.id = seq.getAndIncrement();
         r.title = msg.getTitle();
-        r.max = msg.getMax();
-        r.hostId = msg.getHostId();
+        r.max_players = msg.getMax();
+        r.host_user_id = msg.getHostId();
         r.hostNick = msg.getHostNick();
+
+        // DB Insert -> r.id에 생성된 PK가 세팅됨
+        System.out.println(r);
+        lobby.CreateOXLobby(r);
+
         Player p = new Player(msg.getHostId(), msg.getHostNick(), true);
         r.players.add(p);
         rooms.put(r.id, r);
 
-        // 전체 목록 & 방 상태 브로드캐스트
         broadcastRooms();
         broadcastRoom(r.id);
 
-        // 방장에게 즉시 입장 트리거 (모두 수신 후 필터)
         template.convertAndSend("/topic/ox/created",
-                Map.of("type","created","roomId", r.id, "hostId", r.hostId));
+                Map.of("type", "created", "roomId", r.id, "hostId", r.host_user_id));
     }
 
     @MessageMapping("/ox/room.join")
@@ -106,10 +118,9 @@ public class OXWebController {
         if (r != null) {
             boolean alreadyIn = r.players.stream()
                 .anyMatch(p -> p.userId.equals(msg.getUserId()));
-            if (!alreadyIn && r.current() < r.max) {
+            if (!alreadyIn && r.current() < r.max_players) {
                 Player p = new Player(msg.getUserId(), msg.getNickname(), false);
                 r.players.add(p);
-                // host flag 유지
             }
             broadcastRoom(r.id);
             broadcastRooms();
@@ -123,19 +134,21 @@ public class OXWebController {
             r.players.removeIf(p -> p.userId.equals(msg.getUserId()));
             
             if (r.players.isEmpty()) {
-            	System.out.println("안녕: " + r.id);
+                // DB 삭제
                 lobby.DeleteOXLobby(r.id);
                 rooms.remove(r.id);
                 broadcastRooms();
                 return;
             }
             // 방장 위임
-            if (r.hostId.equals(msg.getUserId())) {
+            if (r.host_user_id.equals(msg.getUserId())) {
                 Player newHost = r.players.get(0);
-                r.hostId = newHost.userId;
+                r.host_user_id = newHost.userId;
                 r.hostNick = newHost.nickname;
-                r.players.forEach(p -> p.host = p.userId.equals(r.hostId));
+                r.players.forEach(p -> p.host = p.userId.equals(r.host_user_id));
+                lobby.UpdateHost(r);
             }
+          
             broadcastRoom(r.id);
             broadcastRooms();
         }
@@ -144,37 +157,100 @@ public class OXWebController {
     @MessageMapping("/ox/room.start")
     public void start(GenericMsg msg) {
         Room r = rooms.get(msg.getRoomId());
-        if (r != null && r.hostId.equals(msg.getUserId())) {
-            // 정원 다 찼을 때만 시작 허용 (프론트도 동일 검증)
-            if (r.current() == r.max) {
+        r.status= "PLAYING";
+        if (r != null && r.host_user_id.equals(msg.getUserId())) {
+            if (r.current() == r.max_players) {
+            	lobby.UpdateStatus(r);
                 template.convertAndSend("/topic/ox/room." + r.id,
                         Map.of("type", "start", "roomId", r.id));
             }
         }
     }
 
+    @MessageMapping("/ox/room.char")
+    public void selectChar(GenericMsg msg) {
+        Room r = rooms.get(msg.getRoomId());
+        if (r == null) return;
+        if (msg.getCharNo() == null) return;
+
+        // 이미 다른 유저가 선택했는지 확인
+        boolean takenByOther = r.selectedChars.entrySet().stream()
+                .anyMatch(e -> Objects.equals(e.getValue(), msg.getCharNo())
+                        && !Objects.equals(e.getKey(), msg.getUserId()));
+        if (takenByOther) {
+            // 거부 응답(선택 불가) - 클라이언트가 처리할 수 있게 알림
+            template.convertAndSend("/topic/ox/room." + r.id,
+                    Map.of("type", "charDenied", "userId", msg.getUserId(), "charNo", msg.getCharNo()));
+            return;
+        }
+
+        // 내 이전 선택이 있었다면 갱신
+        r.selectedChars.put(msg.getUserId(), msg.getCharNo());
+
+        // 현황 브로드캐스트
+        Set<Integer> taken = new HashSet<>(r.selectedChars.values());
+        template.convertAndSend("/topic/ox/room." + r.id,
+                Map.of("type", "char",
+                        "roomId", r.id,
+                        "taken", taken,
+                        "selections", r.selectedChars));
+
+        // 모두 선택 완료 시 카운트다운 트리거
+        if (r.selectedChars.size() == r.current() && r.current() >= 2) {
+            template.convertAndSend("/topic/ox/room." + r.id,
+                    Map.of("type", "bothSelected", "startIn", 3));
+        }
+    }
+    
     @MessageMapping("/ox/room.info")
     public void info(GenericMsg msg) {
         broadcastRoom(msg.getRoomId());
     }
-
+    
+    private void checkemptyRooms() {
+    	 List<Room> dbRooms = lobby.GetAllLobbys();
+    	 for(Room r : dbRooms) {
+    		 Room mem = rooms.get(r.id);
+    		 int memCurrent = (mem ==null ? 0 : mem.current());
+    		 System.out.println(r.id + "의 인원수 : " + memCurrent);
+    		 boolean isWaiting = "WAITING".equalsIgnoreCase(
+                     r.status == null ? "WAITING" : r.status);
+    		 
+    		 if(isWaiting && memCurrent==0) {
+    			 lobby.DeleteOXLobby(r.id);
+    		 }
+    		 
+    	 }
+    }
     private void broadcastRooms() {
+        List<Room> dbRooms = lobby.GetAllLobbys();
+        System.out.println("rooms size = " + (dbRooms == null ? "null" : dbRooms.size()));
         List<Map<String, Object>> list = new ArrayList<>();
-        for (Room r : rooms.values()) {
+        for (Room r : dbRooms) {
+            // 메모리 상의 방(플레이어 목록 보유)
+            Room mem = rooms.get(r.id);
+            int current = (mem != null ? mem.current() : 0);
+            String hostNick = (mem != null && mem.hostNick != null) ? mem.hostNick : (r.hostNick != null ? r.hostNick : "");
+            String hostId = (mem != null && mem.host_user_id != null) ? mem.host_user_id : (r.host_user_id != null ? r.host_user_id : "");
+
             list.add(Map.of(
                 "id", r.id,
-                "title", r.title,
-                "hostId", r.hostId,
-                "hostNick", r.hostNick,
-                "max", r.max,
-                "current", r.current()
+                "title", r.title != null ? r.title : "",
+                "hostId", hostId,         // 프론트 표준 키
+                "host_user_id", hostId,   // 호환 키(프론트에서 둘 다 인식)
+                "hostNick", hostNick,
+                "max", r.max_players,
+                "current", current        // 메모리 기준 인원 수
             ));
         }
-        template.convertAndSend("/topic/ox/lobby", Map.of("type", "rooms", "rooms", list));
+        template.convertAndSend("/topic/ox/lobby",
+                Map.of("type", "rooms", "rooms", list));
     }
+
 
     private void broadcastRoom(int roomId) {
         Room r = rooms.get(roomId);
+        System.out.println(r);
         if (r != null) {
             List<Map<String,Object>> ps = new ArrayList<>();
             for (Player p : r.players) {
@@ -189,9 +265,9 @@ public class OXWebController {
                        "room", Map.of(
                            "id", r.id,
                            "title", r.title,
-                           "hostId", r.hostId,
+                           "hostId", r.host_user_id,
                            "hostNick", r.hostNick,
-                           "max", r.max
+                           "max", r.max_players
                        ),
                        "players", ps));
         }

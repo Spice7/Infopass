@@ -37,7 +37,6 @@ const OX_MultiGame = () => {
   const usernickname = userInfo?.nickname;
 
   // 상대방 정보 (실제에서는 매칭 로직 필요)
-  const enemyid = 'asd1234@naver.com';
   const [enemynickname, setEnemynickname] = useState('상대방닉네임');
   const [enemyidx, setEnemyidx] = useState(null);
 
@@ -57,14 +56,19 @@ const OX_MultiGame = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [showQuiz, setShowQuiz] = useState(false);
 
+  // 캐릭터 선택
+  const [selectedChar, setSelectedChar] = useState(null);
+  const [enemySelectedChar, setEnemySelectedChar] = useState(null);
+  const [takenChars, setTakenChars] = useState(new Set());     // 선택된 번호 집합
+  const [showCharSelect, setShowCharSelect] = useState(false);
   // 종료 ref
   const gameEndedRef = useRef(false);
 
   // API URL
   const quizurl = 'http://localhost:9000/oxquiz/quizlist';
-  const finduserurl = 'http://localhost:9000/user/finduser';
   const usersubmiturl = 'http://localhost:9000/oxquiz/submitOXquiz';
   const wronganswerurl = 'http://localhost:9000/oxquiz/wronganswer';
+  
 
   // 로딩 애니메이션
   useEffect(() => {
@@ -75,28 +79,37 @@ const OX_MultiGame = () => {
     return () => clearInterval(walkTimer);
   }, [loading]);
 
-  // 1.5초 후 게임 시작 + 카운트다운
-  useEffect(() => {
-    if (!loading) return;
-    const timer = setTimeout(() => {
-      setLoading(false);
-      setGameStarted(true);
-      setCountdown(3);
-      let counter = 3;
-      const countdownInterval = setInterval(() => {
-        counter -= 1;
-        if (counter === 0) {
-          clearInterval(countdownInterval);
-          setCountdown(null);
-          setShowQuiz(true);
-          setTimeLeft(TIMER_DURATION);
-        } else {
-          setCountdown(counter);
-        }
-      }, 1000);
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, [loading]);
+  // =========================
+    // useEffect: 캐릭터 선택창 띄우기
+    // =========================
+    useEffect(() => {
+      if (!loading) return;
+      const timer = setTimeout(() => {
+        setLoading(false);
+        setShowCharSelect(true);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }, [loading]);
+
+  // =========================
+  // 캐릭터 선택 후 카운트다운
+  // =========================
+  const handleCharSelect = (num) => {
+    if (takenChars.has(num)) return;         // 이미 점유
+    setSelectedChar(num);                    // 낙관적 표시
+    if (stompClient && stompClient.connected && roomId) {
+      stompClient.publish({
+        destination: '/app/ox/room.char',
+        body: JSON.stringify({
+          type: 'char',
+          roomId: +roomId,
+          userId: useridx,
+          nickname: usernickname,
+          charNo: num
+        })
+      });
+    }
+  };
 
   // 퀴즈 로드
   useEffect(() => {
@@ -108,17 +121,6 @@ const OX_MultiGame = () => {
       })
       .catch(e => console.error('퀴즈 로드 실패:', e));
   }, [gameStarted]);
-
-  // 상대방 정보 (데모)
-  useEffect(() => {
-    axios.post(finduserurl, { email: enemyid })
-      .then(res => {
-        setEnemynickname(res.data.nickname);
-        setEnemyidx(res.data.id);
-        console.log('상대방 정보:', res.data);
-      })
-      .catch(e => console.error('상대방 정보 에러:', e));
-  }, [enemyid]);
 
   // 타이머 + 판정
   useEffect(() => {
@@ -208,6 +210,8 @@ const OX_MultiGame = () => {
     }
   }, [showResult, currentindex, quizlist.length]);
 
+  const roomId = useRef(new URLSearchParams(window.location.search).get('roomId') || null).current;
+
   // 웹소켓 연결
   useEffect(() => {
     const socket = new SockJS('http://localhost:9000/ws');
@@ -217,13 +221,15 @@ const OX_MultiGame = () => {
       reconnectDelay: 5000
     });
 
+    let roomSub; // 방 토픽 구독 핸들
+
     client.onConnect = () => {
+      // 기존 oxquiz 브로드캐스트
       client.subscribe('/topic/oxquiz', (message) => {
         const data = JSON.parse(message.body);
         if (data.type === 'ox') {
-          // 서버에서 answer 로 보낸다면 여기서 사용
           const enemyAnswer = data.answer ?? data.ox;
-          setEnemynickname(data.user || data.nickname || enemynickname);
+          setEnemynickname(prev => prev || data.user || data.nickname || '상대방');
           setEnemyOX(enemyAnswer);
           console.log('[RECV OX]', data);
         }
@@ -231,12 +237,81 @@ const OX_MultiGame = () => {
           setEnemyScore(data.score);
         }
       });
+
+      // 방 정보 구독 -> 상대 닉네임 세팅
+      if (roomId) {
+        roomSub = client.subscribe(`/topic/ox/room.${roomId}`, (message) => {
+          const data = JSON.parse(message.body);
+
+          if (data.type === 'room') {
+            const players = data.players || [];
+            const others = players.filter(p => String(p.userId) !== String(useridx));
+            if (others.length > 0) {
+              setEnemynickname(others[0].nickname || '상대방');
+              setEnemyidx(others[0].userId);
+            }
+          }
+
+          if (data.type === 'char') {
+            // taken: [1,2,...], selections: { userId: charNo }
+            const t = new Set(data.taken || []);
+            setTakenChars(t);
+            const myNo = data.selections?.[String(useridx)] ?? null;
+            const otherEntry = Object.entries(data.selections || {})
+              .find(([uid]) => String(uid) !== String(useridx));
+            setSelectedChar(myNo || selectedChar);
+            setEnemySelectedChar(otherEntry ? otherEntry[1] : null);
+          }
+
+          if (data.type === 'charDenied') {
+            // 내 선택이 거부되었으면 원복
+            if (String(data.userId) === String(useridx)) {
+              alert('이미 선택된 캐릭터입니다.');
+              setSelectedChar(null);
+            }
+          }
+
+          if (data.type === 'bothSelected') {
+            // 양쪽 모두 선택됨 → 동시 카운트다운 시작
+            let c = data.startIn ?? 3;
+            setCountdown(c);
+            const iv = setInterval(() => {
+              c -= 1;
+              if (c <= 0) {
+                clearInterval(iv);
+                setCountdown(null);
+                setShowCharSelect(false);
+                setGameStarted(true);
+                setShowQuiz(true);
+                setTimeLeft(TIMER_DURATION);
+                // 같은 문제 보장을 원하면 서버에서 seed/퀴즈 목록을 브로드캐스트 하거나
+                // axios.get(quizurl, { params: { seed: roomId } }) 식으로 통일된 seed 사용.
+              } else {
+                setCountdown(c);
+              }
+            }, 1000);
+          }
+
+          if (data.type === 'start') {
+            // ...existing start from lobby if needed...
+          }
+        });
+
+        // 방 스냅샷 요청
+        client.publish({
+          destination: '/app/ox/room.info',
+          body: JSON.stringify({ type: 'info', roomId: +roomId })
+        });
+      }
     };
 
     client.activate();
     setStompClient(client);
-    return () => client.deactivate();
-  }, [enemynickname]);
+    return () => {
+      try { roomSub?.unsubscribe(); } catch {}
+      client.deactivate();
+    };
+  }, [roomId, useridx]);
 
   // 승패 판정
   useEffect(() => {
@@ -273,9 +348,7 @@ const OX_MultiGame = () => {
         user: usernickname,
         userId: useridx,
         questionId: quizlist[currentindex]?.id,
-        index: currentindex,
         answer: ox,
-        sentAt: Date.now()
       };
       stompClient.publish({
         destination: '/app/oxquiz',
@@ -299,6 +372,64 @@ const OX_MultiGame = () => {
       <div className="ox-loading">
         <img src={walkImgs[walkFrame]} alt="로딩중" style={{ width: '100px' }} />
         로딩중...
+      </div>
+    );
+  }
+
+  // 캐릭터 선택 화면
+if (showCharSelect) {
+    return (
+      <div className="ox-charselect-bg">
+        <div className="ox-charselect-box">
+          <h1>OX 퀴즈 멀티플레이어</h1>
+          <h2>캐릭터를 선택하세요!</h2>
+          <div className="ox-charselect-list">
+            {[1, 2, 3, 4, 5].map(num => {
+              const isTaken = takenChars.has(num);
+              const isMine = selectedChar === num;
+              const isEnemy = enemySelectedChar === num;
+              let colorClass = '';
+              if (num === 1) colorClass = 'char-basic';
+              else if (num === 2) colorClass = 'char-blue';
+              else if (num === 3) colorClass = 'char-green';
+              else if (num === 4) colorClass = 'char-pink';
+              else if (num === 5) colorClass = 'char-yellow';
+              return (
+                <div key={num} style={{ position: 'relative' }}>
+                  <button
+                    className={`ox-charselect-btn ${colorClass}${isMine ? ' selected' : ''}`}
+                    onClick={() => handleCharSelect(num)}
+                    disabled={isTaken && !isMine}
+                    style={{
+                      filter: isTaken && !isMine ? 'grayscale(100%) brightness(0.6)' : 'none',
+                      cursor: isTaken && !isMine ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    <img src={`/ox_image/char${num}.png`} alt={`캐릭터${num}`} style={{ width: 80, height: 80 }} />
+                  </button>
+                  {/* 선택자 이름 표시 */}
+                  {isMine && (
+                    <div style={{ position: 'absolute', width: '100%', textAlign: 'center', top: 90, color: 'black', fontSize: '25px'  }}>
+                      {usernickname}
+                    </div>
+                  )}
+                  {isEnemy && (
+                    <div style={{ position: 'absolute', width: '100%', textAlign: 'center', top: 90, color: 'black', fontSize: '25px' }}>
+                      {enemynickname}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* 선택 완료되면 서버가 bothSelected를 보냄. 수동 버튼 제거 가능 */}
+          {countdown !== null && (
+            <div className="ox-countdown-overlay">
+              <h1>{countdown}</h1>
+            </div>
+          )}
+        </div>
       </div>
     );
   }
@@ -447,7 +578,7 @@ const OX_MultiGame = () => {
             )}
             <div style={{ position: 'relative', display: 'inline-block', width: 90, height: 90 }}>
               <img
-                src={`/ox_image/char1.png`}
+                src={`/ox_image/char${selectedChar}.png`}
                 alt="플레이어1"
                 style={{
                   width: 90,
@@ -501,7 +632,7 @@ const OX_MultiGame = () => {
 
           {/* 상대방 */}
           <div className="ox-char">
-            <img src="/ox_image/char3.png" alt="플레이어2" style={{ width: 90, height: 90 }} />
+            <img src={`/ox_image/char${enemySelectedChar}.png`} alt="플레이어2" style={{ width: 90, height: 90 }} />
             <div className="ox-nick">{enemynickname}</div>
             <div className="ox-scoreboard">{enemyScore}</div>
             <div className="ox-lifewrap">{renderHearts(enemyLife)}</div>
