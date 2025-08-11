@@ -31,10 +31,4 @@ public class RankingController {
         return rankingService.getRank(type);
     }
 
-    @GetMapping("/init-test-data")
-    public ResponseEntity<String> initializeTestData() {
-        redisUtil.initializeTestData();
-        return ResponseEntity.ok("테스트 데이터가 초기화되었습니다.");
-    }
-
 }

@@ -4,4 +4,4 @@
 	<insert id="insertOxSub" parameterType="oxsub">
 		insert into QuizSubmisson (user_id, question_id, submitted_answer, is_correct, created_at) values(#{user_id},#{question_id},#{submitted_answer},#{is_correct},now())
 	</insert>
-</mapper>
+</mapper>ㅎ
