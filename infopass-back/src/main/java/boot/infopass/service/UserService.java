@@ -49,5 +49,25 @@ public class UserService implements UserServiceInter {
 		
 		return userMapper.findById(email);
 	}
+	
+	
+	
+	
+	
+	
+
+	@Override
+    public UserDto updateUser(Long id, UserDto updatedUserDto) {
+        updatedUserDto.setId(id.intValue());
+        int result = userMapper.updateUser(updatedUserDto);  // UserMapper 메서드 호출
+        if (result > 0) {
+            return userMapper.getUserData(updatedUserDto.getId());
+        } else {
+            return null;
+        }
+    }
+
+	
+
 
 }

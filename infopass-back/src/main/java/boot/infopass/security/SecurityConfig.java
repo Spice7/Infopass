@@ -82,7 +82,7 @@ public class SecurityConfig  {
                 .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
             //  1. 공개적으로 허용할 정적 리소스 및 경로를 먼저 지정합니다.
-            .requestMatchers("/", "/login", "/user/join", "/user/checkId","/block/**", "/rank/**").permitAll()
+            .requestMatchers("/", "/login", "/user/**","/block/**", "/rank/**").permitAll()
 
             //  2. 특정 권한이 필요한 경로를 지정합니다.
             .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")

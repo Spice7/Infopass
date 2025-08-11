@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import { Box, CircularProgress, Typography } from '@mui/material';
-import UserProfileCard from './UserProfileCard';
-import UserStatsSection from './UserStatsSection';
+
+import UserProfileCard from './UserProfileCard';      // 프로필 카드 컴포넌트 import
+import UserStatsSection from './UserStatsSection';    // 스탯(경험치, 랭킹) 컴포넌트 import
+
 import * as auth from '../../../../user/auth';
 
 const primaryColor = '#4a90e2';
@@ -12,28 +14,26 @@ const MyInfo = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('MyInfo 컴포넌트가 마운트되었습니다.');
     const token = Cookies.get('accessToken');
-    console.log('MyInfo - token from cookie:', token);
-
     if (!token) {
-      console.log('토큰이 없습니다.');
       setLoading(false);
       return;
     }
 
     auth.info(token)
       .then((res) => {
-        console.log('사용자 정보 가져오기 성공:', res.data);
         setUser(res.data);
       })
-      .catch((err) => {
-        console.error('Error fetching user data:', err);
-      })
+      .catch(() => {})
       .finally(() => {
         setLoading(false);
       });
   }, []);
+
+  // **UserProfileCard에서 프로필 수정 후 변경된 데이터를 받는 함수**
+  const handleUserUpdate = (updatedUser) => {
+    setUser(updatedUser);
+  };
 
   if (loading) {
     return (
@@ -69,7 +69,8 @@ const MyInfo = () => {
         py: 6,
       }}
     >
-      <UserProfileCard user={user} />
+      {/* 수정된 onUpdate 콜백 전달! */}
+      <UserProfileCard user={user} onUpdate={handleUserUpdate} />
       <UserStatsSection user={user} />
     </Box>
   );
