@@ -126,6 +126,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         CustomUser user = (CustomUser) authentication.getPrincipal();
         int id = user.getUserDto().getId();
         String email = user.getUserDto().getEmail();
+        String nickname = user.getUserDto().getNickname();
 
         List<String> roles = user.getAuthorities()
                                 .stream()
@@ -133,7 +134,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                 .collect(Collectors.toList());
 
         // 🔐 JWT
-        String token = jwtTokenProvider.createToken(id, email, roles);
+        String token = jwtTokenProvider.createToken(id, email, nickname, roles);
 
         // 💍 { Authorization : Bearer + {jwt} } 
         response.addHeader(SecurityConstants.TOKEN_HEADER, SecurityConstants.TOKEN_PREFIX + token);

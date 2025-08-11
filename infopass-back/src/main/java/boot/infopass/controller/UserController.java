@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import boot.infopass.dto.UserDto;
 import boot.infopass.security.CustomUser;
-import boot.infopass.dto.UserDto;
 import boot.infopass.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 @Slf4j
@@ -35,6 +35,13 @@ public class UserController {
 		String email = userDto.getEmail();
 		return userService.findById(email);
 	}
+	
+	@PostMapping("/checkNickName")
+	public boolean findByNickName(@RequestBody UserDto userDto) {	
+		log.info(userDto.getNickname());
+		return userService.findByNickName(userDto.getNickname());
+	}
+
 	
 	//사용자 정보 조회
     @PostMapping("/info")
