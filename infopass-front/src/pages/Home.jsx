@@ -25,7 +25,7 @@ const Home = () => {
         </header>
 
         <section className="main-section">
-          <Link to="/quiz" className="main-card large">
+          <Link to="/blankgamemain" className="main-card large">
             <h2>🎮 퀴즈 게임 시작하기</h2>
             <p>오늘의 퀴즈를 풀고 실력을 점검해 보세요!</p>
           </Link>

@@ -23,8 +23,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true) //어노테이션에 prePostEnabled = true를 추가하면 AuthenticationManager를 자동으로 구성합니다.
-public class SecurityConfig  {
+@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true) // 어노테이션에 prePostEnabled = true를 추가하면
+                                                                    // AuthenticationManager를 자동으로 구성합니다.
+public class SecurityConfig {
 
     @Autowired
     private CustomUserDetailService customUserDetailService;
@@ -66,21 +67,23 @@ public class SecurityConfig  {
         // 사용자 정보를 불러오는 서비스 설정
         http.userDetailsService(customUserDetailService);
 
-        //  JWT 요청 필터 1️
-        //  JWT 인증 필터 2️
-        http.addFilterAt(new JwtAuthenticationFilter(authenticationManager, jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(new JwtRequestFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
-            ;
+        // JWT 요청 필터 1️
+        // JWT 인증 필터 2️
+        http.addFilterAt(new JwtAuthenticationFilter(authenticationManager, jwtTokenProvider),
+                UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtRequestFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
-     //  인가 설정 (authorizeHttpRequests)
+        // 인가 설정 (authorizeHttpRequests)
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-            // ✅ 1. 공개적으로 허용할 정적 리소스 및 경로를 먼저 지정합니다.
-            .requestMatchers("/", "/login", "/user/**", "/oxquiz/**", "/ws/**", "/ws*","/block/**", "/rank/**", "/lobby/**").permitAll()
+                // ✅ 1. 공개적으로 허용할 정적 리소스 및 경로를 먼저 지정합니다.
+                .requestMatchers("/", "/login", "/user/**", "/oxquiz/**", "/ws/**", "/ws*", "/block/**", "/rank/**",
+                        "/lobby/**", "/blankgamesingle/**")
+                .permitAll()
 
-            //  2. 특정 권한이 필요한 경로를 지정합니다.
-            .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
-            .requestMatchers("/admin/**").hasRole("ADMIN")
+                // 2. 특정 권한이 필요한 경로를 지정합니다.
+                .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers("/admin/**").hasRole("ADMIN")
 
                 // ✅ 3. 위의 규칙에 해당하지 않는 모든 요청은 인증이 필요합니다.
                 .anyRequest().authenticated());
@@ -88,8 +91,8 @@ public class SecurityConfig  {
         // 사용자 정보를 불러오는 서비스 설정
         http.userDetailsService(customUserDetailService);
 
-	    return http.build();
-	}
+        return http.build();
+    }
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -121,6 +124,5 @@ public class SecurityConfig  {
 
         return source;
     }
-
 
 }
