@@ -83,6 +83,135 @@ export async function getSingleQuestion(questionId) {
 }
 
 /**
+ * 사용자별 미해결 문제 목록 조회 (세션 기반)
+ * @param {number} userId - 사용자 ID
+ * @param {string} sessionId - 세션 ID
+ * @returns {Promise<Array>} 미해결 문제 목록
+ */
+export async function getUnsolvedQuestions(userId, sessionId) {
+    try {
+        if (!userId || userId <= 0) {
+            throw new Error('유효하지 않은 사용자 ID입니다.');
+        }
+        if (!sessionId) {
+            throw new Error('세션 ID가 필요합니다.');
+        }
+
+        const response = await api.get(`/block/questions/unsolved?userId=${userId}&sessionId=${sessionId}`);
+
+        if (!response.data) {
+            throw new Error('서버에서 빈 응답을 받았습니다.');
+        }
+
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching unsolved questions for user ${userId}:`, error);
+        throw error;
+    }
+}
+
+/**
+ * 사용자가 푼 문제를 제외한 랜덤 문제 조회 (세션 기반)
+ * @param {number} userId - 사용자 ID
+ * @param {string} sessionId - 세션 ID
+ * @returns {Promise<Object>} 랜덤 문제 데이터
+ */
+export async function getRandomUnsolvedQuestion(userId, sessionId) {
+    try {
+        if (!userId || userId <= 0) {
+            throw new Error('유효하지 않은 사용자 ID입니다.');
+        }
+        if (!sessionId) {
+            throw new Error('세션 ID가 필요합니다.');
+        }
+
+        const response = await api.get(`/block/questions/random?userId=${userId}&sessionId=${sessionId}`);
+
+        if (!response.data) {
+            throw new Error('서버에서 빈 응답을 받았습니다.');
+        }
+
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching random unsolved question for user ${userId}:`, error);
+        throw error;
+    }
+}
+
+/**
+ * 새로운 세션 ID 생성
+ * @returns {Promise<string>} 새로 생성된 세션 ID
+ */
+export async function generateNewSession() {
+    try {
+        const response = await api.get('/block/session/new');
+
+        if (!response.data) {
+            throw new Error('서버에서 세션 ID를 생성하지 못했습니다.');
+        }
+
+        return response.data;
+    } catch (error) {
+        console.error('Error generating new session:', error);
+        throw error;
+    }
+}
+
+/**
+ * 문제 제출 및 정답 체크
+ * @param {number} questionId - 문제 ID
+ * @param {Object} submissionData - 제출 데이터
+ * @returns {Promise<Object>} 제출 결과
+ */
+export async function submitAnswerToBackend(questionId, submissionData) {
+    try {
+        if (!questionId || questionId <= 0) {
+            throw new Error('유효하지 않은 문제 ID입니다.');
+        }
+
+        if (!submissionData.user_id || !submissionData.session_id) {
+            throw new Error('사용자 ID와 세션 ID가 필요합니다.');
+        }
+
+        const response = await api.post(`/block/questions/${questionId}/submit`, submissionData);
+
+        if (!response.data) {
+            throw new Error('서버에서 응답을 받지 못했습니다.');
+        }
+
+        return response.data;
+    } catch (error) {
+        console.error(`Error submitting answer for question ${questionId}:`, error);
+        throw error;
+    }
+}
+
+/**
+ * 세션별 문제 해결 여부 확인
+ * @param {number} questionId - 문제 ID
+ * @param {string} sessionId - 세션 ID
+ * @returns {Promise<boolean>} 문제 해결 여부
+ */
+export async function isQuestionSolvedBySession(questionId, sessionId) {
+    try {
+        if (!questionId || questionId <= 0) {
+            throw new Error('유효하지 않은 문제 ID입니다.');
+        }
+
+        if (!sessionId) {
+            throw new Error('세션 ID가 필요합니다.');
+        }
+
+        const response = await api.get(`/block/questions/${questionId}/solved?sessionId=${sessionId}`);
+
+        return response.data;
+    } catch (error) {
+        console.error(`Error checking question solved status for question ${questionId}:`, error);
+        throw error;
+    }
+}
+
+/**
  * 랜덤 블록 문제 데이터 조회
  * @returns {Promise<Object>} 랜덤 문제 데이터
  */
