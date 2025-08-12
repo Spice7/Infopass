@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
@@ -56,12 +57,12 @@ public class OXWebController {
     static class GenericMsg {
         private String type;
         private String title;
-        private int max;
+        private Integer max;
         private String hostId;
         private String hostNick;
         private String userId;
         private String nickname;
-        private int roomId;
+        private Integer roomId;
         private Integer charNo; // 추가: 선택 캐릭터 번호
         private Integer qIndex;
         private String answer;
@@ -70,8 +71,8 @@ public class OXWebController {
         public void setType(String type) { this.type = type; }
         public String getTitle() { return title; }
         public void setTitle(String title) { this.title = title; }
-        public int getMax() { return max; }
-        public void setMax(int max) { this.max = max; }
+        public Integer getMax() { return max; }
+        public void setMax(Integer max) { this.max = max; }
         public String getHostId() { return hostId; }
         public void setHostId(String hostId) { this.hostId = hostId; }
         public String getHostNick() { return hostNick; }
@@ -80,8 +81,8 @@ public class OXWebController {
         public void setUserId(String userId) { this.userId = userId; }
         public String getNickname() { return nickname; }
         public void setNickname(String nickname) { this.nickname = nickname; }
-        public int getRoomId() { return roomId; }
-        public void setRoomId(int roomId) { this.roomId = roomId; }
+        public Integer getRoomId() { return roomId; }
+        public void setRoomId(Integer roomId) { this.roomId = roomId; }
         public Integer getCharNo() { return charNo; }
         public void setCharNo(Integer charNo) { this.charNo = charNo; }
         public Integer getQIndex() { return qIndex; }
@@ -225,6 +226,76 @@ public class OXWebController {
         }
     }
     
+    @MessageMapping("/ox/room.answer")
+    public void handleAnswer(@Payload Map<String, Object> payload) {
+        // 1. 서버가 받은 원본 데이터를 그대로 출력합니다.
+//        System.out.println("[RAW_PAYLOAD_RECEIVED] " + payload);
+
+        // 2. Map에서 데이터를 직접 추출합니다.
+        Integer roomId = (Integer) payload.get("roomId");
+        // userId는 프론트에서 문자열로 오므로 String으로 받습니다.
+        String userId = String.valueOf(payload.get("userId")); 
+        Integer qIndex = (Integer) payload.get("qIndex");
+        String answer = (String) payload.get("answer");
+
+        // 3. 추출한 데이터로 로그를 다시 찍어봅니다.
+//        System.out.printf("[MANUAL_PARSE] Room: %d, User: %s, Q_Index: %d, Submitted: %s%n",
+//            roomId, userId, qIndex, answer);
+
+        // 4. 기존 로직을 추출한 데이터로 수행합니다.
+        Room r = rooms.get(roomId);
+        if (r == null || qIndex == null || userId == null) return;
+
+        Map<String, String> questionAnswers = r.answers.computeIfAbsent(
+            qIndex, k -> new ConcurrentHashMap<>()
+        );
+        questionAnswers.put(userId, answer);
+        System.out.println(questionAnswers);
+    }
+
+    @MessageMapping("/ox/room.reveal")
+    public void revealAnswers(@Payload Map<String, Object> payload) {
+        Integer roomId = (Integer) payload.get("roomId");
+        Integer qIndex = (Integer) payload.get("qIndex");
+
+        Room r = rooms.get(roomId);
+        if (r == null || qIndex == null) return;
+        if (r.quizList == null || qIndex >= r.quizList.size()) return;
+
+        // 1. 해당 문제의 정답을 가져옵니다.
+        String correctAnswer = r.quizList.get(qIndex).getAnswer() ==1? "O" : "X";
+        System.out.println("문제의 답 : "  +correctAnswer);
+        
+        // 2. 해당 문제에 대해 플레이어들이 제출한 답안 목록을 가져옵니다.
+        Map<String, String> questionAnswers = r.answers.getOrDefault(qIndex, new HashMap<>());
+        System.out.println("플레이어들이 제출한 답안 목록 : "+ questionAnswers);
+        // 3. 각 플레이어의 결과를 계산하여 담을 맵을 생성합니다.
+        Map<String, Map<String, String>> results = new HashMap<>();
+        for (Player p : r.players) {
+            String submittedAnswer = questionAnswers.getOrDefault(p.userId, null); // 플레이어가 제출한 답
+            System.out.println("플레이어가 제출한 답 : " + submittedAnswer);
+            String result = (submittedAnswer != null && submittedAnswer.equals(correctAnswer)) ? "correct" : "wrong";
+            
+            results.put(p.userId, Map.of(
+                "submitted", submittedAnswer == null ? "" : submittedAnswer, // 무엇을 제출했는지
+                "result", result  // 결과가 맞았는지 틀렸는지
+            ));
+        }
+        
+        System.out.println("[REVEAL_RESULT] For Room " + roomId + ": " + results);
+
+        // 4. 방에 있는 모든 클라이언트에게 정답과 결과 데이터를 방송(broadcast)합니다.
+        template.convertAndSend("/topic/ox/room." + roomId,
+            Map.of(
+                "type", "reveal",
+                "qIndex", qIndex,
+                "correctAnswer", correctAnswer,
+                "results", results,
+                "QList", r.quizList,
+                "hostId", r.host_user_id
+            ));
+    }
+
     private void ensureQuizSet(Room r) {
         if (r.quizList != null && !r.quizList.isEmpty() && r.quizStartAt != null) return;
 
