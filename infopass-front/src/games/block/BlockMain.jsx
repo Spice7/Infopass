@@ -1,106 +1,121 @@
-import React, { useRef, useState, useEffect, useMemo, useCallback } from 'react'
-import { getSingleQuestion } from './BlockAPI.js';
-import { JavaGenerator, Blockly, BLOCK_MESSAGES, BLOCK_COLORS } from './index.js';
-import * as auth from '../../user/auth.js'
-import Cookies from 'js-cookie'
-import { useNavigate } from 'react-router-dom'
-import BlockLoading from './loading/BlockLoading.jsx'
+import React, { useState, useEffect, useMemo, useRef, useContext } from 'react';
+import Blockly from './blocks';
+import { JavaGenerator } from './blocks';
+import { LoginContext } from '../../user/LoginContextProvider';
+import { getRandomUnsolvedQuestion, generateNewSession, submitAnswerToBackend } from './BlockAPI';
+import './blocks';
 
-const BlockMain = ({ questionId = null }) => {
-  const [user, setUser] = useState(null);                   // 플레이중인 유저 정보
-  const [sessionId, setSessionId] = useState(null);         // 문제 중복 방지를 위한 session
-  const blocklyDiv = useRef(null);                          // 화면에 출력할 blockly API 영역
-  const workspaceRef = useRef(null);                        // blockly API DOM
-  const [result, setResult] = useState("");                 // 유저가 배치한 결과와 정답 비교용
-  const [questionData, setQuestionData] = useState(null);   // DB에서 추출해 화면에 출력할 문제
-  const [loading, setLoading] = useState(true);             // 로딩 관련
-  const [error, setError] = useState(null);                 // 디버깅용   // 배포시 삭제
-  const navigate = useNavigate();
+const BlockMain = () => {
+  const blocklyDiv = useRef(null);
+  const workspaceRef = useRef(null);
+  const { userInfo } = useContext(LoginContext);
+  const [currentQuestion, setCurrentQuestion] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [sessionId, setSessionId] = useState(null);
+  const [solvedQuestions, setSolvedQuestions] = useState(new Set());
+  const [isCorrect, setIsCorrect] = useState(null); // null로 초기화
+  const [showNextButton, setShowNextButton] = useState(false);
+  const [showCompletionMessage, setShowCompletionMessage] = useState(false);
 
-  // 랜덤 문제 ID 생성 또는 props로 받은 ID 사용  // 백엔드로 옮겨야함
-  const getQuestionId = useCallback(() => {
-    return questionId || Math.floor(Math.random() * 10) + 1; // 1-10 범위의 랜덤 ID
-  }, [questionId]);
-
-  useEffect(() => {
-    const token = Cookies.get('accessToken');
-    console.log(token);
-
-    if (!token) {
-      console.log("토큰이 없습니다");
-      navigate("/login", { replace: true, state: { from: location.pathname } });
-      return;
-    }
-
-    auth.info(token)
-      .then((res) => setUser(res.data))
-      .catch((err) => {
-        // !token으로만 로그인 여부를 체크하면 토큰이 만료되거나 폐기되었을 때도 user 정보에 담으려고 할 수 있음
-        if (err?.response?.status === 401 || err?.response?.status === 403) {
-          Cookies.remove('accessToken');
-          navigate("/login", { replace: true, state: { from: location.pathname } });
-        } else {
-          console.error(err);
-          setError('유저 정보를 불러오지 못했습니다.');
-        }
-      });
-  }, [navigate]);
-
-  useEffect(() => {
-    const fetchQuestionData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const id = getQuestionId();
-        const data = await getSingleQuestion(2);  // 일단 하드코딩으로 테스트
-        
-        // 로딩화면 보여주려고 대기 시간 만들었다   // 잊지 말고 지우자
-        await new Promise(resolve => setTimeout(resolve, 10000));
-        
-        setQuestionData(data);
-        
-      } catch (err) {
-        setError('문제 데이터를 불러오는데 실패했습니다.');
-        console.error('Question fetch error:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchQuestionData();
-  }, [getQuestionId]);
-
-  // 툴박스 메모이제이션
+  // 툴박스 설정 (기존 방식과 동일)
   const toolbox = useMemo(() => {
-    if (!questionData?.toolbox) return null;
-
+    console.log('Toolbox useMemo triggered, currentQuestion:', currentQuestion);
+    
+    if (!currentQuestion) {
+      console.log('No currentQuestion, toolbox is null');
+      return null;
+    }
+    
     try {
-      const toolboxArray = JSON.parse(questionData.toolbox);
-      return {
+      const toolboxArray = JSON.parse(currentQuestion.toolbox);
+      console.log('Toolbox array parsed:', toolboxArray);
+      
+      const result = {
         kind: "flyoutToolbox",
         contents: toolboxArray.map(type => ({ kind: "block", type }))
       };
-    } catch (err) {
-      console.error('Toolbox parsing error:', err);
+      
+      console.log('Toolbox created:', result);
+      return result;
+    } catch (e) {
+      console.error('Toolbox parsing error:', e);
       return null;
     }
-  }, [questionData]);
+  }, [currentQuestion]);
 
-  // 새로운 문제를 받아올 때마다 blockly workspace 최신화
+  // 사용자 정보 로드 후 게임 초기화
   useEffect(() => {
-    if (!questionData?.question_blocks || !blocklyDiv.current || !toolbox) return;
+    console.log('userInfo changed:', userInfo);
+    if (!userInfo) return; // 사용자 정보가 로드될 때까지 대기
 
-    try {
-      // 기존 workspace 정리
-      if (workspaceRef.current) {
-        workspaceRef.current.dispose();
+    const initializeGame = async () => {
+      try {
+        console.log('Starting game initialization...');
+        setIsLoading(true);
+        setError(null);
+        
+        // 새 세션 생성
+        const newSessionId = await generateNewSession();
+        console.log('New session created:', newSessionId);
+        setSessionId(newSessionId);
+        setSolvedQuestions(new Set());
+        setIsCorrect(null); // null로 설정
+        setShowNextButton(false);
+        setShowCompletionMessage(false);
+        
+        // 첫 문제 로드
+        await loadNextQuestion(newSessionId);
+      } catch (err) {
+        console.error('게임 초기화 실패:', err);
+        setError('게임을 초기화할 수 없습니다.');
+      } finally {
+        setIsLoading(false);
       }
+    };
 
-      // 새 workspace 생성
+    initializeGame();
+  }, [userInfo]); // userInfo가 변경될 때마다 실행
+
+  // Blockly workspace 초기화
+  useEffect(() => {
+    console.log('Blockly workspace useEffect triggered:', {
+      currentQuestion: !!currentQuestion,
+      questionBlocks: !!currentQuestion?.question_blocks,
+      blocklyDiv: !!blocklyDiv.current,
+      toolbox: !!toolbox
+    });
+    
+    if (!currentQuestion || !currentQuestion.question_blocks || !blocklyDiv.current || !toolbox) {
+      console.log('Blockly workspace initialization skipped - missing dependencies');
+      return;
+    }
+
+    console.log('Initializing Blockly workspace...');
+    
+    // 기존 workspace가 있다면 안전하게 제거
+    if (workspaceRef.current && !workspaceRef.current.isDisposed) {
+      try {
+        workspaceRef.current.dispose();
+        console.log('Previous workspace disposed successfully');
+      } catch (err) {
+        console.warn('Error disposing previous workspace:', err);
+      }
+      workspaceRef.current = null;
+    }
+
+    // Blockly workspace 생성 (기존 방식)
+    try {
       workspaceRef.current = Blockly.inject(blocklyDiv.current, {
         toolbox,
         trashcan: true,
         scrollbars: true,
+        grid: {
+          spacing: 20,
+          length: 3,
+          colour: '#ccc',
+          snap: true
+        },
         zoom: {
           controls: true,
           wheel: true,
@@ -111,296 +126,342 @@ const BlockMain = ({ questionId = null }) => {
         }
       });
 
-      // 초기 블록 배치
-      const xml = Blockly.utils.xml.textToDom(questionData.question_blocks);
+      // 초기 블록 로드
+      const xml = Blockly.utils.xml.textToDom(currentQuestion.question_blocks);
       Blockly.Xml.appendDomToWorkspace(xml, workspaceRef.current);
-
-    } catch (err) {
-      console.error('Workspace initialization error:', err);
-      setError('블록 워크스페이스 초기화에 실패했습니다.');
+      console.log('Blockly workspace initialized successfully');
+    } catch (e) {
+      console.error('Blockly workspace initialization error:', e);
+      workspaceRef.current = null;
     }
 
     // cleanup
     return () => {
-      if (workspaceRef.current) {
-        workspaceRef.current.dispose();
+      if (workspaceRef.current && !workspaceRef.current.isDisposed) {
+        try {
+          workspaceRef.current.dispose();
+          console.log('Workspace cleanup successful');
+        } catch (err) {
+          console.warn('Error during workspace cleanup:', err);
+        }
         workspaceRef.current = null;
       }
     };
-  }, [questionData, toolbox]);
+  }, [currentQuestion, toolbox]);
 
-  // xml 형태로 되어 있는 문제와 정답을 화면에 출력 가능한 데이터로
-  const normalizeXml = useCallback((xmlString) => {
+  // 다음 문제 로드
+  const loadNextQuestion = async (currentSessionId) => {
     try {
-      const parser = new DOMParser();
-      const dom = parser.parseFromString(xmlString, "text/xml");
-
-      // 파싱 에러 체크
-      const parserError = dom.querySelector("parsererror");
-      if (parserError) {
-        throw new Error("XML 파싱 오류");
+      console.log('Loading next question for session:', currentSessionId);
+      if (!userInfo || !userInfo.id) {
+        console.error('No userInfo or userInfo.id available');
+        setError('사용자 인증이 필요합니다.');
+        return;
       }
 
-      // 모든 block 요소에서 id, x, y 속성 제거
-      dom.querySelectorAll('block').forEach(block => {
-        block.removeAttribute('id');
-        block.removeAttribute('x');
-        block.removeAttribute('y');
-      });
+      const question = await getRandomUnsolvedQuestion(userInfo.id, currentSessionId);
+      console.log('Question loaded:', question);
+      
+      if (!question) {
+        // 모든 문제를 완료한 경우
+        console.log('All questions completed');
+        setShowCompletionMessage(true);
+        setCurrentQuestion(null);
+        return;
+      }
 
-      return new XMLSerializer().serializeToString(dom).replace(/\s+/g, '').trim();
+      setCurrentQuestion(question);
+      setIsCorrect(null);
+      setShowNextButton(false);
     } catch (err) {
-      console.error('XML normalization error:', err);
-      return '';
-    }
-  }, []);
-
-  // 여러 정답을 처리하는 유틸리티 함수
-  const parseAnswers = useCallback((answerData) => {
-    if (!answerData) return [];
-
-    // 배열인 경우
-    if (Array.isArray(answerData)) {
-      return answerData;
-    }
-
-    // 문자열인 경우
-    if (typeof answerData === 'string') {
-      try {
-        // JSON 문자열인지 확인
-        const parsed = JSON.parse(answerData);
-        return Array.isArray(parsed) ? parsed : [answerData];
-      } catch {
-        // 일반 문자열인 경우 단일 정답으로 처리
-        return [answerData];
-      }
-    }
-
-    // 기타 경우
-    return [answerData];
-  }, []);
-
-  // 정답 비교 함수
-  const compareAnswers = useCallback((userXml, answers) => {
-    const normalizedUserXml = normalizeXml(userXml);
-
-    for (const answer of answers) {
-      const normalizedAnswerXml = normalizeXml(answer);
-      if (normalizedUserXml === normalizedAnswerXml) {
-        return true;
-      }
-    }
-
-    return false;
-  }, [normalizeXml]);
-
-  // 정답 체크 (여러 정답 지원)
-  const handleCheck = useCallback(() => {
-    if (!workspaceRef.current || !questionData?.answer) {
-      setResult("오류: 정답 확인을 할 수 없습니다.");
-      return;
-    }
-
-    try {
-      const userXml = Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspaceRef.current));
-      const answers = parseAnswers(questionData.answer);
-
-      const isCorrect = compareAnswers(userXml, answers);
-
-      if (isCorrect) {
-        setResult("🎉 정답입니다!");
-      } else {
-        setResult("😢 오답입니다. 다시 시도해보세요.");
-      }
-
-      // 개발 모드에서만 디버깅 정보 출력
-      if (import.meta.env.MODE === 'development') {
-        console.log("사용자 XML:", normalizeXml(userXml));
-        console.log("정답 XML들:", answers.map(answer => normalizeXml(answer)));
-        console.log("정답 개수:", answers.length);
-      }
-    } catch (err) {
-      console.error('Answer check error:', err);
-      setResult("오류: 정답 확인 중 문제가 발생했습니다.");
-    }
-  }, [questionData, parseAnswers, compareAnswers, normalizeXml]);
-
-  // 초기화
-  const handleReset = useCallback(() => {
-    if (workspaceRef.current) {
-      workspaceRef.current.clear();
-      // 초기 블록 다시 배치
-      if (questionData?.question_blocks) {
-        const xml = Blockly.utils.xml.textToDom(questionData.question_blocks);
-        Blockly.Xml.appendDomToWorkspace(xml, workspaceRef.current);
-      }
-      setResult("");
-    }
-  }, [questionData]);
-
-  // 개발 환경에서만 XML 내보내기 버튼 표시   // 배포 시 삭제 잊지 말자
-  const handleExportXml = useCallback(() => {
-    if (workspaceRef.current) {
-      const xml = Blockly.Xml.workspaceToDom(workspaceRef.current);
-      const xmlText = Blockly.Xml.domToText(xml);
-      console.log(xmlText);
-      navigator.clipboard.writeText(xmlText).then(() => {
-        alert('XML이 클립보드에 복사되었습니다.');
-      });
-    }
-  }, []);
-
-  // java 코드로 변환 기능
-  const handleGenerateJavaCode = () => {
-    if (workspaceRef.current) {
-      console.log('JavaGenerator 객체:', JavaGenerator);
-      console.log('JavaGenerator에 정의된 블록 타입들:', Object.keys(JavaGenerator));
-
-      try {
-        const javaCode = JavaGenerator.workspaceToCode(workspaceRef.current);
-        console.log('생성된 Java 코드:', javaCode);
-        navigator.clipboard.writeText(javaCode).then(() => {
-          alert('Java 코드가 클립보드에 복사되었습니다.');
-        });
-      } catch (error) {
-        console.error('Java 코드 생성 오류:', error);
-        alert('Java 코드 생성 중 오류가 발생했습니다: ' + error.message);
-      }
+      console.error('문제 로드 실패:', err);
+      setError('문제를 로드할 수 없습니다.');
     }
   };
 
-  // 로딩 상태
-  if (loading) {
-    return <BlockLoading />;
+  // 정답 체크
+  const checkAnswer = async () => {
+    if (!currentQuestion || !workspaceRef.current) return;
+
+    try {
+      // XML 기반 정답 체크 (기존 방식)
+      const userXmlText = normalizeXml(Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspaceRef.current)));
+      const answerXmlText = normalizeXml(currentQuestion.answer);
+      
+      const isAnswerCorrect = (userXmlText === answerXmlText);
+      setIsCorrect(isAnswerCorrect);
+
+      console.log("정답 체크 시도");
+
+      if (isAnswerCorrect) {
+        console.log("정답");
+
+        // 정답인 경우: 답안 제출 기록 저장 및 다음 문제 버튼 표시
+        await submitAnswerToBackend(currentQuestion.id, {
+          user_id: userInfo.id,
+          session_id: sessionId,
+          is_correct: true,
+          submitted_answer: userXmlText
+        });
+
+        console.log("정답 입력 후 백엔드 통신 완료");
+
+        // 현재 문제를 해결된 문제 목록에 추가
+        setSolvedQuestions(prev => new Set([...prev, currentQuestion.id]));
+        setShowNextButton(true);
+      } else {
+        console.log("오답");
+        // 오답인 경우: 답안 제출 기록만 저장하고 같은 문제 유지
+        await submitAnswerToBackend(currentQuestion.id, {
+          user_id: userInfo.id,
+          session_id: sessionId,
+          is_correct: false,
+          submitted_answer: userXmlText
+        });
+
+        console.log("오답 입력 후 백엔드 통신 완료");
+      }
+    } catch (err) {
+      console.error('답안 제출 실패:', err);
+      setError('답안을 제출할 수 없습니다.');
+    }
+  };
+
+  // XML 정규화 (기존 방식)
+  const normalizeXml = (xmlString) => {
+    const parser = new DOMParser();
+    const dom = parser.parseFromString(xmlString, "text/xml");
+
+    // 모든 block 요소에서 id, x, y 속성 제거
+    dom.querySelectorAll('block').forEach(block => {
+      block.removeAttribute('id');
+      block.removeAttribute('x');
+      block.removeAttribute('y');
+    });
+
+    // 문자열로 변환 후 공백/줄바꿈 제거
+    return new XMLSerializer().serializeToString(dom).replace(/\s+/g, '').trim();
+  };
+
+  // XML 생성
+  const generateXml = () => {
+    if (!workspaceRef.current) return;
+    
+    try {
+      const xml = Blockly.Xml.workspaceToDom(workspaceRef.current);
+      const xmlText = Blockly.Xml.domToText(xml);
+      console.log('Generated XML:', xmlText);
+      
+      // 클립보드에 복사
+      navigator.clipboard.writeText(xmlText).then(() => {
+        alert('XML이 클립보드에 복사되었습니다!');
+      }).catch(() => {
+        // 클립보드 복사 실패 시 alert로 표시
+        alert('XML:\n' + xmlText);
+      });
+    } catch (err) {
+      console.error('XML 생성 실패:', err);
+      alert('XML 생성에 실패했습니다.');
+    }
+  };
+
+  // Java 코드 생성
+  const generateJavaCode = () => {
+    if (!workspaceRef.current) return;
+    
+    try {
+      //const javaCode = Blockly.Java.workspaceToCode(workspaceRef.current);
+      const javaCode = JavaGenerator.workspaceToCode(workspaceRef.current);
+      console.log('Generated Java Code:', javaCode);
+      
+      // 클립보드에 복사
+      navigator.clipboard.writeText(javaCode).then(() => {
+        alert('Java 코드가 클립보드에 복사되었습니다!');
+      }).catch(() => {
+        // 클립보드 복사 실패 시 alert로 표시
+        alert('Java 코드:\n' + javaCode);
+      });
+    } catch (err) {
+      console.error('Java 코드 생성 실패:', err);
+      alert('Java 코드 생성에 실패했습니다.');
+    }
+  };
+
+  // 다음 문제로 이동
+  const goToNextQuestion = async () => {
+    if (sessionId) {
+      await loadNextQuestion(sessionId);
+    }
+  };
+
+  // 게임 리셋
+  const resetGame = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      // 새 세션 생성
+      const newSessionId = await generateNewSession();
+      setSessionId(newSessionId);
+      setSolvedQuestions(new Set());
+      setIsCorrect(null);
+      setShowNextButton(false);
+      setShowCompletionMessage(false);
+      
+      // 워크스페이스 안전하게 초기화
+      if (workspaceRef.current && !workspaceRef.current.isDisposed) {
+        try {
+          workspaceRef.current.dispose();
+          console.log('Workspace disposed during game reset');
+        } catch (err) {
+          console.warn('Error disposing workspace during game reset:', err);
+        }
+        workspaceRef.current = null;
+      }
+      
+      // 첫 문제 로드
+      await loadNextQuestion(newSessionId);
+    } catch (err) {
+      console.error('게임 리셋 실패:', err);
+      setError('게임을 리셋할 수 없습니다.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 블록 초기화
+  const resetBlocks = () => {
+    if (workspaceRef.current && !workspaceRef.current.isDisposed) {
+      try {
+        workspaceRef.current.clear();
+        console.log('Blocks cleared successfully');
+      } catch (err) {
+        console.warn('Error clearing blocks:', err);
+      }
+    }
+    setIsCorrect(null);
+    setShowNextButton(false);
+  };
+
+  if (isLoading) {
+    return <div className="loading">로딩 중...</div>;
   }
 
-  // 에러 상태
-  if (error) {
+  if (!userInfo) {
     return (
-      <div style={{ textAlign: 'center', padding: '2rem', color: 'red' }}>
-        <div>{error}</div>
-        <button onClick={() => window.location.reload()} style={{ marginTop: '1rem' }}>
-          다시 시도
-        </button>
+      <div className="error">
+        <p>로그인이 필요합니다.</p>
+        <p>로그인 후 다시 시도해주세요.</p>
       </div>
     );
   }
 
-  // 데이터 없음
-  if (!questionData) {
-    return <div style={{ textAlign: 'center', padding: '2rem' }}>문제 데이터가 없습니다.</div>;
+  if (error) {
+    return (
+      <div className="error">
+        <p>{error}</p>
+        <button onClick={resetGame}>다시 시도</button>
+      </div>
+    );
+  }
+
+  // 디버깅 정보 표시 (개발 중에만)
+  console.log('Render state:', {
+    currentQuestion,
+    isCorrect,
+    showNextButton,
+    showCompletionMessage,
+    sessionId
+  });
+
+  if (showCompletionMessage) {
+    return (
+      <div className="completion-message">
+        <h2>🎉 모든 문제를 완료했습니다!</h2>
+        <p>축하합니다! 모든 문제를 성공적으로 해결하셨습니다.</p>
+        <button onClick={resetGame}>새 게임 시작</button>
+      </div>
+    );
   }
 
   return (
-    <div style={{ padding: '1rem', maxWidth: '1400px', margin: '0 auto' }}>
-      <h2 style={{ textAlign: 'center', marginBottom: '1rem' }}>
-        블록 코딩 퀴즈
-      </h2>
-
-      <div style={{
-        background: '#f0f8ff',
-        padding: '1rem',
-        borderRadius: '8px',
-        marginBottom: '1rem',
-        border: '1px solid #e0e0e0'
-      }}>
-        <strong>문제:</strong> {questionData.question}
+    <div className="block-main">
+      <div className="header">
+        <h1>블록 코딩 게임</h1>
+        <div className="controls">
+          <button onClick={resetGame} className="reset-game-btn">
+            게임 초기화
+          </button>
+        </div>
       </div>
 
-      <div
-        ref={blocklyDiv}
-        style={{
-          height: "500px",
-          width: "100%",
-          background: "#f7f7f7",
-          margin: "1rem 0",
-          borderRadius: "12px",
-          boxShadow: "0 2px 12px rgba(0,0,0,0.1)",
-          border: "1px solid #ddd"
-        }}
-      />
+      {currentQuestion && (
+        <div className="question-section">
+          <h2>문제</h2>
+          <p>{currentQuestion.question}</p>
+          <div className="question-info">
+            <span>카테고리: {currentQuestion.category}</span>
+            <span>해결된 문제: {solvedQuestions.size}개</span>
+          </div>
+        </div>
+      )}
 
-      <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-        <button
-          onClick={handleCheck}
+      <div className="workspace-section">
+        <div 
+          ref={blocklyDiv} 
+          className="blockly-workspace"
           style={{
-            padding: '0.75rem 1.5rem',
-            marginRight: '0.5rem',
-            backgroundColor: '#4CAF50',
-            color: 'white',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontSize: '16px'
+            width: '100%',
+            height: '500px',
+            border: '2px solid #ccc',
+            backgroundColor: '#f9f9f9',
+            position: 'relative'
           }}
-        >
-          정답 확인
-        </button>
+        ></div>
+      </div>
 
-        <button
-          onClick={handleReset}
-          style={{
-            padding: '0.75rem 1.5rem',
-            marginRight: '0.5rem',
-            backgroundColor: '#ff9800',
-            color: 'white',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontSize: '16px'
-          }}
-        >
-          초기화
-        </button>
-
-        {/* 개발 환경에서만 표시 */}
-        {import.meta.env.MODE === 'development' && (
-          <>
-            <button
-              onClick={handleExportXml}
-              style={{
-                padding: '0.75rem 1.5rem',
-                marginRight: '0.5rem',
-                backgroundColor: '#2196F3',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '16px'
-              }}
+      <div className="action-section">
+        {!showNextButton ? (
+          <div className="action-buttons">
+            <button 
+              onClick={checkAnswer} 
+              className="check-answer-btn"
+              disabled={!currentQuestion}
             >
-              XML 내보내기
+              정답체크
             </button>
-            <button
-              onClick={handleGenerateJavaCode}
-              style={{
-                padding: '0.75rem 1.5rem',
-                backgroundColor: '#9C27B0',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '16px'
-              }}
+            <div className="code-generation-buttons">
+              <button onClick={generateXml} className="generate-xml-btn">XML 생성</button>
+              <button onClick={generateJavaCode} className="generate-java-btn">Java 코드 생성</button>
+            </div>
+            <button onClick={resetBlocks} className="reset-blocks-btn">
+              블록 초기화
+            </button>
+          </div>
+        ) : (
+          <div className="action-buttons">
+            <button 
+              onClick={goToNextQuestion} 
+              className="next-question-btn"
             >
-              Java 코드 생성
+              다음 문제
             </button>
-          </>
+            <button onClick={resetBlocks} className="reset-blocks-btn">
+              블록 초기화
+            </button>
+          </div>
         )}
       </div>
 
-      {result && (
-        <div style={{
-          marginTop: '1rem',
-          padding: '1rem',
-          textAlign: 'center',
-          fontSize: '18px',
-          fontWeight: 'bold',
-          backgroundColor: result.includes('정답') ? '#e8f5e8' : '#ffe8e8',
-          borderRadius: '6px',
-          border: `1px solid ${result.includes('정답') ? '#4CAF50' : '#f44336'}`
-        }}>
-          {result}
+      {isCorrect && (
+        <div className="result-message correct">
+          <p>🎉 정답입니다!</p>
+        </div>
+      )}
+
+      {!isCorrect && currentQuestion && isCorrect !== null && (
+        <div className="result-message incorrect">
+          <p>❌ 오답입니다. 다시 시도해보세요.</p>
         </div>
       )}
     </div>

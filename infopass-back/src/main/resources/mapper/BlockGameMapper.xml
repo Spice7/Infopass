@@ -1,10 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="boot.infopass.mapper.BlockMapper">
+	<!-- 단일 데이터 -->
 	<select id="getSingleData" resultType="block" parameterType="Integer">
 		select * from blockgame_question where id = #{id}
 	</select>
+	
+	<!-- 전체 데이터 -->
 	<select id="getAllDatas" resultType="block">
 		select * from blockgame_question order by id asc
+	</select>
+	
+	<!-- 사용자가 아직 풀지 않은 문제 목록 조회 -->
+	<select id="getUnsolvedQuestions" resultType="block">
+		SELECT DISTINCT q.*
+		FROM blockgame_question q
+		LEFT JOIN blockgame_submission s ON q.id = s.question_id 
+			AND s.user_id = #{userId} 
+			AND s.session_id = #{sessionId}
+			AND s.is_correct = true
+		WHERE s.id IS NULL
+		ORDER BY RAND()
+	</select>
+
+	<!-- 사용자가 아직 풀지 않은 문제 중 랜덤으로 하나 조회 -->
+	<select id="getRandomUnsolvedQuestion" resultType="block">
+		SELECT q.*
+		FROM blockgame_question q
+		LEFT JOIN blockgame_submission s ON q.id = s.question_id 
+			AND s.user_id = #{userId} 
+			AND s.session_id = #{sessionId}
+			AND s.is_correct = true
+		WHERE s.id IS NULL
+		ORDER BY RAND()
+		LIMIT 1
+	</select>
+	
+	<!-- 문제 해결 시도 기록 저장 -->
+	<insert id="saveQuestionAttempt" parameterType="blockSub">
+		INSERT INTO blockgame_submission (question_id, user_id, session_id, submitted_answer, is_correct, created_at)
+		VALUES (#{question_id}, #{user_id}, #{session_id}, #{submitted_answer}, #{is_correct}, NOW())
+	</insert>
+	
+	<!-- 세션별 문제 해결 여부 확인 -->
+	<select id="isQuestionSolvedBySession" resultType="boolean">
+		SELECT COUNT(*) > 0
+		FROM blockgame_submission
+		WHERE question_id = #{questionId} AND session_id = #{sessionId} AND is_correct = true
 	</select>
 </mapper>
