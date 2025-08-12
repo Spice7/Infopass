@@ -311,4 +311,4 @@ export const BLOCK_CATEGORIES = {
 
 export { BLOCK_MESSAGES, BLOCK_COLORS };
 export { JavaGenerator };
-// export default Blockly;
+export default Blockly;
