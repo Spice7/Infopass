@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef, useContext } from 'react';
 import Blockly from './blocks';
+import { JavaGenerator } from './blocks';
 import { LoginContext } from '../../user/LoginContextProvider';
 import { getRandomUnsolvedQuestion, generateNewSession, submitAnswerToBackend } from './BlockAPI';
 import './blocks';
@@ -269,7 +270,8 @@ const BlockMain = () => {
     if (!workspaceRef.current) return;
     
     try {
-      const javaCode = Blockly.Java.workspaceToCode(workspaceRef.current);
+      //const javaCode = Blockly.Java.workspaceToCode(workspaceRef.current);
+      const javaCode = JavaGenerator.workspaceToCode(workspaceRef.current);
       console.log('Generated Java Code:', javaCode);
       
       // 클립보드에 복사
