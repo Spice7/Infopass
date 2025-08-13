@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useMemo, useRef, useContext } from 'react';
-import Blockly from './blocks';
-import { JavaGenerator } from './blocks';
+import React, { useState, useEffect, useMemo, useRef, useContext, useCallback } from 'react';
+import * as Blockly from 'blockly';
+import { registerAllBlocks } from './blocks';
+import { JavaGenerator } from './javaGenerator';
 import { LoginContext } from '../../user/LoginContextProvider';
 import { getRandomUnsolvedQuestion, generateNewSession, submitAnswerToBackend } from './BlockAPI';
-import './blocks';
+import BlockLoading from './loading/BlockLoading';
 
 const BlockMain = () => {
   const blocklyDiv = useRef(null);
@@ -17,6 +18,11 @@ const BlockMain = () => {
   const [isCorrect, setIsCorrect] = useState(null); // null로 초기화
   const [showNextButton, setShowNextButton] = useState(false);
   const [showCompletionMessage, setShowCompletionMessage] = useState(false);
+
+  // 블록 등록
+  useEffect(() => {
+    registerAllBlocks();
+  }, []);
 
   // 툴박스 설정 (기존 방식과 동일)
   const toolbox = useMemo(() => {
@@ -43,6 +49,39 @@ const BlockMain = () => {
       return null;
     }
   }, [currentQuestion]);
+
+  // 다음 문제 로드 (의존 훅보다 위에서 선언하여 TDZ 회피)
+  const loadNextQuestion = useCallback(async (currentSessionId) => {
+    setIsLoading(true);
+    try {
+      console.log('Loading next question for session:', currentSessionId);
+      if (!userInfo || !userInfo.id) {
+        console.error('No userInfo or userInfo.id available');
+        setError('사용자 인증이 필요합니다.');
+        return;
+      }
+
+      const question = await getRandomUnsolvedQuestion(userInfo.id, currentSessionId);
+      console.log('Question loaded:', question);
+      
+      if (!question) {
+        // 모든 문제를 완료한 경우
+        console.log('All questions completed');
+        setShowCompletionMessage(true);
+        setCurrentQuestion(null);
+        return;
+      }
+
+      setCurrentQuestion(question);
+      setIsCorrect(null);
+      setShowNextButton(false);
+    } catch (err) {
+      console.error('문제 로드 실패:', err);
+      setError('문제를 로드할 수 없습니다.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [userInfo]);
 
   // 사용자 정보 로드 후 게임 초기화
   useEffect(() => {
@@ -75,7 +114,7 @@ const BlockMain = () => {
     };
 
     initializeGame();
-  }, [userInfo]); // userInfo가 변경될 때마다 실행
+  }, [userInfo, loadNextQuestion]); // userInfo가 변경될 때마다 실행
 
   // Blockly workspace 초기화
   useEffect(() => {
@@ -149,42 +188,13 @@ const BlockMain = () => {
     };
   }, [currentQuestion, toolbox]);
 
-  // 다음 문제 로드
-  const loadNextQuestion = async (currentSessionId) => {
-    try {
-      console.log('Loading next question for session:', currentSessionId);
-      if (!userInfo || !userInfo.id) {
-        console.error('No userInfo or userInfo.id available');
-        setError('사용자 인증이 필요합니다.');
-        return;
-      }
-
-      const question = await getRandomUnsolvedQuestion(userInfo.id, currentSessionId);
-      console.log('Question loaded:', question);
-      
-      if (!question) {
-        // 모든 문제를 완료한 경우
-        console.log('All questions completed');
-        setShowCompletionMessage(true);
-        setCurrentQuestion(null);
-        return;
-      }
-
-      setCurrentQuestion(question);
-      setIsCorrect(null);
-      setShowNextButton(false);
-    } catch (err) {
-      console.error('문제 로드 실패:', err);
-      setError('문제를 로드할 수 없습니다.');
-    }
-  };
 
   // 정답 체크
   const checkAnswer = async () => {
     if (!currentQuestion || !workspaceRef.current) return;
 
     try {
-      // XML 기반 정답 체크 (기존 방식)
+      // XML 기반 정답 체크
       const userXmlText = normalizeXml(Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspaceRef.current)));
       const answerXmlText = normalizeXml(currentQuestion.answer);
       
@@ -227,7 +237,7 @@ const BlockMain = () => {
     }
   };
 
-  // XML 정규화 (기존 방식)
+  // XML 정규화
   const normalizeXml = (xmlString) => {
     const parser = new DOMParser();
     const dom = parser.parseFromString(xmlString, "text/xml");
@@ -237,6 +247,8 @@ const BlockMain = () => {
       block.removeAttribute('id');
       block.removeAttribute('x');
       block.removeAttribute('y');
+      block.removeAttribute('deletable');
+      block.removeAttribute('movable');
     });
 
     // 문자열로 변환 후 공백/줄바꿈 제거
@@ -270,7 +282,6 @@ const BlockMain = () => {
     if (!workspaceRef.current) return;
     
     try {
-      //const javaCode = Blockly.Java.workspaceToCode(workspaceRef.current);
       const javaCode = JavaGenerator.workspaceToCode(workspaceRef.current);
       console.log('Generated Java Code:', javaCode);
       
@@ -344,7 +355,7 @@ const BlockMain = () => {
   };
 
   if (isLoading) {
-    return <div className="loading">로딩 중...</div>;
+    return <BlockLoading />;
   }
 
   if (!userInfo) {
@@ -400,7 +411,7 @@ const BlockMain = () => {
           <h2>문제</h2>
           <p>{currentQuestion.question}</p>
           <div className="question-info">
-            <span>카테고리: {currentQuestion.category}</span>
+            <span>카테고리: {currentQuestion.category}</span><br></br>
             <span>해결된 문제: {solvedQuestions.size}개</span>
           </div>
         </div>
