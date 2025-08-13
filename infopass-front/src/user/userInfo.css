@@ -1,11 +1,13 @@
 /* 모달 스타일 */
 div.SignupPage-modal-container {
-  position: absolute;
+  position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 600px;
-  max-width: 90vw;
+  width: 90vw;
+  height: 90vh;
+  max-width: 750px;
+  max-height: 800px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 20px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
@@ -13,13 +15,16 @@ div.SignupPage-modal-container {
   color: white;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
+  overflow-y: auto;
 }
 
 /* 기본 정보 텍스트 프레임 */
 .infoTextFrame {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   text-align: left;
 }
+
+
 
 .userinfoText {
   font-size: 24px;
@@ -46,6 +51,28 @@ div.SignupPage-modal-container {
   gap: 10px;
   margin-bottom: 20px;
   flex-wrap: wrap;
+  position: relative;
+}
+
+/* 이메일 직접입력 필드 스타일 */
+.UserInput[name="emailInput"] {
+  margin-top: 0;
+  margin-left: 215px;
+  width: 180px;
+  height: 48px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+/* 아이디 중복체크 메시지 스타일 */
+.id-check-message {
+  display: inline-block;
+  margin-left: 10px;
+  min-height: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  vertical-align: middle;
+  flex-shrink: 0;
 }
 
 /* 폼 컨트롤 스타일 */
@@ -58,7 +85,11 @@ div.SignupPage-modal-container {
   font-size: 14px;
   transition: all 0.3s ease;
   backdrop-filter: blur(5px);
-  width: 170px;
+  width: 180px;
+  height: 48px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
 }
 
 .UserInput::placeholder {
@@ -78,25 +109,14 @@ div.SignupPage-modal-container {
   background: rgba(255, 255, 255, 0.15);
 }
 
-/* 아이디 입력 필드 */
-.UserInput[placeholder="아이디"] {
-  width: 160px;
-}
-
-/* 비밀번호 입력 필드 */
-.UserInput[placeholder="비밀번호"],
+/* 비밀번호 확인 필드 마진 조정 */
 .UserInput[placeholder="비밀번호 확인"] {
-  width: 200px;
-}
-
-/* 닉네임 입력 필드 */
-.UserInput[placeholder="닉네임"] {
-  width: 200px;
+  margin: 0;
 }
 
 /* 이메일 도메인 선택 */
 .UserInput[style*="width:150px"] {
-  width: 150px;
+  width: 180px;
   color: white;
 }
 
@@ -105,9 +125,34 @@ div.SignupPage-modal-container {
   color: white;
 }
 
+/* select 태그 전용 스타일 */
+select.UserInput {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+select.UserInput option {
+  background: #667eea;
+  color: white;
+  padding: 8px;
+}
+
+
+/* input의 number 타입 숫자 증감(업/다운) 제거 */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
 /* 아이디 확인 버튼 */
 .CheckOfId {
-  padding: 12px 20px;
+  padding: 0 16px;
   border: 2px solid rgba(255, 255, 255, 0.5);
   border-radius: 12px;
   background: transparent;
@@ -116,6 +161,12 @@ div.SignupPage-modal-container {
   cursor: pointer;
   transition: all 0.3s ease;
   backdrop-filter: blur(5px);
+  width: 180px;
+  height: 48px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .CheckOfId:hover {
@@ -129,7 +180,9 @@ div.SignupPage-modal-container {
 .numberFrame {
   margin: 30px 0;
 }
-
+input[name="phone"] {
+  width: 200px;  
+}
 .numberSelectFrame {
   display: flex;
   gap: 10px;
@@ -147,6 +200,10 @@ div.SignupPage-modal-container {
   transition: all 0.3s ease;
   backdrop-filter: blur(5px);
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  height: 48px;
+  box-sizing: border-box;
 }
 
 .numberBox:focus {
@@ -159,6 +216,33 @@ div.SignupPage-modal-container {
 .numberBox option {
   background: #667eea;
   color: white;
+}
+
+/* 인증 메시지 스타일 - 항상 일정한 위치에 표시 */
+.auth-message {
+  display: inline-block;
+  margin-left: 10px;
+  min-height: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  vertical-align: middle;
+}
+
+/* 인증번호 입력 프레임 스타일 */
+.auth-input-frame {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+/* 인증번호 입력 필드 */
+.auth-code-input {
+  width: 180px;
+  height: 48px;
+  box-sizing: border-box;
 }
 
 /* 버튼 컨테이너 */
@@ -174,11 +258,17 @@ div.SignupPage-modal-container {
   border: 2px solid rgba(255, 255, 255, 0.5) !important;
   color: white !important;
   border-radius: 12px !important;
-  padding: 12px 24px !important;
+  padding: 0 16px !important;
   font-weight: 600 !important;
   transition: all 0.3s ease !important;
   backdrop-filter: blur(5px) !important;
   background: transparent !important;
+  width: 180px !important;
+  height: 48px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .MuiButton-outlined:hover {
@@ -203,7 +293,10 @@ div.SignupPage-modal-container {
 @media (max-width: 768px) {
   .SignupPage-modal-container {
     width: 95vw;
-    padding: 30px 20px;
+    height: 95vh;
+    max-width: none;
+    max-height: none;
+    padding: 15px 10px;
   }
   
   .userInputFrame {
@@ -229,16 +322,16 @@ div.SignupPage-modal-container {
 @keyframes signup-fadeInUp {
   from {
     opacity: 0;
-    transform: translate(-50%, -40%);
+    transform: translate(-50%, -50%) scale(0.9);
   }
   to {
     opacity: 1;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%) scale(1);
   }
 }
 
 .SignupPage-modal-container {
-  animation: signup-fadeInUp 0.5s ease-out;
+  animation: signup-fadeInUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 /* 스크롤바 스타일 */
@@ -262,4 +355,32 @@ div.SignupPage-modal-container {
 .UserInput::-webkit-scrollbar-thumb:hover,
 .numberBox::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.5);
+}
+
+/* 모달 컨테이너 스크롤바 스타일 */
+.SignupPage-modal-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.SignupPage-modal-container::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 10px 0;
+}
+
+.SignupPage-modal-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.SignupPage-modal-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+  background-clip: content-box;
+}
+
+/* Firefox 스크롤바 스타일 */
+.SignupPage-modal-container {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 }
