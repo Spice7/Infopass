@@ -1,6 +1,10 @@
 package boot.infopass.dto;
 
+import java.sql.Timestamp;
+
 import org.apache.ibatis.type.Alias;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.Data;
 
@@ -9,8 +13,13 @@ import lombok.Data;
 public class MultiResultDto {
 	
 	private Integer id;
-	private Integer lobby_id;
-	private Integer user_id;
+	private Integer lobbyId;
+	private Integer userId;
 	private Integer score;
-	private Integer user_rank;
+	private Integer userRank;
+	private Integer userRankPoint;
+	private String gameType;
+	
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+	private Timestamp createdAt;
 }

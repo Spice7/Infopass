@@ -88,6 +88,7 @@ const OX_MultiGame = () => {
     enemyLife,
     quizlist,
     currentindex,
+    myScore,
   });
 
   // ✅ 2. 상태가 변경될 때마다 "라이브 포인터"의 내용물을 업데이트
@@ -97,13 +98,15 @@ const OX_MultiGame = () => {
       enemyLife,
       quizlist,
       currentindex,
+      myScore,
     };
-  }, [myLife, enemyLife, quizlist, currentindex]);
+  }, [myLife, enemyLife, quizlist, currentindex, myScore]);
 
   // API URL
   const usersubmiturl = 'http://localhost:9000/oxquiz/submitOXquiz';
   const wronganswerurl = 'http://localhost:9000/oxquiz/wronganswer';
   const lobbyendedurl = 'http://localhost:9000/oxquiz/EndGame';
+  const multiresulturl = 'http://localhost:9000/oxquiz/multiresult';
 
   // 로딩 애니메이션
   useEffect(() => {
@@ -380,22 +383,90 @@ const OX_MultiGame = () => {
                 // 최종 라이프와 점수를 기준으로 승패 판정
                 const finalMyLife = stateRef.current.myLife;
                 const finalEnemyLife = stateRef.current.enemyLife;
+                const finalScore = stateRef.current.myScore;
 
                 if (finalMyLife <= 0 && finalEnemyLife > 0) {
                   setGameResult('LOSE');
+                  axios.post(multiresulturl, {
+                    user_id: useridx,
+                    lobby_id: roomId,
+                    score: finalScore,
+                    user_rank: 2,
+                    user_rank_point: -20,
+                    game_type: "oxquiz",
+                  }).then((res) => {
+                    console.log("Multi result:", res.data);
+                  });
                 } else if (finalMyLife > 0 && finalEnemyLife <= 0) {
                   setGameResult('WIN');
+                  axios.post(multiresulturl, {
+                    user_id: useridx,
+                    lobby_id: roomId,
+                    score: finalScore,
+                    user_rank: 1,
+                    user_rank_point: 30,
+                    game_type: "oxquiz",
+                  }).then((res) => {
+                    console.log("Multi result:", res.data);
+                  });
                 } else if (finalMyLife <= 0 && finalEnemyLife <= 0) {
                   // 둘 다 죽었을 경우 점수로 판정
                   setGameResult('DRAW');
+                  axios.post(multiresulturl, {
+                    user_id: useridx,
+                    lobby_id: roomId,
+                    score: finalScore,
+                    user_rank: 0,
+                    user_rank_point: 0,
+                    game_type: "oxquiz",
+                  }).then((res) => {
+                    console.log("Multi result:", res.data);
+                  });
                 } else {
                   // 모든 문제를 풀었을 경우 (둘 다 살아있음)
-                  if (finalMyLife > finalEnemyLife) setGameResult('WIN');
-                  else if (finalMyLife < finalEnemyLife) setGameResult('LOSE');
-                  else setGameResult('DRAW');
+                  if (finalMyLife > finalEnemyLife) {
+                    setGameResult('WIN');
+                    axios.post(multiresulturl, {
+                      user_id: useridx,
+                      lobby_id: roomId,
+                      score: finalScore,
+                      user_rank: 1,
+                      user_rank_point: 30,
+                      game_type: "oxquiz",
+                    }).then((res) => {
+                      console.log("Multi result:", res.data);
+                    });
+                  } else if (finalMyLife < finalEnemyLife) {
+                    setGameResult('LOSE');
+                    axios.post(multiresulturl, {
+                      user_id: useridx,
+                      lobby_id: roomId,
+                      score: finalScore,
+                      user_rank: 2,
+                      user_rank_point: -20,
+                      game_type: "oxquiz",
+                    }).then((res) => {
+                      console.log("Multi result:", res.data);
+                    });
+                  } else {
+                    setGameResult('DRAW');
+                    axios.post(multiresulturl, {
+                      user_id: useridx,
+                      lobby_id: roomId,
+                      score: finalScore,
+                      user_rank: 0,
+                      user_rank_point: 0,
+                      game_type: "oxquiz",
+                    }).then((res) => {
+                      console.log("Multi result:", res.data);
+                    });
+                  }
                 }
-
-                axios.post
+                  axios.post(lobbyendedurl, { host_user_id: data.hostId, roomid: roomId, status: "ENDED" }).then((res) => {
+                    console.log("Lobby ended:", res.data);
+                  }).catch((err) => {
+                    console.error("Error ending lobby:", err);
+                  });
               }
             }, 3000); // 3초 후 다음 문제
           }
@@ -572,7 +643,7 @@ const OX_MultiGame = () => {
               <p>{enemyScore}점</p>
             </div>
           </div>
-          <button onClick={() => window.location.href = '/lobby'} className="ox-gameover-btn">
+          <button onClick={() => window.location.href = 'OX_lobby'} className="ox-gameover-btn">
             로비로 돌아가기
           </button>
         </div>

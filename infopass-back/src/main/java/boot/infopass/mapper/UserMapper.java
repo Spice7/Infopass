@@ -16,4 +16,5 @@ public interface UserMapper {
 	public UserDto findByPhone(String phone);
 	public UserDto findById(Integer id);
 	public UserDto findByEmail(String email);
+	public void updateUserExp(UserDto dto);
 }

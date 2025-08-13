@@ -16,4 +16,5 @@ public interface LobbyMapper {
 	public void DeleteOXLobby(Integer id);
 	public void UpdateHost(Room room);
 	public void UpdateStatus(Room room);
+	public void endedStatus(LobbyDto dto);
 }

@@ -2,7 +2,6 @@ package boot.infopass.controller;
 
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,15 +10,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import boot.infopass.dto.LobbyDto;
 import boot.infopass.dto.MultiResultDto;
 import boot.infopass.dto.OXQuizDto;
 import boot.infopass.dto.OXQuizStatusDto;
 import boot.infopass.dto.OXQuizSubDto;
+import boot.infopass.dto.UserDto;
 import boot.infopass.dto.WrongAnswerDto;
 import boot.infopass.mapper.LobbyMapper;
+import boot.infopass.mapper.MultiResultMapper;
 import boot.infopass.mapper.OXStatusMapper;
 import boot.infopass.mapper.OXSubMapper;
 import boot.infopass.mapper.OxQuizMapper;
+import boot.infopass.mapper.UserMapper;
 import boot.infopass.mapper.WrongAnswerMapper;
 
 @RestController
@@ -37,12 +40,19 @@ public class OXQuizController {
 	WrongAnswerMapper wrongmapper;
 	@Autowired
 	LobbyMapper lobbymapper;
+	@Autowired
+	MultiResultMapper resultmapper;
+	@Autowired
+	UserMapper usermapper;
 	
 	@GetMapping("/quizlist")
 	public List<OXQuizDto> GetAllQuiz() {
 		return mapper.GetAllQuiz();
 	}
-
+	
+	//========================
+	// 싱글 게임 기록 저장용
+	//============================
 	@PostMapping("/submitOXquiz")
 	public void submituserscore(@RequestBody Map<String, Object> map, OXQuizSubDto dto) {
 		
@@ -96,18 +106,54 @@ public class OXQuizController {
 	    dto.setUser_id(userId);
 	    dto.setUser_score(userScore);
 	    dto.setRemain_time(remainTime);
-
+	    
+	    UserDto udto = new UserDto();
+	    udto.setId(userId);
+	    udto.setExp(userScore*5);
+	    
 	    statusmapper.UserStatus(dto);
+	    usermapper.updateUserExp(udto);
 	}
 	
-	//멀티게임 방 
-	@PostMapping("/EndGame")
-	public void postMethodName(@RequestBody Map<String, Object> map, MultiResultDto dto) {
+	
+	//========================
+	// 멀티 게임 기록 저장용
+	//============================
+	@PostMapping("/EndGame") // 게임끝 처리
+	public void postMethodName(@RequestBody Map<String, Object> map, LobbyDto dto) {
 			
+		Integer host_user_id = Integer.parseInt(map.get("host_user_id").toString());
+		Integer id = Integer.parseInt(map.get("roomid").toString());
+		String status = map.get("status").toString();
 		
-
+		System.out.println(host_user_id + "  |  " + id + "  |  " + status);
+		dto.setHost_user_id(host_user_id);
+		dto.setId(id);
+		dto.setStatus(status);
+		
+		lobbymapper.endedStatus(dto);
 	}
 	
-	
+	@PostMapping("/multiresult")
+	public void CreateResult(@RequestBody Map<String, Object> map, MultiResultDto dto) {
+		Integer lobbyId = Integer.parseInt(map.get("lobby_id").toString());
+		Integer userId = Integer.parseInt(map.get("user_id").toString());
+		Integer score = Integer.parseInt(map.get("score").toString());
+		Integer userRank = Integer.parseInt(map.get("user_rank").toString());
+		Integer userRankPoint = Integer.parseInt(map.get("user_rank_point").toString());
+		String gameType = (String)map.get("game_type");
+		
+		
+		System.out.println(lobbyId + "  |  " + userId + "  |  " + score + "  |  " + userRank + "  |  " + userRankPoint + "  |  " + gameType );
+		dto.setLobbyId(lobbyId);
+		dto.setUserId(userId);
+		dto.setScore(score);
+		dto.setUserRank(userRank);
+		dto.setUserRankPoint(userRankPoint);
+		dto.setGameType(gameType);
+		
+		resultmapper.CreateResult(dto);
+		
+	}
 
 }
