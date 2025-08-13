@@ -28,10 +28,12 @@ const GameResultList = () => {
   useEffect(() => {
     setTimeout(() => {
       setResults([
-        { id: 1, lobby_id: 101, user_id: 10, score: 1500, user_rank: 3, rank_change: 25, game_type: 'oxquiz', created_at: '2025-08-10 15:20:00' },
+        { id: 1, lobby_id: 101, user_id: 10, score: 1500, user_rank: 1, rank_change: 25, game_type: 'oxquiz', created_at: '2025-08-10 15:20:00' },
         { id: 2, lobby_id: 102, user_id: 10, score: 1800, user_rank: 1, rank_change: 50, game_type: 'quiz', created_at: '2025-08-09 13:10:00' },
-        { id: 3, lobby_id: 103, user_id: 10, score: 1200, user_rank: 5, rank_change: -10, game_type: 'block', created_at: '2025-08-08 19:05:00' },
+        { id: 3, lobby_id: 103, user_id: 10, score: 1200, user_rank: 2, rank_change: -10, game_type: 'block', created_at: '2025-08-08 19:05:00' },
         { id: 4, lobby_id: 104, user_id: 10, score: 2100, user_rank: 2, rank_change: 0, game_type: 'quiz', created_at: '2025-08-07 10:00:00' },
+        { id: 5, lobby_id: 105, user_id: 10, score: 950, user_rank: 1, rank_change: 10, game_type: 'card', created_at: '2025-08-12 11:30:00' },
+        { id: 6, lobby_id: 106, user_id: 10, score: 800, user_rank: 2, rank_change: -5, game_type: 'card', created_at: '2025-08-11 16:45:00' },
       ]);
     }, 500);
   }, []);
@@ -40,7 +42,7 @@ const GameResultList = () => {
     oxquiz: <QuizIcon sx={{ color: '#4caf50' }} />,
     quiz: <SportsScoreIcon sx={{ color: '#2196f3' }} />,
     block: <ViewModuleIcon sx={{ color: '#ff9800' }} />,
-    card: <ViewModuleIcon sx={{ color: '#9c27b0' }} />, // CARD 아이콘
+    card: <ViewModuleIcon sx={{ color: '#9c27b0' }} />,
   };
 
   const formatDate = (dateString) =>
@@ -68,7 +70,6 @@ const GameResultList = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', pt:1, px:2 }}>
-      {/* 오답노트 스타일 탭 적용 */}
       <Tabs
         value={filter}
         onChange={(e, v) => setFilter(v)}
@@ -106,10 +107,9 @@ const GameResultList = () => {
         <Tab value="quiz" label="QUIZ" />
         <Tab value="oxquiz" label="OXQUIZE" />
         <Tab value="block" label="BLOCK" />
-        <Tab value="card" label="CARD" /> {/* 카드 탭 추가 */}
+        <Tab value="card" label="CARD" />
       </Tabs>
 
-      {/* 리스트 */}
       <Box sx={{ flexGrow: 1, overflowY: 'auto', pr: 1, WebkitOverflowScrolling: 'touch', maxHeight: { xs: '60vh', md: 'calc(100vh - 240px)' } }}>
         {filteredResults.length === 0 ? (
           <Box sx={{ textAlign: 'center', mt: 8, p: 3 }}>
@@ -125,6 +125,8 @@ const GameResultList = () => {
           <List>
             {filteredResults.map(({ id, score, user_rank, rank_change, game_type, created_at }) => {
               const rankChangeInfo = getRankChangeInfo(rank_change);
+              const isWinLoseGame = ['oxquiz', 'block', 'card'].includes(game_type);
+
               return (
                 <React.Fragment key={id}>
                   <ListItem
@@ -154,8 +156,7 @@ const GameResultList = () => {
                         점수: <span style={{ color:'#d32f2f' }}>{score.toLocaleString()}</span>
                       </Typography>
 
-                      {/* oxquiz 승리/패배 표시 */}
-                      {game_type === 'oxquiz' ? (
+                      {isWinLoseGame ? (
                         <Typography variant="subtitle1" sx={{ fontWeight:'600', color: user_rank === 1 ? '#4caf50' : '#f44336' }}>
                           {user_rank === 1 ? '승리' : '패배'}
                         </Typography>
