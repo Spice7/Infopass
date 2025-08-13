@@ -14,6 +14,9 @@
 		update multiplayer_lobby set host_user_id = #{host_user_id} where id = #{id}
 	</update>
 	<update id="UpdateStatus" parameterType="boot.infopass.controller.OXWebController$Room">
-		update multiplayer_lobby set status = #{status} where id = #{id}
+		update multiplayer_lobby set status = #{status} where id = #{id} and host_user_id = #{host_user_id}
+	</update>
+	<update id="endedStatus" parameterType="lobby">
+		update multiplayer_lobby set status = #{status}, ended_at = now() where id = #{id} and host_user_id = #{host_user_id}
 	</update>
 </mapper>
