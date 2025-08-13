@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import boot.infopass.dto.MultiResultDto;
 import boot.infopass.dto.OXQuizDto;
 import boot.infopass.dto.OXQuizStatusDto;
 import boot.infopass.dto.OXQuizSubDto;
 import boot.infopass.dto.WrongAnswerDto;
+import boot.infopass.mapper.LobbyMapper;
 import boot.infopass.mapper.OXStatusMapper;
 import boot.infopass.mapper.OXSubMapper;
 import boot.infopass.mapper.OxQuizMapper;
@@ -33,6 +35,8 @@ public class OXQuizController {
 	OXStatusMapper statusmapper;
 	@Autowired
 	WrongAnswerMapper wrongmapper;
+	@Autowired
+	LobbyMapper lobbymapper;
 	
 	@GetMapping("/quizlist")
 	public List<OXQuizDto> GetAllQuiz() {
@@ -47,10 +51,10 @@ public class OXQuizController {
 		 String submittedAnswer = (String) map.get("submitted_answer");
 		 boolean isCorrect = (boolean) map.get("is_correct");
 		 Integer correct = (isCorrect ? 1 : 0);
-//		 System.out.println("userId: " + userId);
-//		 System.out.println("quizId: " + quizId);
-//		 System.out.println("answer: " + submittedAnswer);
-//		 System.out.println("correct?: " + isCorrect + " , " + correct);
+		 System.out.println("userId: " + userId);
+		 System.out.println("quizId: " + quizId);
+		 System.out.println("answer: " + submittedAnswer);
+		 System.out.println("correct?: " + isCorrect + " , " + correct);
 		 dto.setUser_id(userId);
 		 dto.setQuestion_id(quizId);
 		 dto.setSubmitted_answer(submittedAnswer);
@@ -97,6 +101,12 @@ public class OXQuizController {
 	}
 	
 	//멀티게임 방 
+	@PostMapping("/EndGame")
+	public void postMethodName(@RequestBody Map<String, Object> map, MultiResultDto dto) {
+			
+		
+
+	}
 	
 	
 

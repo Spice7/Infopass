@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import org.springframework.security.web.SecurityFilterChain;
@@ -44,51 +45,49 @@ public class SecurityConfig {
             throws Exception {
         log.info("securityFilterChain...");
 
-        // 폼 기반 로그인 비활성화
+        // 폼 기반 로그인 및 HTTP 기본 인증 비활성화
         http.formLogin(login -> login.disable());
-
-        // HTTP 기본 인증 비활성화
         http.httpBasic(basic -> basic.disable());
 
-        // CSRF(Cross-Site Request Forgery) 공격 방어 기능 비활성화
+        // CSRF 보호 비활성화
         http.csrf(csrf -> csrf.disable());
 
-        // CORS 설정
+        // CORS 설정 적용
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
-        // 필터 설정
-        // ✅ JWT 요청 필터 1️⃣
-        // ✅ JWT 인증 필터 2️⃣
+        // 세션 정책을 STATELESS로 설정 (JWT 사용 시 필수)
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        // 🟢 인가 설정 (authorizeHttpRequests)
+       // JWT 필터 추가
         http.addFilterAt(new JwtAuthenticationFilter(authenticationManager, jwtTokenProvider),
-                UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new JwtRequestFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
-        // 사용자 정보를 불러오는 서비스 설정
-        http.userDetailsService(customUserDetailService);
+               UsernamePasswordAuthenticationFilter.class)
+           .addFilterBefore(new JwtRequestFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
-        // JWT 요청 필터 1️
-        // JWT 인증 필터 2️
         http.addFilterAt(new JwtAuthenticationFilter(authenticationManager, jwtTokenProvider),
                 UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtRequestFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
         // 인가 설정 (authorizeHttpRequests)
-        http.authorizeHttpRequests(authorize -> authorize
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // ✅ 1. 공개적으로 허용할 정적 리소스 및 경로를 먼저 지정합니다.
-                .requestMatchers("/", "/login", "/user/**", "/oxquiz/**", "/ws/**", "/ws*", "/block/**", "/rank/**",
-                        "/lobby/**", "/blankgamesingle/**")
-                .permitAll()
 
-                // 2. 특정 권한이 필요한 경로를 지정합니다.
+        http.authorizeHttpRequests(authorize -> authorize
+                // ✅ 1. 웹소켓 경로는 모든 보안 규칙에서 제외 (가장 중요!)
+                .requestMatchers("/ws/**").permitAll()
+
+                // ✅ 2. 인증 없이 접근을 허용할 경로들
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers("/", "/login", "/user/join", "/user/check-id", "/user/check-nickname").permitAll()
+                .requestMatchers("/css/**", "/js/**", "/images/**", "/ox_image/**").permitAll()
+                .requestMatchers("/lobby/**", "/oxquiz/**", "/rank/**", "/block/**").permitAll() // 게임 관련 API 허용
+
+                // ✅ 3. 특정 권한이 필요한 경로
                 .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
 
-                // ✅ 3. 위의 규칙에 해당하지 않는 모든 요청은 인증이 필요합니다.
-                .anyRequest().authenticated());
+                // ✅ 4. 위 규칙에 해당하지 않는 모든 요청은 인증 필요
+                .anyRequest().authenticated()
+        );
 
-        // 사용자 정보를 불러오는 서비스 설정
+        // 사용자 정보 서비스 설정
         http.userDetailsService(customUserDetailService);
 
         return http.build();
