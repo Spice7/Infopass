@@ -1,5 +1,4 @@
 //import axios from 'axios';
-import axios from 'axios';
 import api from './api';
 
 // 로그인
@@ -31,3 +30,6 @@ export const verifyCode = (smsToken, code) => api.post('/user/verifyCode', { sms
 
 //소셜 로그인 
 export const socialSignup = (provider,code) => api.post(`/user/social/${provider}`, { provider, code });
+
+export const getWrongAnswers = () => api.post('/wrong-answers');
+

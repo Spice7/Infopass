@@ -54,14 +54,15 @@
   font-size: 8rem;
   color: #fff;
   font-weight: bold;
-  text-shadow: 0 0 20px rgba(255, 255, 255, 0.5), 0 0 40px rgba(92, 165, 233, 0.8);
-  animation: countdownPulse 0.5s ease-in-out;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.5),
+    0 0 40px rgba(92, 165, 233, 0.8);
+  animation: countdownPulse 0.5s ease-in-out,
+    gradientShift 2s ease-in-out infinite;
   background: linear-gradient(45deg, #5ca5e9, #fff, #5ca5e9);
   background-size: 200% 200%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: countdownPulse 0.5s ease-in-out, gradientShift 2s ease-in-out infinite;
 }
 
 @keyframes countdownPulse {
@@ -120,87 +121,55 @@
   letter-spacing: 2px;
   z-index: 20;
   border: 3px solid rgba(255, 255, 255, 0.3);
-  /* animation: loadingPulse 2s ease-in-out infinite; */
 }
 
-@keyframes loadingPulse {
-  0% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.02);
-  }
-
-  100% {
-    transform: scale(1);
-  }
-}
-
-/* 우주선 애니메이션 개선 */
-.ox-beige {
+.ox-beige,
+.ox-blue,
+.ox-green,
+.ox-pink,
+.ox-yellow {
   width: 150px;
-  transform: rotate(-10deg);
   position: absolute;
-  left: 12%;
-  top: 30%;
-  z-index: 3;
-  transition: all 0.8s cubic-bezier(.68, -0.55, .27, 1.55);
+  transition: all 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
   filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
 }
 
+.ox-beige {
+  left: 12%;
+  top: 30%;
+  transform: rotate(-10deg);
+}
+
 .ox-blue {
-  width: 150px;
-  transform: rotate(15deg);
-  position: absolute;
   left: 45%;
   top: 8%;
-  z-index: 3;
-  transition: all 0.8s cubic-bezier(.68, -0.55, .27, 1.55);
-  filter: drop-shadow(0 0 10px rgba(92, 165, 233, 0.4));
+  transform: rotate(15deg);
 }
 
 .ox-green {
-  width: 150px;
-  transform: rotate(8deg);
-  position: absolute;
   left: 80%;
   top: 2%;
-  z-index: 3;
-  transition: all 0.8s cubic-bezier(.68, -0.55, .27, 1.55);
-  filter: drop-shadow(0 0 10px rgba(76, 175, 80, 0.4));
+  transform: rotate(8deg);
 }
 
 .ox-pink {
-  width: 150px;
-  transform: rotate(-30deg);
-  position: absolute;
   left: 65%;
   top: 55%;
-  z-index: 2;
-  transition: all 0.8s cubic-bezier(.68, -0.55, .27, 1.55);
-  filter: drop-shadow(0 0 10px rgba(233, 30, 99, 0.4));
+  transform: rotate(-30deg);
 }
 
 .ox-yellow {
-  width: 150px;
-  transform: rotate(25deg);
-  position: absolute;
   left: 20%;
   top: 55%;
-  z-index: 2;
-  transition: all 0.8s cubic-bezier(.68, -0.55, .27, 1.55);
-  filter: drop-shadow(0 0 10px rgba(255, 235, 59, 0.4));
+  transform: rotate(25deg);
 }
 
 .ox-greenlaser {
   width: 70px;
   height: 350px;
-  transform: rotate(8deg);
   position: absolute;
   left: 80.8%;
   top: 18%;
-  z-index: 1;
   opacity: 0;
   transition: opacity 0.3s, height 0.5s;
   filter: drop-shadow(0 0 20px rgba(76, 175, 80, 0.8));
@@ -208,11 +177,9 @@
 
 .ox-greenboom {
   width: 290px;
-  transform: rotate(12deg);
   position: absolute;
   left: 67.8%;
   top: 51%;
-  z-index: 0;
   opacity: 0;
   transition: opacity 0.3s;
   filter: drop-shadow(0 0 30px rgba(255, 193, 7, 0.8));
@@ -220,7 +187,6 @@
 
 .ox-logo {
   width: 800px;
-  z-index: 2;
   position: absolute;
   left: 15%;
   top: 10%;
@@ -229,28 +195,10 @@
   filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.5));
 }
 
-.ox-multibutton {
-  width: 200px;
-  position: absolute;
-  top: 60%;
-  left: 40%;
-  animation: blink 0.4s linear 5 alternate;
-  opacity: 1;
-  cursor: pointer;
-  transition: transform 0.2s ease, filter 0.2s ease;
-  filter: drop-shadow(0 0 10px rgba(92, 165, 233, 0.4));
-}
-
-.ox-multibutton:hover {
-  transform: scale(1.05);
-  filter: drop-shadow(0 0 15px rgba(92, 165, 233, 0.8));
-}
-
+.ox-multibutton,
 .ox-singlebutton {
   width: 200px;
   position: absolute;
-  top: 70%;
-  left: 40%;
   animation: blink 0.4s linear 5 alternate;
   opacity: 1;
   cursor: pointer;
@@ -258,12 +206,12 @@
   filter: drop-shadow(0 0 10px rgba(92, 165, 233, 0.4));
 }
 
+.ox-multibutton:hover,
 .ox-singlebutton:hover {
   transform: scale(1.05);
   filter: drop-shadow(0 0 15px rgba(92, 165, 233, 0.8));
 }
 
-/* 캐릭터선택창 */
 .ox-charselect-bg {
   position: fixed;
   left: 0;
@@ -309,28 +257,6 @@
   filter: drop-shadow(0 0 8px #5ca5e9);
 }
 
-.ox-charselect-btn.char-basic.selected,
-.ox-charselect-btn.char-basic:hover {
-  filter: drop-shadow(0 0 10px #888);
-}
-.ox-charselect-btn.char-blue.selected,
-.ox-charselect-btn.char-blue:hover {
-  filter: drop-shadow(0 0 10px #4a90e2);
-}
-.ox-charselect-btn.char-green.selected,
-.ox-charselect-btn.char-green:hover {
-  filter: drop-shadow(0 0 10px #4be281);
-}
-.ox-charselect-btn.char-pink.selected,
-.ox-charselect-btn.char-pink:hover {
-  filter: drop-shadow(0 0 10px #e24bb7);
-}
-.ox-charselect-btn.char-yellow.selected,
-.ox-charselect-btn.char-yellow:hover {
-  filter: drop-shadow(0 0 10px #ffe24b);
-}
-
-/* OX_MultiGame, OX_SingleGame 공통 스타일 */
 .ox-quiz {
   width: 90%;
   min-height: 100px;
@@ -384,13 +310,18 @@
 }
 
 .ox-timerbar::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
   animation: timerShine 1s ease-in-out infinite;
 }
 
@@ -466,7 +397,6 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: 5;
-  padding: 0 100px;
 }
 
 .ox-charwrap-single {
@@ -491,8 +421,12 @@
 }
 
 @keyframes fadeout {
-  0% { opacity: 1; }
-  100% { opacity: 0; }
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 /* ======================================== */
@@ -654,7 +588,6 @@
 }
 
 @keyframes heartBeat {
-
   0%,
   100% {
     transform: scale(1);
@@ -745,7 +678,7 @@
 @keyframes laserDrop {
   0% {
     opacity: 0;
-    transform: translateX(-50%) scaleY(0.0);
+    transform: translateX(-50%) scaleY(0);
   }
 
   10% {
@@ -822,24 +755,12 @@
   }
 }
 
-@keyframes fadeout {
-  0% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0;
-  }
-}
-
 /* 게임 소개 슬라이드 스타일 개선 */
-/* 슬라이드 전체 카드 */
 .ox-slide-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
   border-radius: 22px;
-  box-shadow: none;
   padding: 12px 12px 10px 12px;
   width: 600px;
   margin: 0 auto 28px auto;
@@ -847,7 +768,7 @@
   min-height: 340px;
   max-width: 98vw;
 }
-/* 이미지+화살표 수평 정렬 */
+
 .ox-slide-imgrow {
   display: flex;
   flex-direction: row;
@@ -858,6 +779,7 @@
   position: relative;
   min-height: 300px;
 }
+
 .ox-slide-img-large {
   width: 98%;
   max-width: 480px;
@@ -867,13 +789,13 @@
   object-fit: contain;
   border-radius: 18px;
   background: transparent;
-  box-shadow: none;
   border: none;
-  transition: transform 0.3s cubic-bezier(.4,2,.6,1);
+  transition: transform 0.3s cubic-bezier(0.4, 2, 0.6, 1);
   flex-shrink: 1;
   display: block;
   margin: 0 auto;
 }
+
 .ox-slide-arrow-btn {
   background: none;
   border: none;
@@ -893,18 +815,20 @@
   top: 50%;
   transform: translateY(-50%);
 }
+
 .ox-slide-arrow-btn.left {
   left: 0;
-  margin-right: 0;
 }
+
 .ox-slide-arrow-btn.right {
   right: 0;
-  margin-left: 0;
 }
+
 .ox-slide-arrow-btn:disabled {
   opacity: 0.2;
   cursor: not-allowed;
 }
+
 .ox-slide-arrow {
   font-size: 48px;
   color: #222;
@@ -914,6 +838,7 @@
   align-items: center;
   justify-content: center;
 }
+
 .ox-slide-desc.oneline {
   margin-top: 6px;
   font-size: 21px;
@@ -922,12 +847,12 @@
   text-align: center;
   min-height: 32px;
   letter-spacing: -0.5px;
-  text-shadow: none;
   margin-bottom: 10px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .ox-slide-indicator {
   display: flex;
   gap: 7px;
@@ -935,85 +860,85 @@
   margin-top: 10px;
   margin-bottom: 2px;
 }
+
 .ox-slide-dot {
   width: 13px;
   height: 13px;
   border-radius: 50%;
   background: #d1d6e6;
   transition: background 0.2s, transform 0.2s;
-  box-shadow: none;
 }
+
 .ox-slide-dot.active {
   background: #222;
   transform: scale(1.18);
-  box-shadow: none;
 }
 
-
-/* 종료화면 */
-
-.ox-gameover-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
+/* 퀴즈 입력 부분 스타일 */
+.blank-quiz {
   width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
+  text-align: center;
+  margin: 20px 0;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: inline-block;
+}
+
+.question-wrapper {
+  display: inline-block;
+  text-align: left;
+  max-width: 80%;
+}
+
+.question-text {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  margin: 20px 0;
+}
+
+.blank-input {
+  padding: 8px 12px;
+  font-size: 1rem;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  margin-right: 10px;
+  width: 200px; /* 입력 필드 너비 설정 */
+  position: relative; /* z-index가 적용될 수 있도록 position 설정 */
+  z-index: 10; /* 기본 z-index 설정 */
+}
+
+.blank-input:focus {
+  border-color: #007bff; /* 포커스 시 테두리 색상 */
+  outline: none; /* 기본 파란 테두리 제거 */
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25); /* 포커스 시 그림자 */
+  display: inline-block;
+}
+
+.blank-answer-form {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 100;
+  gap: 10px;
+  margin-top: 20px;
 }
 
-.ox-gameover-box {
-  background-color: white;
-  padding: 40px 60px;
-  border-radius: 20px;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  border: 5px solid #333;
-}
-
-.ox-gameover-title {
-  font-size: 5rem;
-  margin-bottom: 20px;
-  font-weight: bold;
-  text-shadow: 3px 3px 0 #ddd;
-}
-
-.ox-gameover-box.win .ox-gameover-title {
-  color: #28a745; /* 승리 - 초록색 */
-}
-.ox-gameover-box.lose .ox-gameover-title {
-  color: #dc3545; /* 패배 - 빨간색 */
-}
-.ox-gameover-box.draw .ox-gameover-title {
-  color: #6c757d; /* 무승부 - 회색 */
-}
-
-.ox-gameover-scores {
-  display: flex;
-  justify-content: space-around;
-  width: 400px;
-  margin-bottom: 30px;
-  font-size: 1.5rem;
-}
-
-.ox-gameover-player h2 {
-  margin-bottom: 10px;
-}
-
-.ox-gameover-btn {
-  padding: 15px 30px;
-  font-size: 1.2rem;
-  border-radius: 10px;
-  border: none;
+.submit-btn {
+  padding: 8px 20px;
+  font-size: 1rem;
   background-color: #007bff;
   color: white;
+  border: none;
+  border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
-.ox-gameover-btn:hover {
-  background-color: #0056b3;
+.submit-btn:hover:not(:disabled) {
+  background-color: #0056b3; /* 호버 시 색상 변경 */
+}
+
+.submit-btn:disabled {
+  background-color: #ccc; /* 비활성 상태 색상 */
 }

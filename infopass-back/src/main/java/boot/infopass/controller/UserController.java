@@ -119,6 +119,7 @@ public class UserController {
 		UserDto savedUser = userService.insertUser(userDto);
 		
 		MultiplayerDto mDto = new MultiplayerDto();
+		
 		mDto.setUser_id(savedUser.getId());
 		int result1 = multiplayerService.insertMultiplayer(mDto);
 		log.info("id: "+savedUser.getId());

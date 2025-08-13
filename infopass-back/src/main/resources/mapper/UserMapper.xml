@@ -18,14 +18,15 @@
 
 
   <update id="updateUser" parameterType="boot.infopass.dto.UserDto">
-    UPDATE user
-    SET
-      name = #{name},
-      nickname = #{nickname},
-      phone = #{phone},
-      address = #{address}
-    WHERE id = #{id}
-  </update>
+  UPDATE user
+  SET
+    name = #{name},
+    nickname = #{nickname},
+    phone = #{phone},
+    address = #{address},
+    enabled = #{enabled}
+  WHERE id = #{id}
+</update>
 
     
 </mapper>

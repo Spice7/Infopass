@@ -246,10 +246,7 @@ const SignupPage = () => {
     const address = `${userInfo.addressRoad} ${userInfo.addressDetail}`.trim();
 
     console.log("email: " + email + ", name: " + name + ", phone: " + phone + ", address: " + address + ", nickname: " + userInfo.nickname + ", password: " + userInfo.password);
-    if (!socialUser && !userCheck) {
-      alert('아이디 중복체크 해주세요');
-      return;
-    }
+    
     if (!passwordValid) {
       alert('비밀번호 형식이 올바르지 않습니다.');
       return;
@@ -262,9 +259,15 @@ const SignupPage = () => {
       alert('닉네임 중복체크 해주세요');
       return;
     }
-    if (!isVerified) {
-      alert('휴대폰 인증을 완료해주세요');
-      return;
+    if(!socialUser){
+      if (!userCheck) {
+        alert('아이디 중복체크 해주세요');
+        return;
+      }
+      if (!isVerified) {
+        alert('휴대폰 인증을 완료해주세요');
+        return;
+      }
     }
 
     const sendInfo = {

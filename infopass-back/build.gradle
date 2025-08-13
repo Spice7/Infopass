@@ -59,7 +59,7 @@ dependencies {
 	// Development Tools
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	//시크릿키(의존성)
-	 annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 	// Test Dependencies
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4'
@@ -68,7 +68,7 @@ dependencies {
 	
 	//문자메세지
 	implementation 'net.nurigo:sdk:4.3.2'
-	implementation 'net.nurigo:coolsms-java-sdk:2.2.0'
+	//implementation 'net.nurigo:coolsms-java-sdk:2.2.0'
 	
 	//소셜 로그인
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'

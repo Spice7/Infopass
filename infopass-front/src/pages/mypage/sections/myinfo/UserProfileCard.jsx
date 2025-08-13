@@ -12,47 +12,29 @@ import {
   DialogContent,
   DialogActions,
   TextField,
+  CircularProgress,
 } from '@mui/material';
 import { AccountCircle, Edit, Star } from '@mui/icons-material';
+import Cookies from 'js-cookie';
 
-import './UserProfileCard.css';
 import { update } from '../../../../user/auth';
 
 const primaryColor = '#4a90e2';
 const gradientColor = 'linear-gradient(135deg, #4a90e2 0%, #81d4fa 100%)';
 const cardBgColor = '#ffffff';
 
-// 출력용 전화번호 포맷 함수 (보기용)
 const formatPhoneNumber = (phone) => {
   if (!phone) return '';
   const cleaned = phone.replace(/\D/g, '');
-  if (cleaned.length === 11) {
-    return cleaned.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
-  } else if (cleaned.length === 10) {
-    return cleaned.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+  if (cleaned.length >= 10) {
+    return cleaned.replace(/(\d{3})(\d{3,4})(\d{4})/, '$1-$2-$3');
   }
   return phone;
 };
 
-// 입력 폼용 전화번호 자동 하이픈 + 최대 11자리 제한 함수
-const formatInputPhoneNumber = (value) => {
-  // 숫자만 추출하고 최대 11자리로 자르기
-  const cleaned = value.replace(/\D/g, '').slice(0, 11);
-
-  if (cleaned.length <= 3) return cleaned;
-
-  if (cleaned.length <= 7) {
-    return cleaned.replace(/(\d{3})(\d+)/, '$1-$2');
-  }
-
-  // 11자리까지 자동 하이픈, 마지막 번호는 최대 4자리
-  return cleaned.replace(/(\d{3})(\d{4})(\d{0,4})/, (_, a, b, c) =>
-    c ? `${a}-${b}-${c}` : `${a}-${b}`
-  );
-};
-
 const UserProfileCard = ({ user, onUpdate }) => {
   const [open, setOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [form, setForm] = useState({
     name: user.name ?? '',
     nickname: user.nickname ?? '',
@@ -69,30 +51,36 @@ const UserProfileCard = ({ user, onUpdate }) => {
       phone: user.phone ?? '',
       address: user.address ?? '',
     });
+    setError(null);
     setOpen(true);
   };
+
   const handleClose = () => setOpen(false);
 
-  // 변경 핸들러
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handlePhoneChange = (e) => {
+    const { value } = e.target;
+    const cleaned = value.replace(/\D/g, '').slice(0, 11);
+    let formattedValue = cleaned;
 
-    if (name === 'phone') {
-      setForm((prev) => ({
-        ...prev,
-        [name]: formatInputPhoneNumber(value),
-      }));
-    } else {
-      setForm((prev) => ({ ...prev, [name]: value }));
+    if (cleaned.length > 3 && cleaned.length <= 7) {
+      formattedValue = `${cleaned.slice(0, 3)}-${cleaned.slice(3)}`;
+    } else if (cleaned.length > 7) {
+      formattedValue = `${cleaned.slice(0, 3)}-${cleaned.slice(3, 7)}-${cleaned.slice(7)}`;
     }
+
+    setForm((prev) => ({ ...prev, phone: formattedValue }));
   };
 
-  const handleSave = async () => {
+  const  handleSave = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await update(user.id, form);
-
+      const updatedData = {
+        ...form,
+        phone: form.phone.replace(/-/g, ''),
+        enabled: user.enabled,
+      };
+      const response = await update(user.id, updatedData);
       if (response.status === 200) {
         if (onUpdate) onUpdate(response.data);
         setOpen(false);
@@ -104,6 +92,34 @@ const UserProfileCard = ({ user, onUpdate }) => {
       setError('서버와 통신 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteConfirm = () => setDeleteOpen(true);
+  const handleDeleteCancel = () => setDeleteOpen(false);
+
+  const handleDelete = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const updatedData = {
+        ...form,
+        enabled: 0,
+      };
+      const res = await update(user.id, updatedData);
+      if (res.status === 200) {
+        alert('회원탈퇴가 완료되었습니다.');
+        Cookies.remove('accessToken');
+        window.location.href = '/';
+      } else {
+        alert('회원탈퇴 처리에 실패했습니다.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('서버와 통신 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+      setDeleteOpen(false);
     }
   };
 
@@ -127,7 +143,6 @@ const UserProfileCard = ({ user, onUpdate }) => {
           boxShadow: '0 12px 48px rgba(0,0,0,0.1)',
         }}
       >
-        {/* 프로필 아바타 + 레벨 칩 */}
         <Box sx={{ position: 'relative', mr: { md: 4 } }}>
           <Avatar
             sx={{
@@ -137,11 +152,6 @@ const UserProfileCard = ({ user, onUpdate }) => {
               boxShadow: '0 6px 24px rgba(0,0,0,0.15)',
               border: `4px solid ${cardBgColor}`,
               background: gradientColor,
-              transition: 'none',
-              '&:hover': {
-                transform: 'none',
-                boxShadow: '0 6px 24px rgba(0,0,0,0.15)',
-              },
             }}
           >
             <AccountCircle fontSize="inherit" />
@@ -163,18 +173,11 @@ const UserProfileCard = ({ user, onUpdate }) => {
                 px: 2,
                 border: `2px solid ${cardBgColor}`,
                 boxShadow: '0 0 10px 2px rgba(255, 193, 7, 0.7)',
-                transition: 'none',
-                '&:hover': {
-                  transform: 'translateX(-50%)',
-                  boxShadow: '0 0 10px 2px rgba(255, 193, 7, 0.7)',
-                },
-                animation: 'none',
               }}
             />
           </Tooltip>
         </Box>
 
-        {/* 사용자 정보 */}
         <Box sx={{ flexGrow: 1, textAlign: { xs: 'center', md: 'left' } }}>
           <Typography variant="h2" fontWeight={800} gutterBottom sx={{ color: primaryColor }}>
             {user.name}
@@ -199,7 +202,6 @@ const UserProfileCard = ({ user, onUpdate }) => {
           </Typography>
         </Box>
 
-        {/* 수정 버튼 */}
         <Button
           variant="contained"
           startIcon={<Edit />}
@@ -213,16 +215,6 @@ const UserProfileCard = ({ user, onUpdate }) => {
             px: 4,
             py: 1.5,
             borderRadius: 2,
-            boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
-            transition: 'transform 0.28s cubic-bezier(.2,.8,.2,1), box-shadow 0.28s ease, opacity 0.28s',
-            '&:hover': {
-              background: gradientColor,
-              transform: 'scale(1.05)',
-              boxShadow: '0 8px 28px rgba(0,0,0,0.18)',
-            },
-            '&:active': {
-              transform: 'scale(0.99)',
-            },
           }}
           onClick={handleOpen}
         >
@@ -230,35 +222,214 @@ const UserProfileCard = ({ user, onUpdate }) => {
         </Button>
       </Paper>
 
-      {/* 수정 모달 */}
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-        <DialogTitle>프로필 수정</DialogTitle>
-        <DialogContent dividers>
+        <DialogTitle
+          sx={{
+            fontWeight: 'bold',
+            fontSize: 24,
+            color: primaryColor,
+            pb: 1,
+            mb: 2,
+            textAlign: 'center',
+          }}
+        >
+          프로필 수정
+        </DialogTitle>
+        <DialogContent
+          dividers
+          sx={{
+            bgcolor: '#f9fafe',
+            borderRadius: '0 0 8px 8px',
+            p: 3,
+            pt: 2,
+          }}
+        >
           <Box
             component="form"
-            sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 1 }}
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 3,
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: 260,
+            }}
             noValidate
             autoComplete="off"
           >
-            <TextField label="이름" name="name" value={form.name} onChange={handleChange} fullWidth />
-            <TextField label="닉네임" name="nickname" value={form.nickname} onChange={handleChange} fullWidth />
-            <TextField label="전화번호" name="phone" value={form.phone} onChange={handleChange} fullWidth />
-            <TextField label="주소" name="address" value={form.address} onChange={handleChange} fullWidth />
+            {['name', 'nickname', 'phone', 'address'].map((field) => (
+              <TextField
+                key={field}
+                label={
+                  field === 'name'
+                    ? '이름'
+                    : field === 'nickname'
+                    ? '닉네임'
+                    : field === 'phone'
+                    ? '전화번호'
+                    : '주소'
+                }
+                name={field}
+                value={form[field]}
+                onChange={field === 'phone' ? handlePhoneChange : (e) => setForm({ ...form, [field]: e.target.value })}
+                fullWidth
+                variant="outlined"
+                size="medium"
+                sx={{
+                  maxWidth: 400,
+                  bgcolor: 'white',
+                  borderRadius: 1,
+                  '& .MuiOutlinedInput-root': {
+                    boxShadow: '0 2px 8px rgb(0 0 0 / 0.1)',
+                    transition: 'box-shadow 0.3s ease',
+                    '&:hover': {
+                      boxShadow: '0 4px 14px rgb(0 0 0 / 0.15)',
+                    },
+                  },
+                }}
+                type={field === 'phone' ? 'tel' : 'text'}
+                InputProps={{ readOnly: field === 'name' }}
+              />
+            ))}
             {error && (
-              <Typography color="error" variant="body2" sx={{ mt: 1 }}>
+              <Typography
+                color="error"
+                variant="body2"
+                sx={{ mt: 1, fontWeight: 600, textAlign: 'center' }}
+              >
                 {error}
               </Typography>
             )}
           </Box>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="inherit" disabled={loading}>
+        <DialogActions
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            px: 3,
+            py: 3,
+            gap: 1.5,
+          }}
+        >
+          <Button
+            onClick={handleClose}
+            color="inherit"
+            disabled={loading}
+            sx={{
+              fontWeight: 600,
+              px: 2.5,
+              py: 1,
+              border: `1px solid ${primaryColor}`,
+              borderRadius: 2,
+              color: primaryColor,
+              textTransform: 'none',
+              fontSize: '0.85rem',
+              transition: 'background-color 0.3s ease',
+              ':hover': { bgcolor: `${primaryColor}22` },
+            }}
+          >
             취소
           </Button>
-          <Button onClick={handleSave} variant="contained" color="primary" disabled={loading}>
-            {loading ? '저장 중...' : '저장'}
-          </Button>
+
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button
+              onClick={handleDeleteConfirm}
+              disabled={loading}
+              sx={{
+                bgcolor: 'black',
+                color: 'white',
+                fontWeight: 600,
+                px: 2.5,
+                py: 1,
+                borderRadius: 2,
+                textTransform: 'none',
+                fontSize: '0.85rem',
+                transition: 'background-color 0.3s ease',
+                ':hover': { bgcolor: '#222' },
+              }}
+            >
+              회원 탈퇴
+            </Button>
+            <Button
+              onClick={handleSave}
+              disabled={loading}
+              sx={{
+                fontWeight: 600,
+                px: 2.5,
+                py: 1,
+                borderRadius: 2,
+                textTransform: 'none',
+                fontSize: '0.85rem',
+                border: `1px solid ${primaryColor}`,
+                color: primaryColor,
+                backgroundColor: 'transparent',
+                ':hover': { bgcolor: `${primaryColor}22` },
+              }}
+            >
+              {loading ? <CircularProgress size={24} color="inherit" /> : '저장'}
+            </Button>
+          </Box>
         </DialogActions>
+      </Dialog>
+
+      <Dialog open={deleteOpen} onClose={handleDeleteCancel} maxWidth="xs" fullWidth>
+        <DialogContent sx={{ p: 4 }}>
+          <Typography
+            variant="h6"
+            sx={{
+              textAlign: 'center',
+              fontWeight: 'bold',
+              color: '#333',
+              mb: 1,
+            }}
+          >
+            정말 탈퇴하시겠어요?
+          </Typography>
+          <Typography textAlign="center" color="text.secondary" sx={{ mb: 4 }}>
+            정말 탈퇴하시겠습니까?<br />탈퇴 후 30일 이내에 재로그인하면<br /> 계정이 복구됩니다.
+          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            <Button
+              onClick={handleDelete}
+              disabled={loading}
+              variant="contained"
+              sx={{
+                bgcolor: '#222',
+                color: 'white',
+                fontWeight: 600,
+                py: 1.5,
+                borderRadius: 2,
+                textTransform: 'none',
+                fontSize: '1rem',
+                ':hover': {
+                  bgcolor: '#444',
+                },
+              }}
+            >
+              {loading ? <CircularProgress size={24} color="inherit" /> : '탈퇴'}
+            </Button>
+            <Button
+              onClick={handleDeleteCancel}
+              color="inherit"
+              disabled={loading}
+              sx={{
+                fontWeight: 600,
+                py: 1.5,
+                borderRadius: 2,
+                color: '#666',
+                textTransform: 'none',
+                fontSize: '1rem',
+                ':hover': {
+                  bgcolor: '#eee',
+                },
+              }}
+            >
+              취소
+            </Button>
+          </Box>
+        </DialogContent>
       </Dialog>
     </>
   );
