@@ -1,8 +1,11 @@
 package boot.infopass.security;
 
 
+import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.crypto.SecretKey;
@@ -23,6 +26,7 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +41,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class JwtTokenProvider {
 
+	
 
     @Autowired
     private JwtProps jwtProps;
@@ -45,7 +50,7 @@ public class JwtTokenProvider {
     private UserMapper userMapper;
 
     /*
-     * 👩‍💼➡🔐 토큰 생성
+     * 👩‍💼➡🔐로그인 토큰 생성
      */
     public String createToken(int id, String email, String nickname, List<String> roles) {
         byte[] signingKey = getSigningKey();
@@ -184,8 +189,6 @@ public class JwtTokenProvider {
         return null;
     }
 
-
-
     // 
     /**
      * 🔐❓ 토큰 유효성 검사
@@ -230,6 +233,45 @@ public class JwtTokenProvider {
            return false;
        }
     }
+    
+    // SMS 인증 JWT 토큰 생성 (phone, smsCode 포함)
+    public String createSmsToken(String phone, String smsCode) {
+    	byte[] signingKey = getSigningKey();
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("phone", phone);
+        claims.put("smsCode", smsCode);
+        log.info(smsCode);
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + 1000 * 60 * 5); //5분
+
+        return Jwts.builder()
+        		.signWith(Keys.hmacShaKeyFor(signingKey), Jwts.SIG.HS512)     
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)                
+                .compact();
+    }
+
+    // SMS 인증 토큰 파싱 및 검증
+ // SMS 인증 토큰 파싱 및 검증
+    public Map<String, String> parseSmsToken(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                            .verifyWith(getShaKey())
+                            .build()
+                            .parseClaimsJws(token)
+                            .getBody();
+
+        Map<String, String> result = new HashMap<>();
+        result.put("phone", claims.get("phone", String.class));
+        result.put("smsCode", claims.get("smsCode", String.class));
+        return result;
+
+    } catch (JwtException | IllegalArgumentException e) {
+        return null;  // 유효하지 않은 토큰
+    }
+}
+
 
 
     // secretKey ➡ signingKey

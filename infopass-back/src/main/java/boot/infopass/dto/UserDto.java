@@ -6,6 +6,8 @@ import java.sql.Timestamp;
 
 import org.apache.ibatis.type.Alias;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.Data;
 
 @Data
@@ -21,7 +23,9 @@ public class UserDto {
 	private String usertype;
 	private Integer exp;
 	private Integer level;
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
 	private Timestamp rank_updated_at;
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
 	private Timestamp created_at;
 	private Integer enabled;
 

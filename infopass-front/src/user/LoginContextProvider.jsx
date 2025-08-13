@@ -21,6 +21,26 @@ const LoginContextProvider = ({ children }) => {
   // 권한 정보
   const [roles, setRoles] = useState({ isUser: false, isAdmin: false });
 
+  // 회원가입 모달 상태
+  const [isSignUpModalOpen, setSignUpModalOpen] = useState(false);
+
+  // 소셜 유저 정보
+  const [existingUser, setExistingUser] = useState(null); 
+
+
+  // 소셜 유저 받아서 회원가입 모달 열 때 호출하는 함수
+  const openSignUpModalWithUser = (user) => {    
+    setExistingUser(user);
+    setSignUpModalOpen(true);
+  };
+
+   const openSignUpModal = () => setSignUpModalOpen(true);
+
+  const closeSignUpModal = () => {
+    setExistingUser(null); //모달 닫으면 소셜 유저 정보 초기화
+    setSignUpModalOpen(false);
+  };
+
   /* -------------------------------------------------------- */
 
   // 페이지 이동
@@ -88,7 +108,7 @@ const LoginContextProvider = ({ children }) => {
       }
 
     } catch (error) {
-      Swal.alert("로그인 실패", "아이디 또는 비밀번호가 일치하지 않습니다", "error");
+      Swal.alert("로그인 실패", "아이디 또는 비밀번호가 일치하지 않습니다", "error",error);
     }
   };
 
@@ -150,7 +170,22 @@ const LoginContextProvider = ({ children }) => {
   }, []);
 
   return (
-    <LoginContext.Provider value={{ isLogin, userInfo, roles, login, loginCheck, logout }}>
+    <LoginContext.Provider
+      value={{
+        isLogin,
+        userInfo,
+        roles,
+        login,
+        logout,
+        loginCheck,
+        isSignUpModalOpen,
+        openSignUpModal,
+        closeSignUpModal,
+        existingUser,
+        setExistingUser,
+        openSignUpModalWithUser,
+      }}
+    >
       {children}
     </LoginContext.Provider>
   )

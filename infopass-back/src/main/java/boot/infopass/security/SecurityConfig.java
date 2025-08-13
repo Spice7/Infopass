@@ -58,25 +58,15 @@ public class SecurityConfig  {
         // 필터 설정
         // ✅ JWT 요청 필터 1️⃣
         // ✅ JWT 인증 필터 2️⃣
-
-        // 🟢 인가 설정 (authorizeHttpRequests)
         http.addFilterAt(new JwtAuthenticationFilter(authenticationManager, jwtTokenProvider),
                 UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtRequestFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
-        // 사용자 정보를 불러오는 서비스 설정
-        http.userDetailsService(customUserDetailService);
-
-        //  JWT 요청 필터 1️
-        //  JWT 인증 필터 2️
-        http.addFilterAt(new JwtAuthenticationFilter(authenticationManager, jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(new JwtRequestFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
-            ;
 
      //  인가 설정 (authorizeHttpRequests)
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             // ✅ 1. 공개적으로 허용할 정적 리소스 및 경로를 먼저 지정합니다.
-            .requestMatchers("/", "/login", "/user/**", "/oxquiz/**", "/ws/**", "/ws*","/block/**", "/rank/**", "/lobby/**").permitAll()
+            .requestMatchers("/", "/login", "/user/**", "/oxquiz/**", "/ws/**", "/ws*","/block/**", "/rank/**", "/lobby/**", "/auth/**").permitAll()
 
             //  2. 특정 권한이 필요한 경로를 지정합니다.
             .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
@@ -84,9 +74,6 @@ public class SecurityConfig  {
 
                 // ✅ 3. 위의 규칙에 해당하지 않는 모든 요청은 인증이 필요합니다.
                 .anyRequest().authenticated());
-
-        // 사용자 정보를 불러오는 서비스 설정
-        http.userDetailsService(customUserDetailService);
 
 	    return http.build();
 	}
