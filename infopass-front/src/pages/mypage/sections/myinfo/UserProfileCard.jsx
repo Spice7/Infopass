@@ -71,7 +71,7 @@ const UserProfileCard = ({ user, onUpdate }) => {
     setForm((prev) => ({ ...prev, phone: formattedValue }));
   };
 
-  const handleSave = async () => {
+  const  handleSave = async () => {
     setLoading(true);
     setError(null);
     try {
@@ -125,7 +125,6 @@ const UserProfileCard = ({ user, onUpdate }) => {
 
   return (
     <>
-      {/* (UserProfileCard 컴포넌트 본문은 변경 없음) */}
       <Paper
         className="fade-in-up"
         elevation={10}
@@ -223,7 +222,6 @@ const UserProfileCard = ({ user, onUpdate }) => {
         </Button>
       </Paper>
 
-      {/* 프로필 수정 다이얼로그 (변경 없음) */}
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
         <DialogTitle
           sx={{
@@ -357,7 +355,6 @@ const UserProfileCard = ({ user, onUpdate }) => {
             <Button
               onClick={handleSave}
               disabled={loading}
-              variant="contained"
               sx={{
                 fontWeight: 600,
                 px: 2.5,
@@ -365,10 +362,10 @@ const UserProfileCard = ({ user, onUpdate }) => {
                 borderRadius: 2,
                 textTransform: 'none',
                 fontSize: '0.85rem',
-                bgcolor: primaryColor,
-                '&:hover': {
-                  bgcolor: '#3a7bd5',
-                },
+                border: `1px solid ${primaryColor}`,
+                color: primaryColor,
+                backgroundColor: 'transparent',
+                ':hover': { bgcolor: `${primaryColor}22` },
               }}
             >
               {loading ? <CircularProgress size={24} color="inherit" /> : '저장'}
@@ -377,7 +374,6 @@ const UserProfileCard = ({ user, onUpdate }) => {
         </DialogActions>
       </Dialog>
 
-      {/* 회원 탈퇴 확인 다이얼로그 (이미지 기반 수정) */}
       <Dialog open={deleteOpen} onClose={handleDeleteCancel} maxWidth="xs" fullWidth>
         <DialogContent sx={{ p: 4 }}>
           <Typography
@@ -392,8 +388,8 @@ const UserProfileCard = ({ user, onUpdate }) => {
             정말 탈퇴하시겠어요?
           </Typography>
           <Typography textAlign="center" color="text.secondary" sx={{ mb: 4 }}>
-  정말 탈퇴하시겠습니까?<br />탈퇴 후 30일 이내에 재로그인하면<br /> 계정이 복구됩니다.
-</Typography>
+            정말 탈퇴하시겠습니까?<br />탈퇴 후 30일 이내에 재로그인하면<br /> 계정이 복구됩니다.
+          </Typography>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
             <Button
               onClick={handleDelete}

@@ -20,3 +20,5 @@ export const checkId = (email) => api.post(`/user/checkId`, { email: email });
 
 // 닉네임 중복 확인
 export const checkNickName = (nickname) => api.post(`/user/checkNickName`, { nickname: nickname });
+
+export const getWrongAnswers = () => api.post('/wrong-answers');

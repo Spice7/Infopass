@@ -75,9 +75,9 @@ public class SecurityConfig {
 
                 // ✅ 2. 인증 없이 접근을 허용할 경로들
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/", "/login", "/user/join", "/user/check-id", "/user/check-nickname").permitAll()
+                .requestMatchers("/", "/login", "/user/**", "/wrong-answers/**").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/ox_image/**").permitAll()
-                .requestMatchers("/lobby/**", "/oxquiz/**", "/rank/**", "/block/**").permitAll() // 게임 관련 API 허용
+                .requestMatchers("/lobby/**", "/oxquiz/**", "/rank/**", "/block/**", "/blankgamesingle/**").permitAll() // 게임 관련 API 허용
 
                 // ✅ 3. 특정 권한이 필요한 경로
                 .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
