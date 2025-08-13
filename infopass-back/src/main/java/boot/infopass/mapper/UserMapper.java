@@ -17,4 +17,6 @@ public interface UserMapper {
 	
 	public int updateUser(UserDto userDto);
 	public boolean findByNickName(String nickname);
+	
+	public void updateUserExp(UserDto dto);
 }

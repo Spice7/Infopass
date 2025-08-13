@@ -15,6 +15,7 @@ public class OXQuizDto {
 	private Integer id;
 	private String question;
 	private Integer answer;
+	private String oxquiz_question;
 	private String category;
 	
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm")
