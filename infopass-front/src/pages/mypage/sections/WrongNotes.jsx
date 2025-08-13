@@ -30,7 +30,7 @@ const WrongNotes = () => {
   const [wrongAnswers, setWrongAnswers] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [selectedGameType, setSelectedGameType] = useState('all'); // 기본값 전체
+  const [selectedGameType, setSelectedGameType] = useState('all');
 
   useEffect(() => {
     fetchWrongNotes();
@@ -47,6 +47,20 @@ const WrongNotes = () => {
     }
   };
 
+  // OX 변환
+  const convertOX = (val) => {
+    if (val === 1 || val === '1') return 'O';
+    if (val === 0 || val === '0') return 'X';
+    return val;
+  };
+
+  // 각 회차 답 포맷팅: null -> ?
+  const formatAnswers = (answers) => {
+    return answers
+      .map((a) => (a === null || a === undefined ? '?' : convertOX(a)))
+      .join(', ');
+  };
+
   const processedAnswers = useMemo(() => {
     if (!wrongAnswers || wrongAnswers.length === 0) return [];
 
@@ -60,13 +74,13 @@ const WrongNotes = () => {
         if (map.has(key)) {
           const existing = map.get(key);
           existing.count += 1;
+          existing.answers = existing.answers ? [...existing.answers, item.submittedAnswer] : [item.submittedAnswer];
           const existingCreatedAt = existing.createdAt ? new Date(existing.createdAt) : new Date(0);
-
           if (currentCreatedAt > existingCreatedAt) {
-            map.set(key, { ...item, count: existing.count });
+            map.set(key, { ...item, count: existing.count, answers: existing.answers });
           }
         } else {
-          map.set(key, { ...item, count: 1 });
+          map.set(key, { ...item, count: 1, answers: [item.submittedAnswer] });
         }
       }
     });
@@ -88,12 +102,6 @@ const WrongNotes = () => {
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setSelectedItem(null);
-  };
-
-  const convertOX = (val) => {
-    if (val === 1 || val === '1') return 'O';
-    if (val === 0 || val === '0') return 'X';
-    return val;
   };
 
   if (wrongAnswers === null) {
@@ -148,7 +156,7 @@ const WrongNotes = () => {
             '&:hover': { backgroundColor: theme.palette.grey[400] },
             '&:active': { backgroundColor: theme.palette.grey[500] },
             '&.Mui-selected': {
-              backgroundColor: theme.palette.grey[400], // 선택 상태 진한 회색
+              backgroundColor: theme.palette.grey[400],
               color: '#fff',
               boxShadow: '0 6px 15px rgb(0 0 0 / 0.2)',
               transform: 'translateY(-2px)',
@@ -219,10 +227,10 @@ const WrongNotes = () => {
                 <Typography variant="h6" sx={{ fontWeight: 600, mt: 2 }}>
                   Q. {item.question}
                 </Typography>
-                <Box sx={{ mt: 2, display: 'flex', alignItems: 'center' }}>
-                  <CancelIcon color="error" sx={{ mr: 1, fontSize: '1.2rem' }} />
-                  <Typography variant="body1" color="error.main">
-                    내 답변: <span style={{ fontWeight: 600 }}>{convertOX(item.submittedAnswer)}</span>
+                <Box sx={{ mt: 2 }}>
+                  <CancelIcon color="error" sx={{ mr: 1, verticalAlign: 'middle' }} />
+                  <Typography variant="body1" color="error.main" display="inline">
+                    내 답변: <span style={{ fontWeight: 600 }}>{formatAnswers(item.answers)}</span>
                   </Typography>
                 </Box>
                 <Box
@@ -267,18 +275,14 @@ const WrongNotes = () => {
                 <CancelIcon color="error" sx={{ mr: 1 }} />
                 <Typography variant="body1" color="error.main">
                   내 답변:{' '}
-                  <span style={{ fontWeight: 600 }}>
-                    {convertOX(selectedItem.submittedAnswer)}
-                  </span>
+                  <span style={{ fontWeight: 600 }}>{formatAnswers(selectedItem.answers)}</span>
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <CheckCircleIcon color="success" sx={{ mr: 1 }} />
                 <Typography variant="body1" color="success.main">
                   정답:{' '}
-                  <span style={{ fontWeight: 600 }}>
-                    {convertOX(selectedItem.correctAnswer)}
-                  </span>
+                  <span style={{ fontWeight: 600 }}>{convertOX(selectedItem.correctAnswer)}</span>
                 </Typography>
               </Box>
               <Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>
