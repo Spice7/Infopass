@@ -9,25 +9,31 @@
   </insert>
 
   <select id="selectWrongAnswersByUserId" parameterType="int" resultMap="WrongAnswerResultMap">
-    SELECT wal.id, wal.user_id, wal.game_type, wal.question_id, wal.submitted_answer, wal.created_at,
-           oxq.question,
-           oxq.answer AS correct_answer
-    FROM wronganswer_log wal
-    LEFT JOIN oxquiz_question oxq
-      ON wal.question_id = oxq.id AND wal.game_type = 'oxquiz'
-    WHERE wal.user_id = #{userId}
-    ORDER BY wal.created_at DESC
-  </select>
+  SELECT wal.id, wal.user_id, wal.game_type, wal.question_id, wal.submitted_answer, wal.created_at, wal.explanation ,
+         oxq.question,
+         oxq.answer AS correct_answer,
+         oxq.category
 
-  <resultMap id="WrongAnswerResultMap" type="boot.infopass.dto.WrongAnswerDto">
-    <id property="id" column="id"/>
-    <result property="userId" column="user_id"/>
-    <result property="gameType" column="game_type"/>
-    <result property="questionId" column="question_id"/>
-    <result property="submittedAnswer" column="submitted_answer"/>
-    <result property="createdAt" column="created_at"/>
-    <result property="question" column="question"/>
-    <result property="correctAnswer" column="correct_answer"/>
-  </resultMap>
+  FROM wronganswer_log wal
+  LEFT JOIN oxquiz_question oxq
+    ON wal.question_id = oxq.id AND wal.game_type = 'oxquiz'
+  WHERE wal.user_id = #{userId}
+  ORDER BY wal.created_at DESC
+</select>
+
+<resultMap id="WrongAnswerResultMap" type="boot.infopass.dto.WrongAnswerDto">
+  <id property="id" column="id"/>
+  <result property="userId" column="user_id"/>
+  <result property="gameType" column="game_type"/>
+  <result property="questionId" column="question_id"/>
+  <result property="submittedAnswer" column="submitted_answer"/>
+  <result property="createdAt" column="created_at"/>
+  <result property="question" column="question"/>
+  <result property="correctAnswer" column="correct_answer"/>
+  <result property="category" column="category"/>
+  <result property="explanation" column="explanation"/>
+  
+</resultMap>
+
 
 </mapper>
