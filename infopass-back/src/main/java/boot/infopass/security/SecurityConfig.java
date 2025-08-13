@@ -76,7 +76,7 @@ public class SecurityConfig  {
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             // ✅ 1. 공개적으로 허용할 정적 리소스 및 경로를 먼저 지정합니다.
-            .requestMatchers("/", "/login", "/user/**", "/oxquiz/**", "/ws/**", "/ws*","/block/**", "/rank/**", "/lobby/**").permitAll()
+            .requestMatchers("/", "/login", "/user/**","/wrong-answers/**", "/oxquiz/**", "/ws/**", "/ws*","/block/**", "/rank/**", "/lobby/**").permitAll()
 
             //  2. 특정 권한이 필요한 경로를 지정합니다.
             .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")

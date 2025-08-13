@@ -1,5 +1,4 @@
-// sections/WrongNotes.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   Box,
   Typography,
@@ -17,6 +16,9 @@ import {
 } from '@mui/material';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
+import { getWrongAnswers } from '../../../user/auth';
+
+// 탭에 사용할 게임 타입 목록
 const gameTypes = ['quiz', 'oxquiz', 'block', 'card'];
 
 const WrongNotes = () => {
@@ -27,80 +29,68 @@ const WrongNotes = () => {
   const [selectedGameType, setSelectedGameType] = useState('quiz');
 
   useEffect(() => {
-    setTimeout(() => {
-      setWrongAnswers([
-        {
-          id: 1,
-          question_id: 101,
-          game_type: 'quiz',
-          question: 'React의 상태관리는 무엇인가요?',
-          correct_answer: '컴포넌트 상태 저장',
-          submitted_answer: '컴포넌트 렌더링',
-          explanation_snapshot:
-            'React에서는 컴포넌트의 상태를 useState, useReducer 같은 Hook으로 관리합니다. 상태 관리가 잘 되어야 컴포넌트가 올바르게 렌더링됩니다.',
-          created_at: '2025-08-01',
-        },
-        {
-          id: 4,
-          question_id: 101,
-          game_type: 'quiz',
-          question: 'React의 상태관리는 무엇인가요?',
-          correct_answer: '컴포넌트 상태 저장',
-          submitted_answer: '컴포넌트 렌더링',
-          explanation_snapshot:
-            'React에서는 컴포넌트의 상태를 useState, useReducer 같은 Hook으로 관리합니다. 상태 관리가 잘 되어야 컴포넌트가 올바르게 렌더링됩니다.',
-          created_at: '2025-08-07',
-        },
-        {
-          id: 2,
-          question_id: 201,
-          game_type: 'oxquiz',
-          question: 'HTML은 프로그래밍 언어이다.',
-          correct_answer: 'X',
-          submitted_answer: 'O',
-          explanation_snapshot: 'HTML은 마크업 언어이며 프로그래밍 언어가 아닙니다.',
-          created_at: '2025-08-03',
-        },
-        {
-          id: 3,
-          question_id: 301,
-          game_type: 'block',
-          question:
-            '자바스크립트에서 클로저(Closure)의 개념을 설명하고, 이를 활용하는 실제 사례를 자세히 기술하시오. 클로저가 발생하는 원리와 메모리 관리 측면에서의 장단점도 포함해주세요.',
-          correct_answer:
-            '클로저란 함수가 선언될 당시의 스코프를 기억하는 함수로, 외부 함수의 변수에 접근할 수 있습니다. 이를 통해 데이터 은닉, 함수 팩토리 등을 구현할 수 있습니다. 단점으로는 과도한 메모리 점유 가능성이 있습니다.',
-          submitted_answer:
-            '클로저는 함수 내부에서 변수에 접근하는 것이라고 알고 있습니다. 주로 함수 안에 함수가 있는 구조입니다.',
-          explanation_snapshot:
-            '클로저는 함수와 그 함수가 선언될 당시의 렉시컬 환경(Lexical Environment)을 함께 기억하는 구조입니다. 클로저를 이용하면 외부 함수의 지역변수를 은닉하고, 상태를 유지할 수 있어 모듈화에 유용합니다. 하지만 클로저가 참조하는 변수들이 메모리에 계속 남아있어 메모리 누수가 발생할 위험이 있습니다.',
-          created_at: '2025-08-05',
-        },
-      ]);
-    }, 500);
+    fetchWrongNotes();
   }, []);
 
-  const processWrongAnswers = (answers) => {
-    if (!answers) return [];
-    const map = new Map();
-    answers.forEach((item) => {
-      const key = item.game_type + '-' + item.question_id;
-      if (map.has(key)) {
-        const existing = map.get(key);
-        existing.count += 1;
-        if (new Date(item.created_at) > new Date(existing.created_at)) {
-          map.set(key, { ...item, count: existing.count });
-        } else {
-          map.set(key, existing);
+  // DB에서 오답 데이터를 가져오는 함수
+  const fetchWrongNotes = async () => {
+    try {
+      const response = await getWrongAnswers();
+      const data = response.data;
+      
+      // API 응답 데이터 확인 (디버깅용)
+      console.log("API 응답 데이터:", data); 
+
+      setWrongAnswers(data);
+
+      if (data && data.length > 0) {
+        // 데이터에 존재하는 첫 번째 유효한 게임 타입을 찾아 기본 탭으로 설정
+        // `gameType`을 소문자로 통일하여 처리
+        const firstValidGameType = data.find(item => item.gameType)?.gameType;
+        if (firstValidGameType) {
+          setSelectedGameType(firstValidGameType.toLowerCase());
         }
-      } else {
-        map.set(key, { ...item, count: 1 });
       }
-    });
-    return Array.from(map.values());
+    } catch (error) {
+      console.error('오답노트 요청 에러:', error);
+      setWrongAnswers([]);
+    }
   };
 
-  const filteredWrongAnswers = processWrongAnswers(wrongAnswers).filter(
-    (item) => item.game_type === selectedGameType
+  // API 데이터 가공 및 필터링 로직 (useMemo로 성능 최적화)
+  const processedAnswers = useMemo(() => {
+    if (!wrongAnswers || wrongAnswers.length === 0) return [];
+
+    const map = new Map();
+
+    wrongAnswers.forEach((item) => {
+      // ✅ item에 필요한 속성이 있는지 안전하게 확인
+      if (item && item.gameType && item.questionId) {
+        // 대소문자를 통일하여 key 생성
+        const key = `${item.gameType.toLowerCase()}-${item.questionId}`;
+        const currentCreatedAt = item.createdAt ? new Date(item.createdAt) : new Date(0);
+
+        if (map.has(key)) {
+          const existing = map.get(key);
+          existing.count += 1;
+          const existingCreatedAt = existing.createdAt ? new Date(existing.createdAt) : new Date(0);
+
+          // 최신 기록으로 덮어쓰고, count는 누적
+          if (currentCreatedAt > existingCreatedAt) {
+            map.set(key, { ...item, count: existing.count });
+          }
+        } else {
+          map.set(key, { ...item, count: 1 });
+        }
+      }
+    });
+
+    return Array.from(map.values());
+  }, [wrongAnswers]);
+
+  // 선택된 탭에 맞는 오답만 필터링
+  const filteredWrongAnswers = processedAnswers.filter(
+    (item) => item.gameType && item.gameType.toLowerCase() === selectedGameType.toLowerCase()
   );
 
   const handleOpenDialog = (item) => {
@@ -113,13 +103,15 @@ const WrongNotes = () => {
     setSelectedItem(null);
   };
 
-  if (!wrongAnswers)
+  // 로딩 중일 때
+  if (wrongAnswers === null)
     return (
       <Box sx={{ textAlign: 'center', mt: 8 }}>
         <CircularProgress color="primary" />
       </Box>
     );
 
+  // 오답이 없을 때
   if (wrongAnswers.length === 0)
     return (
       <Typography variant="h6" color="text.secondary" sx={{ mt: 6, textAlign: 'center' }}>
@@ -129,18 +121,13 @@ const WrongNotes = () => {
 
   return (
     <Box sx={{ maxWidth: 700, width: '100%' }}>
-      {/* Tabs만 남기고 오답노트 글자는 삭제 */}
-
-      {/* 스타일링 개선된 탭 */}
       <Tabs
         value={selectedGameType}
         onChange={(e, newVal) => setSelectedGameType(newVal)}
         centered
         sx={{
           mb: 3,
-          '.MuiTabs-flexContainer': {
-            gap: 2,
-          },
+          '.MuiTabs-flexContainer': { gap: 2 },
           '.MuiTab-root': {
             fontWeight: 700,
             fontSize: 16,
@@ -161,9 +148,7 @@ const WrongNotes = () => {
               color: theme.palette.primary.contrastText,
             },
           },
-          indicator: {
-            display: 'none',
-          },
+          indicator: { display: 'none' },
         }}
       >
         {gameTypes.map((type) => (
@@ -178,68 +163,54 @@ const WrongNotes = () => {
           </Typography>
         )}
 
-        {filteredWrongAnswers.map(
-          ({
-            id,
-            game_type,
-            question,
-            submitted_answer,
-            created_at,
-            count,
-          }) => (
-            <Paper
-              key={id}
-              elevation={3}
+        {filteredWrongAnswers.map((item) => (
+          <Paper
+            key={`${item.gameType}-${item.questionId}`}
+            elevation={3}
+            sx={{
+              mb: 2,
+              p: 2,
+              borderRadius: 3,
+              cursor: 'pointer',
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              '&:hover': {
+                boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+              },
+            }}
+            onClick={() => handleOpenDialog(item)}
+          >
+            <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 0.5 }}>
+              [{item.gameType ? item.gameType.toUpperCase() : ''}] {item.createdAt ? new Date(item.createdAt).toLocaleString() : ''}
+             
+            </Typography>
+            <Typography variant="body1" sx={{ fontWeight: 600 }}>
+              Q. {item.question}
+            </Typography>
+            <Typography variant="body2" color="error.main" sx={{ mt: 1 }}>
+              내 답변: {item.submittedAnswer}
+            </Typography>
+            <Typography variant="body2" color="warning.main" sx={{ mt: 1, fontWeight: 'bold' }}>
+              {item.count}회 틀림
+            </Typography>
+            <Typography
+              variant="body2"
+              color="primary.main"
               sx={{
-                mb: 2,
-                p: 2,
-                borderRadius: 3,
-                cursor: 'pointer',
-                position: 'relative',
+                mt: 1,
+                fontWeight: 'bold',
+                textAlign: 'right',
+                userSelect: 'none',
                 display: 'flex',
-                flexDirection: 'column',
-                '&:hover': {
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
-                },
+                alignItems: 'center',
+                justifyContent: 'flex-end',
               }}
-              onClick={() =>
-                handleOpenDialog(filteredWrongAnswers.find((item) => item.id === id))
-              }
             >
-              <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 0.5 }}>
-                [{game_type.toUpperCase()}] {created_at}
-              </Typography>
-              <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                Q. {question}
-              </Typography>
-              <Typography variant="body2" color="error.main" sx={{ mt: 1 }}>
-                내 답변: {submitted_answer}
-              </Typography>
-              <Typography
-                variant="body2"
-                color="warning.main"
-                sx={{ mt: 1, fontWeight: 'bold' }}
-              >
-                {count}회 틀림
-              </Typography>
-              <Typography
-                variant="body2"
-                color="primary.main"
-                sx={{
-                  mt: 1,
-                  fontWeight: 'bold',
-                  textAlign: 'right',
-                  userSelect: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'flex-end',
-                }}
-              >
-                정답과 해설 보기 <ArrowForwardIosIcon sx={{ fontSize: 14, ml: 0.5 }} />
-              </Typography>
-            </Paper>
-          )
-        )}
+              정답과 해설 보기 <ArrowForwardIosIcon sx={{ fontSize: 14, ml: 0.5 }} />
+            </Typography>
+          </Paper>
+        ))}
       </List>
 
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
@@ -248,16 +219,16 @@ const WrongNotes = () => {
           {selectedItem && (
             <>
               <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-                [{selectedItem.game_type.toUpperCase()}] {selectedItem.created_at}
+                [{selectedItem.gameType ? selectedItem.gameType.toUpperCase() : ''}] {selectedItem.createdAt ? new Date(selectedItem.createdAt).toLocaleString() : ''}
               </Typography>
               <Typography variant="body1" sx={{ fontWeight: 600, mb: 2 }}>
                 Q. {selectedItem.question}
               </Typography>
               <Typography variant="body2" color="error.main" sx={{ mb: 1 }}>
-                내 답변: {selectedItem.submitted_answer}
+                내 답변: {selectedItem.submittedAnswer}
               </Typography>
               <Typography variant="body2" color="success.main" sx={{ mb: 1 }}>
-                정답: {selectedItem.correct_answer}
+                정답: {selectedItem.correctAnswer}
               </Typography>
               <Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>
                 해설: {selectedItem.explanation_snapshot}
