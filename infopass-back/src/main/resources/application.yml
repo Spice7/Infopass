@@ -40,4 +40,14 @@ mybatis:
     - /mapper/*.xml
 
 jwt:
-  secret-key: 2Jo!]8VlO)ohjFt5]9.h=n>}Knn!icdHTdT-7ra!:c."$oD#rh"#*kO*#y}^}{ZE
+  secret-key: 2Jo!]8VlO)ohjFt5]9.h=n>}Knn!icdHTdT-7ra!:c."$oD#rh"#*kO*#y}^}{ZE}
+
+social:
+  kakao:
+    client-id: fa7d04c313de20f6b40342ac0b591b34 #YOUR_KAKAO_REST_API_KEY
+    client-secret: W0nmvu5z8BRhKzPqH70gIFPtqIwmObU3 # (보통 카카오 REST API는 client-secret optional)
+    redirect-uri: http://localhost:5173/auth/callback/kakao
+  naver:
+    client-id: kY3Gxh_p4svxg1tae7id
+    client-secret: DTJKEYynxi
+    redirect-uri: http://localhost:5173/auth/callback/naver

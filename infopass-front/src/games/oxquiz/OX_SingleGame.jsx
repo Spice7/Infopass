@@ -4,7 +4,7 @@ import axios from 'axios';
 import { LoginContext } from '../../user/LoginContextProvider';
 
 const MAX_LIFE = 3;
-const TIMER_DURATION = 1800;
+const TIMER_DURATION = 300;  // 5 minutes
 const walkImgs = Array.from({ length: 16 }, (_, i) => `/ox_image/walk${i + 1}.png`);
 
 const OX_SingleGame = () => {
@@ -169,7 +169,8 @@ const OX_SingleGame = () => {
     if (gameEndedRef.current) return;
     // 점수가 3점 미만일 때 경고 메시지
     if (myScore < 3) {
-      alert("점수가 너무 낮습니다. 다시 시도해주세요.");
+      alert("점수가 너무 낮습니다. 다시 시도해주세요.")
+      return;
     } else {
       alert(`게임 종료! 최종 점수: ${myScore}`);
     }
@@ -393,7 +394,7 @@ const OX_SingleGame = () => {
       <div className="ox-container" style={{ display: 'block' }}>
         {/* 문제 영역 */}
         <div className="ox-quiz">
-          {resultMsg ? <span className='resultMsg'>{resultMsg}</span> : (showQuiz ? currentindex + 1 + " " + quizlist[currentindex]?.question : "")}
+          {resultMsg ? <span className='resultMsg'>{resultMsg}</span> : (showQuiz ? currentindex + 1 + ". " + quizlist[currentindex]?.question : "")}
         </div>
 
         {/* 타이머 바 */}

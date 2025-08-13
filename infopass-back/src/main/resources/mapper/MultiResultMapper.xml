@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="boot.infopass.mapper.MultiResultMapper">
+	<select id="CreateResult" parameterType="multiresult">
+	insert into multiplayer_result (lobby_id, user_id, score, user_rank,user_rank_point, game_type, created_at) values(#{lobbyId}, #{userId},#{score},#{userRank},#{userRankPoint},#{gameType},now())
+	</select>
+</mapper>

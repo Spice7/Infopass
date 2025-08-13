@@ -110,7 +110,7 @@ const User = () => {
     <>
         <header />
         <div className="container">
-            <UserForm userInfo={userInfo} updateUser={updateUser} deleteUser={deleteUser} />           
+            <UserForm userInfo={userInfo} updateUser={updateUser} deleteUser={deleteUser} />
         </div>
     </>
   )

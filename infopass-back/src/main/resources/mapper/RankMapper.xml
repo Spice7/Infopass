@@ -16,4 +16,5 @@
         id, u.nickname as nickname, COALESCE(r.total_score, 0) as totalScore FROM user u LEFT JOIN
         multiplayer_rank r ON u.id = r.user_id ORDER BY r.total_score DESC LIMIT 30 </select>
 
+	<select id=""></select>
 </mapper>

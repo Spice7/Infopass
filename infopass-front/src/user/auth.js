@@ -1,3 +1,4 @@
+//import axios from 'axios';
 import api from './api';
 
 // 로그인
@@ -21,4 +22,14 @@ export const checkId = (email) => api.post(`/user/checkId`, { email: email });
 // 닉네임 중복 확인
 export const checkNickName = (nickname) => api.post(`/user/checkNickName`, { nickname: nickname });
 
+// 문자메세지 인증 요청
+export const sendSms = (phone) => api.post(`/user/sendSms`, { phone: phone });
+
+// 문자메세지 검증 요청
+export const verifyCode = (smsToken, code) => api.post('/user/verifyCode', { smsToken: smsToken, code: code });
+
+//소셜 로그인 
+export const socialSignup = (provider,code) => api.post(`/user/social/${provider}`, { provider, code });
+
 export const getWrongAnswers = () => api.post('/wrong-answers');
+

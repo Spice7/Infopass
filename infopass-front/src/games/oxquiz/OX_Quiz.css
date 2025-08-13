@@ -948,3 +948,72 @@
   transform: scale(1.18);
   box-shadow: none;
 }
+
+
+/* 종료화면 */
+
+.ox-gameover-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.ox-gameover-box {
+  background-color: white;
+  padding: 40px 60px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border: 5px solid #333;
+}
+
+.ox-gameover-title {
+  font-size: 5rem;
+  margin-bottom: 20px;
+  font-weight: bold;
+  text-shadow: 3px 3px 0 #ddd;
+}
+
+.ox-gameover-box.win .ox-gameover-title {
+  color: #28a745; /* 승리 - 초록색 */
+}
+.ox-gameover-box.lose .ox-gameover-title {
+  color: #dc3545; /* 패배 - 빨간색 */
+}
+.ox-gameover-box.draw .ox-gameover-title {
+  color: #6c757d; /* 무승부 - 회색 */
+}
+
+.ox-gameover-scores {
+  display: flex;
+  justify-content: space-around;
+  width: 400px;
+  margin-bottom: 30px;
+  font-size: 1.5rem;
+}
+
+.ox-gameover-player h2 {
+  margin-bottom: 10px;
+}
+
+.ox-gameover-btn {
+  padding: 15px 30px;
+  font-size: 1.2rem;
+  border-radius: 10px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.ox-gameover-btn:hover {
+  background-color: #0056b3;
+}

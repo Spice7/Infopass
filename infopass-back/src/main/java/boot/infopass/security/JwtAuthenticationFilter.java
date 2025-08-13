@@ -31,9 +31,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     // 생성자
     public JwtAuthenticationFilter( AuthenticationManager authenticationManager,  JwtTokenProvider jwtTokenProvider ) {
-        // 🟢 부모 클래스의 생성자를 호출하여 AuthenticationManager를 전달합니다.
+        // 🟢 부모 클래스의 생성자를 호출하여 AuthenticationManager를 전달.
         super(authenticationManager); 
-        // this.authenticationManager = authenticationManager; // 🚨 이 줄은 이제 필요 없습니다.
         this.jwtTokenProvider = jwtTokenProvider;
         // 🔗 필터 URL 경로 설정 : /login
         setFilterProcessesUrl(SecurityConstants.AUTH_LOGIN_URL);
@@ -41,8 +40,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     
     /**
      * 🔐 인증 시도 메소드
-     * : /login 경로로 (username, password) 를 요청하면 이 필터에서 걸려 인증을 시도합니다.
-     * ✅ Authentication 인증 시도한 사용자 인증 객체를 반환하여, 시큐리티가 인증 성공 여부를 판단하게 합니다.
+     * : /login 경로로 (username, password) 를 요청하면 이 필터에서 걸려 인증을 시도.
+     * ✅ Authentication 인증 시도한 사용자 인증 객체를 반환하여, 시큐리티가 인증 성공 여부를 판단.
      * @param request
      * @param response
      * @return
@@ -142,7 +141,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         // 🟢 인증 성공 후 필터 체인을 계속 진행하지 않도록 합니다.
         //    로그인 필터는 응답을 완료하고 더 이상 필터 체인을 진행하지 않는 것이 일반적입니다.
-        //    chain.doFilter(request, response); // 이 줄은 제거합니다.
     }
 
     // 🚨 인증 실패 시 처리 메서드

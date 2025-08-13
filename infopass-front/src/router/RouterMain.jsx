@@ -10,6 +10,7 @@ import Home from '../pages/Home'
 import MyPageRoutes from './MyPageRoutes'
 import Ranking from "./Ranking";
 import { LoginContext } from '../user/LoginContextProvider.jsx'
+import blankgame from './BlankGame.jsx'
 
 
 
@@ -28,8 +29,7 @@ const RouterMain = () => {
                         </div>
                     ) : (
                         <div>
-                            <Link to="/login">로그인</Link>
-                            <Link to="/signup">회원가입</Link>
+                            <Link to="/login">로그인</Link>                           
                         </div>
                     )}
                 </nav>
@@ -45,6 +45,8 @@ const RouterMain = () => {
                 {UserRoutes}
                 {OxQuizRoutes}
                 {BlockRoutes}
+                {blankgame}
+
                 <Route path='*' element={<h1>잘못된 주소입니다</h1>} />
             </Routes>
             </main>

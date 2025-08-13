@@ -44,17 +44,4 @@ public class RedisUtil {
         redisTemplate.opsForZSet().add(key, member, score);
     }
 
-    /**
-     * 테스트용 더미 데이터를 Redis에 초기화합니다.
-     * 컨트롤러에서 호출하는 메서드입니다.
-     */
-    public void initializeTestData() {
-        String testKey = "test-ranking";
-        redisTemplate.delete(testKey);
-        redisTemplate.opsForZSet().add(testKey, "user1", 100);
-        redisTemplate.opsForZSet().add(testKey, "user2", 200);
-        redisTemplate.opsForZSet().add(testKey, "user3", 300);
-        redisTemplate.opsForZSet().add(testKey, "user4", 150);
-        redisTemplate.opsForZSet().add(testKey, "user5", 250);
-    }
 }
