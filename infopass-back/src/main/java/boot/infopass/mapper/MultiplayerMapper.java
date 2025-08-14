@@ -9,5 +9,6 @@ import boot.infopass.dto.MultiplayerDto;
 public interface MultiplayerMapper {
 	
 	public int insertMultiplayer(MultiplayerDto multiplayerDto);
-	
+	public Integer GetBestScore(Integer id);
+	public void updateMultiRank(MultiplayerDto dto);
 }

@@ -1,5 +1,6 @@
 /* ======================================== */
-/* 🎮 OX 퀴즈 게임 - 공통 스타일 */
+/* 🎮 OX 퀴즈 게임 스타일 (통합) */
+/* - 섹션: 공통CSS / 싱글게임용CSS / 멀티게임용CSS */
 /* ======================================== */
 
 .ox-container {
@@ -378,7 +379,7 @@
 .ox-timerbar {
   height: 100%;
   background: linear-gradient(90deg, #ffe066 0%, #ffd700 50%, #ffb300 100%);
-  transition: width 0.2s linear;
+  transition: width 0.1s linear;
   box-shadow: 0 0 10px rgba(255, 224, 102, 0.5);
   position: relative;
 }

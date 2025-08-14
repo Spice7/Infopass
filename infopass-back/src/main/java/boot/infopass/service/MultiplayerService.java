@@ -16,4 +16,7 @@ public class MultiplayerService {
 		int result = multiplayerMapper.insertMultiplayer(multiplayerDto);
 		return result;
 	}
+
 }
+
+

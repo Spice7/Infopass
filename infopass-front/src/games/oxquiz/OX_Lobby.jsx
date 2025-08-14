@@ -4,17 +4,59 @@ import { Client } from '@stomp/stompjs';
 import { LoginContext } from '../../user/LoginContextProvider';
 import './OX_Quiz.css';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+
+// ========================================
+// 🧩 파일 개요 (멀티 로비)
+// - STOMP 연결로 방 목록 수신/생성/입장/시작/퇴장 관리
+// - 내 정보/방 카드/모달 UI로 UX 구성
+// - 방 생성 시 DB 저장(REST), 이벤트는 STOMP로 브로드캐스트
+// ========================================
+
+// 재사용 가능한 모달 컴포넌트
+function Modal({ open, children }) {
+    return open ? (
+        <div style={{
+            position: 'fixed', left: 0, top: 0, width: '100vw', height: '100vh',
+            background: 'rgba(20,30,50,0.75)',
+            backdropFilter: 'blur(2.5px)',
+            zIndex: 999,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            animation: 'fadeIn 0.3s',
+        }}>
+            <div style={{
+                minWidth: 400, maxWidth: 520, width: '90vw',
+                background: 'linear-gradient(135deg, #22344f 60%, #2b4170 100%)',
+                borderRadius: 22,
+                boxShadow: '0 8px 32px rgba(0,0,0,0.28)',
+                padding: '38px 36px 28px 36px',
+                position: 'relative',
+                animation: 'modalPop 0.35s',
+            }}>
+                {children}
+            </div>
+            <style>{`
+                @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+                @keyframes modalPop { 0% { transform: scale(0.85); opacity: 0.5; } 100% { transform: scale(1); opacity: 1; } }
+            `}</style>
+        </div>
+    ) : null;
+}
 
 const OX_Lobby = () => {
+    // ===== 상태/컨텍스트 그룹 =====
     const { userInfo } = useContext(LoginContext);
     const userId = userInfo?.id;
     const nickname = userInfo?.nickname;
+    const navigate = useNavigate(); 
 
+    // STOMP 클라이언트/방 리스트/진행 상태
     const [stompClient, setStompClient] = useState(null);
     const [rooms, setRooms] = useState([]);
     const roomsRef = useRef([]);
     useEffect(() => { roomsRef.current = rooms; }, [rooms]);
 
+    // 방 생성 대기/임시 상태
     const [pendingCreate, setPendingCreate] = useState(false);
     const pendingCreateRef = useRef(false);
     const createdRoomTemp = useRef(null);      // {title,max}
@@ -23,6 +65,7 @@ const OX_Lobby = () => {
     const [newTitle, setNewTitle] = useState('');
     const [newMax, setNewMax] = useState(2);
 
+    // 내가 참여한 방/플레이어/권한
     const [myRoom, setMyRoom] = useState(null);
     const [players, setPlayers] = useState([]);
     const [isHost, setIsHost] = useState(false);
@@ -267,153 +310,257 @@ const OX_Lobby = () => {
         setPlayers([]);
         setIsHost(false);
     };
+    
+    // 방 갯수 계산
+    const totalRooms = rooms.length;
 
     return (
         <div style={{
-            padding: '30px',
-            width: '80%',
-            margin: '40px auto',
-            background: '#142033',
+            padding: '0',
+            width: '100%',
+            minHeight: '100vh',
+            minWidth: '450px',
+            maxWidth: '664px',
+            background: 'linear-gradient(135deg, #1e2a47 0%, #233a5e 100%)',
             color: '#fff',
-            borderRadius: '18px',
-            minHeight: '70vh',
-            position: 'relative'
+            fontFamily: 'Pretendard, Noto Sans KR, sans-serif',
         }}>
-            <h2>OX 멀티 로비</h2>
-            <div style={{ marginBottom: 12 }}>
-                <b>내 닉네임:</b> {nickname || '-'} {myRoom && <> | 현재 방: {myRoom.title}</>}
+            {/* 상단 타이틀 영역 */}
+            <div style={{
+                width: '100%',
+                background: 'linear-gradient(90deg, #2b4170 60%, #3a5ba0 100%)',
+                padding: '44px 0 30px 0',
+                textAlign: 'center',
+                boxShadow: '0 4px 18px rgba(0,0,0,0.18)',
+                borderBottomLeftRadius: 32,
+                borderBottomRightRadius: 32,
+                position: 'relative',
+                overflow: 'hidden',
+            }}>
+                {/* 빛 효과 */}
+                <div style={{
+                    position: 'absolute', left: '50%', top: 0, transform: 'translateX(-50%)',
+                    width: 400, height: 120, 
+                    zIndex: 0,
+                }} />
+                {/* 로고 */}
+                {/* <img src="/oxgame_logo.png" alt="OX퀴즈" style={{ height: 60, marginBottom: 8 }} /> */}
+                <h1 style={{ fontSize: 40, fontWeight: 900, letterSpacing: 2, margin: 0, color: '#ffe066', textShadow: '2px 2px 12px #22344f', zIndex: 1, position: 'relative' }}>OX 멀티 로비</h1>
+                <div style={{ fontSize: 18, color: '#c7e0ff', marginTop: 10, zIndex: 1, position: 'relative' }}>친구들과 함께 OX 퀴즈를 즐겨보세요!</div>
             </div>
 
-            {!myRoom && (
-                <>
-                    <div style={{ marginBottom: 10 }}>
-                        <button onClick={() => setShowCreate(true)}>방 생성</button>
-                        <button style={{ marginLeft: 8 }} onClick={() => {
-                            stompClient?.publish({
-                                destination: '/app/ox/rooms',
-                                body: JSON.stringify({ type: 'list' })
-                            });
-                        }}>새로고침</button>
-                    </div>
-
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-                        <thead>
-                            <tr style={{ background: '#22344f' }}>
-                                <th style={{ padding: 6, borderBottom: '1px solid #555' }}>번호</th>
-                                <th style={{ padding: 6, borderBottom: '1px solid #555' }}>방 제목</th>
-                                <th style={{ padding: 6, borderBottom: '1px solid #555' }}>방장</th>
-                                <th style={{ padding: 6, borderBottom: '1px solid #555' }}>인원</th>
-                                <th style={{ padding: 6, borderBottom: '1px solid #555' }}>입장</th>
-                                <th style={{ padding: 6, borderBottom: '1px solid #555' }}>상태</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {rooms.length === 0 && (
-                                <tr>
-                                    <td colSpan={6} style={{ padding: 16, textAlign: 'center', opacity: 0.6 }}>생성된 방이 없습니다.</td>
-                                </tr>
-                            )}
-                            {rooms.map((r, idx) => (
-                                <tr key={r.id} style={{ background: '#1d2b42' }}>
-                                    <td style={{ padding: 6, textAlign: 'center' }}>{idx + 1}</td>
-                                    <td style={{ padding: 6 }}>{r.title}</td>
-                                    <td style={{ padding: 6 }}>{r.hostNick}</td>
-                                    <td style={{ padding: 6, textAlign: 'center' }}>{r.current}/{r.max}</td>
-                                    <td style={{ padding: 6, textAlign: 'center' }}>
-                                        <button
-                                            disabled={r.current >= r.max}
-                                            onClick={() => handleJoin(r.id)}
-                                        >입장</button>
-                                    </td>
-                                    <td style={{ padding: 6, textAlign: 'center' }}>
-                                        {r.current >= r.max ? '마감' : '입장가능'}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </>
-            )}
-
-            {myRoom && (
+            {/* 내 정보/현재 방 카드 */}
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                marginTop: 10,
+                marginBottom: 10,
+                zIndex: 2,
+                position: 'relative',
+            }}>
                 <div style={{
-                    marginTop: 20,
-                    padding: 16,
-                    background: '#1e304b',
-                    borderRadius: 12
+                    background: 'linear-gradient(90deg, #22344f 60%, #2b4170 100%)',
+                    borderRadius: 18,
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
+                    padding: '18px 32px',
+                    minWidth: 600,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 32,
+                    fontSize: 18,
+                    fontWeight: 600,
                 }}>
-                    <h3 style={{ marginTop: 0 }}>{myRoom.title} (ID: {myRoom.id})</h3>
-                    <div style={{ marginBottom: 10 }}>
-                        방장: {myRoom.hostNick} | 인원: {players.length}/{myRoom.max}
+                    <span style={{ color: '#ffe066', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span role="img" aria-label="user">👤</span> 유저명 : <b style={{ color: '#fff', fontWeight: 700 }}>{nickname || '-'}</b>
+                    </span>
+                    <span style={{ color: '#7fd8ff', marginLeft: 300 }}>
+                        방 갯수 : <b style={{ color: '#fff', fontWeight: 700 }}>{totalRooms}</b> 개
+                    </span>
+                </div>
+            </div>
+
+            {/* 방 목록/방 생성/새로고침/뒤로가기 */}
+            {!myRoom && (
+                <div style={{
+                    maxWidth: 800,
+                    margin: '0 auto',
+                    background: 'rgba(34,52,79,0.92)',
+                    borderRadius: 18,
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.13)',
+                    padding: '32px 28px 24px 28px',
+                }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 18 }}>
+                        <button onClick={() => setShowCreate(true)} style={btnStyle('main')}>+ 방 생성</button>
+                        <div>
+                            <button style={btnStyle('sub')} onClick={() => {
+                                stompClient?.publish({
+                                    destination: '/app/ox/rooms',
+                                    body: JSON.stringify({ type: 'list' })
+                                });
+                            }}>새로고침</button>
+                            <button style={btnStyle('sub', { marginLeft: 8 })} onClick={() => navigate('/oxquiz/OX_main')}>뒤로가기</button>
+                        </div>
                     </div>
-                    <div style={{
-                        display: 'flex', gap: 12, flexWrap: 'wrap',
-                        marginBottom: 14
-                    }}>
-                        {players.map(p => (
-                            <div key={p.userId} style={{
-                                padding: '10px 14px',
-                                background: p.isHost ? '#385d9c' : '#2d476d',
-                                borderRadius: 10,
-                                minWidth: 120
-                            }}>
-                                {p.nickname}{p.isHost ? ' (방장)' : ''}
+                    {/* 방 목록 카드형 */}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 18, justifyContent:'center'}}>
+                        {rooms.length === 0 && (
+                            <div style={{ padding: 32, opacity: 0.7, fontSize: 18, color: '#b0c4de', background: '#1d2b42', borderRadius: 14, minWidth: 320, textAlign: 'center' }}>
+                                생성된 방이 없습니다.
+                            </div>
+                        )}
+                        {rooms.map((r, idx) => (
+                            <div key={r.id} style={{
+                                background: 'linear-gradient(135deg, #1d2b42 60%, #2b4170 100%)',
+                                borderRadius: 14,
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.13)',
+                                padding: '18px 22px',
+                                minWidth: 220,
+                                maxWidth: 260,
+                                flex: '1 0 220px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 8,
+                                border: r.current >= r.max ? '2px solid #ff7675' : '2px solid #7fd8ff',
+                                opacity: r.current >= r.max ? 0.7 : 1,
+                                position: 'relative',
+                                transition: 'transform 0.15s',
+                                cursor: r.current < r.max ? 'pointer' : 'not-allowed',
+                            }}
+                                onMouseOver={e => e.currentTarget.style.transform = 'scale(1.03)'}
+                                onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
+                            >
+                                <div style={{ fontWeight: 700, fontSize: 18, color: '#ffe066', marginBottom: 2, display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    <span role="img" aria-label="room">🏠</span>{idx+1}. {r.title}
+                                </div>
+                                <div style={{ fontSize: 14, color: '#b0c4de' }}>방장: <b style={{ color: '#7fd8ff' }}>{r.hostNick}</b></div>
+                                <div style={{ fontSize: 14 }}>인원: <b>{r.current}/{r.max}</b></div>
+                                <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                                    <button
+                                        disabled={r.current >= r.max}
+                                        onClick={() => handleJoin(r.id)}
+                                        style={btnStyle(r.current >= r.max ? 'disabled' : 'main')}
+                                    >{r.current >= r.max ? '마감' : '입장'}</button>
+                                </div>
+                                {r.current >= r.max && <span style={{ position: 'absolute', top: 10, right: 16, color: '#ff7675', fontWeight: 700, fontSize: 13 }}>마감</span>}
                             </div>
                         ))}
-                    </div>
-                    <div>
-                        {isHost && (
-                            <button
-                                onClick={handleStart}
-                                disabled={!(isHost && myRoom && players.length === myRoom.max)}
-                                style={{ marginRight: 8 }}
-                            >게임 시작</button>
-                        )}
-                        <button onClick={handleLeave}>방 나가기</button>
                     </div>
                 </div>
             )}
 
+            {/* 내가 입장한 방 - 모달로 표시 */}
+            <Modal open={!!myRoom}>
+                {myRoom && (
+                    <div>
+                        <h2 style={{ marginTop: 0, color: '#ffe066', fontWeight: 800, fontSize: 28, textAlign: 'center', letterSpacing: 1 }}>{myRoom.title} <span style={{ color: '#7fd8ff', fontSize: 16, fontWeight: 500 }}>(ID: {myRoom.id})</span></h2>
+                        <div style={{ marginBottom: 10, color: '#b0c4de', fontWeight: 500, textAlign: 'center' }}>
+                            방장: <span style={{ color: '#7fd8ff' }}>{myRoom.hostNick}</span> | 인원: <span style={{ color: '#fff' }}>{players.length}/{myRoom.max}</span>
+                        </div>
+                        <div style={{
+                            display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 18, justifyContent: 'center',
+                        }}>
+                            {players.map(p => (
+                                <div key={p.userId} style={{
+                                    padding: '10px 14px',
+                                    background: p.isHost ? '#385d9c' : '#2d476d',
+                                    borderRadius: 10,
+                                    minWidth: 120,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                    fontWeight: 600,
+                                    color: '#fff',
+                                    boxShadow: p.isHost ? '0 0 8px #ffe066' : 'none',
+                                }}>
+                                    <span role="img" aria-label="user">{p.isHost ? '👑' : '🧑'}</span>
+                                    {p.nickname}{p.isHost ? ' (방장)' : ''}
+                                </div>
+                            ))}
+                        </div>
+                        <div style={{ textAlign: 'center' }}>
+                            {isHost && (
+                                <button
+                                    onClick={handleStart}
+                                    disabled={!(isHost && myRoom && players.length === myRoom.max)}
+                                    style={btnStyle(!(isHost && myRoom && players.length === myRoom.max) ? 'disabled' : 'main', { marginRight: 8 })}
+                                >게임 시작</button>
+                            )}
+                            <button onClick={handleLeave} style={btnStyle('sub')}>방 나가기</button>
+                        </div>
+                    </div>
+                )}
+            </Modal>
+
+            {/* 방 생성 모달 */}
             {showCreate && (
-                <div style={{
-                    position: 'fixed', left: 0, top: 0, width: '100vw', height: '100vh',
-                    background: 'rgba(0,0,0,0.55)', display: 'flex',
-                    alignItems: 'center', justifyContent: 'center', zIndex: 99
-                }}>
-                    <div style={{
-                        width: 340, background: '#203147', padding: 24,
-                        borderRadius: 14, boxShadow: '0 4px 18px rgba(0,0,0,0.4)'
-                    }}>
-                        <h4 style={{ marginTop: 0 }}>방 생성</h4>
-                        <div style={{ marginBottom: 10 }}>
-                            <label>방 제목</label><br />
+                <Modal open={showCreate}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+                        <h2 style={{ marginTop: 0, color: '#ffe066', fontWeight: 800, fontSize: 22, textAlign: 'center' }}>방 생성</h2>
+                        <div>
+                            <label style={{ fontWeight: 600, color: '#b0c4de' }}>방 제목</label><br />
                             <input
-                                style={{ width: '100%', padding: '8px 6px', borderRadius: 6, border: 'none' }}
+                                style={{ width: '100%', padding: '10px 8px', borderRadius: 8, border: 'none', fontSize: 16, marginTop: 4, background: '#1d2b42', color: '#fff' }}
                                 type="text"
                                 value={newTitle}
                                 maxLength={20}
                                 onChange={e => setNewTitle(e.target.value)}
+                                placeholder="방 제목을 입력하세요"
                             />
                         </div>
-                        <div style={{ marginBottom: 14 }}>
-                            <label>최대 인원 (2~4)</label><br />
+                        <div>
+                            <label style={{ fontWeight: 600, color: '#b0c4de' }}>최대 인원 (2~4)</label><br />
                             <select
-                                style={{ width: '100%', padding: '8px 6px', borderRadius: 6, border: 'none' }}
+                                style={{ width: '100%', padding: '10px 8px', borderRadius: 8, border: 'none', fontSize: 16, marginTop: 4, background: '#1d2b42', color: '#fff' }}
                                 value={newMax}
                                 onChange={e => setNewMax(+e.target.value)}
                             >
                                 {[2, 3, 4].map(n => <option key={n} value={n}>{n}</option>)}
                             </select>
                         </div>
-                        <div style={{ textAlign: 'right' }}>
-                            <button onClick={() => setShowCreate(false)} style={{ marginRight: 8 }}>취소</button>
-                            <button onClick={handleCreate}>생성</button>
+                        <div style={{ textAlign: 'right', marginTop: 8 }}>
+                            <button onClick={() => setShowCreate(false)} style={btnStyle('sub', { marginRight: 8 })}>취소</button>
+                            <button onClick={handleCreate} style={btnStyle('main')}>생성</button>
                         </div>
                     </div>
-                </div>
+                </Modal>
             )}
         </div>
     );
 };
+
+// 버튼 스타일 함수 추가
+function btnStyle(type, extra = {}) {
+    let base = {
+        padding: '8px 18px',
+        borderRadius: 8,
+        border: 'none',
+        fontWeight: 700,
+        fontSize: 16,
+        cursor: 'pointer',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.10)',
+        transition: 'background 0.15s, color 0.15s, opacity 0.15s',
+        outline: 'none',
+        ...extra,
+    };
+    if (type === 'main') return {
+        ...base,
+        background: 'linear-gradient(90deg, #7fd8ff 0%, #3a5ba0 100%)',
+        color: '#22344f',
+    };
+    if (type === 'sub') return {
+        ...base,
+        background: '#22344f',
+        color: '#fff',
+        border: '1.5px solid #7fd8ff',
+    };
+    if (type === 'disabled') return {
+        ...base,
+        background: '#888',
+        color: '#eee',
+        cursor: 'not-allowed',
+        opacity: 0.7,
+    };
+    return base;
+}
 
 export default OX_Lobby;

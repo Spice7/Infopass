@@ -5,12 +5,22 @@ import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import { LoginContext } from '../../user/LoginContextProvider';
 
-const MAX_LIFE = 3;
-const TIMER_DURATION = 5;
-const walkImgs = Array.from({ length: 16 }, (_, i) => `/ox_image/walk${i + 1}.png`);
+// ========================================
+// 🧩 파일 개요
+// - 멀티플레이 OX 퀴즈 게임 화면 구성
+// - 로비에서 방 입장 → 캐릭터 선택 → 동기화된 퀴즈/타이머 → 정답 공개/피격 연출 → 종료/결과 화면
+// - WebSocket(STOMP)으로 룸 상태/문제/정답/선택 동기화, REST API로 결과/기록 저장
+// - 나/상대 각각 애니메이션(몬스터/레이저/폭발), 위험 상태(연기/불) 효과 제공
+// ========================================
+
+// ===== 상수 그룹 =====
+const MAX_LIFE = 3; // 초기 목숨
+const TIMER_DURATION = 5; // 문제 제한 시간(초)
+const walkImgs = Array.from({ length: 16 }, (_, i) => `/ox_image/walk${i + 1}.png`); // 로딩 프레임
 
 const OX_MultiGame = () => {
-  // 상태 변수
+  // ===== 상태 변수 그룹 =====
+  // 내 상태
   const [myOX, setMyOX] = useState(null);
   const [myScore, setMyScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(TIMER_DURATION);
@@ -42,7 +52,7 @@ const OX_MultiGame = () => {
   const [enemyScore, setEnemyScore] = useState(0);
   const [enemyLife, setEnemyLife] = useState(MAX_LIFE);
 
-  // 애니메이션 상태 변수 (나)
+  // 애니메이션 상태 (나)
   const [showMyMonster, setShowMyMonster] = useState(false);
   const [showMyLaser, setShowMyLaser] = useState(false);
   const [showMyBoom, setShowMyBoom] = useState(false);
@@ -52,14 +62,14 @@ const OX_MultiGame = () => {
   const [isShaking, setIsShaking] = useState(false);
 
 
-  // 상대 피격 연출
-  // 애니메이션 상태 변수 (상대)
+  // 애니메이션 상태 (상대)
   const [enemyMonsterFade, setEnemyMonsterFade] = useState(false);
   const [enemyLaserFade, setEnemyLaserFade] = useState(false);
   const [enemyBoomFade, setEnemyBoomFade] = useState(false);
   const [showEnemyBoom, setShowEnemyBoom] = useState(false);
   const [showEnemyMonster, setShowEnemyMonster] = useState(false);
   const [showEnemyLaser, setShowEnemyLaser] = useState(false);
+  const [enemyshaking, setEnemyShaking] = useState(false);
 
   // UI 상태
   const [loading, setLoading] = useState(true);
@@ -311,6 +321,17 @@ const OX_MultiGame = () => {
                   setMyLaserFade(true);
                   setMyBoomFade(true);
                 }, 1700);
+                setTimeout(() => {
+                  setShowMyBoom(false);
+                  setIsShaking(false);
+                  setShowMyLaser(false);
+                  setShowMyMonster(false);
+                  setMyMonsterFade(false);
+                  setMyLaserFade(false);
+                  setMyBoomFade(false);
+                  setButtonDisabled(false);
+                  setMyOX(null);
+                }, 2000);
               }
             }
 
@@ -327,6 +348,7 @@ const OX_MultiGame = () => {
                 setTimeout(() => setShowEnemyLaser(true), 800);
                 setTimeout(() => {
                   setShowEnemyBoom(true);
+                  setEnemyShaking(true); // 화면 흔들림
                   setEnemyLife(prev => Math.max(0, prev - 1));
                 }, 1200);
                 setTimeout(() => {
@@ -334,6 +356,15 @@ const OX_MultiGame = () => {
                   setEnemyLaserFade(true);
                   setEnemyBoomFade(true);
                 }, 1700);
+                setTimeout(() => {
+                  setShowEnemyBoom(false);
+                  setEnemyShaking(false);
+                  setShowEnemyLaser(false);
+                  setShowEnemyMonster(false);
+                  setEnemyMonsterFade(false);
+                  setEnemyLaserFade(false);
+                  setEnemyBoomFade(false);
+                }, 2000);
               }
             }
 
@@ -374,6 +405,7 @@ const OX_MultiGame = () => {
                 setEnemyLaserFade(false);
                 setEnemyBoomFade(false);
                 setIsShaking(false);
+                setEnemyShaking(false);
               } else {
                 // ==================================================
                 // ✅ 2. 게임 종료 조건 판별 및 결과 설정
@@ -462,11 +494,11 @@ const OX_MultiGame = () => {
                     });
                   }
                 }
-                  axios.post(lobbyendedurl, { host_user_id: data.hostId, roomid: roomId, status: "ENDED" }).then((res) => {
-                    console.log("Lobby ended:", res.data);
-                  }).catch((err) => {
-                    console.error("Error ending lobby:", err);
-                  });
+                axios.post(lobbyendedurl, { host_user_id: data.hostId, roomid: roomId, status: "ENDED" }).then((res) => {
+                  console.log("Lobby ended:", res.data);
+                }).catch((err) => {
+                  console.error("Error ending lobby:", err);
+                });
               }
             }, 3000); // 3초 후 다음 문제
           }
@@ -618,34 +650,335 @@ const OX_MultiGame = () => {
   if (gameResult) {
     let resultText = '';
     let resultClass = '';
+    let isWin = false, isLose = false;
     if (gameResult === 'WIN') {
-      resultText = '승리!';
+      resultText = 'WIN';
       resultClass = 'win';
+      isWin = true;
     } else if (gameResult === 'LOSE') {
-      resultText = '패배';
+      resultText = 'LOSE';
       resultClass = 'lose';
+      isLose = true;
     } else {
-      resultText = '무승부';
+      resultText = 'DRAW';
       resultClass = 'draw';
     }
-
+  
     return (
-      <div className="ox-gameover-overlay">
-        <div className={`ox-gameover-box ${resultClass}`}>
-          <h1 className="ox-gameover-title">{resultText}</h1>
-          <div className="ox-gameover-scores">
-            <div className="ox-gameover-player">
-              <h2>{usernickname}</h2>
-              <p>{myScore}점</p>
+      <div
+        style={{
+          minHeight: '100vh',
+          minWidth: '100vw',
+          width: '100vw',
+          height: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          zIndex: 100,
+          background: isWin
+            ? 'linear-gradient(135deg, #ffe066 0%, #7fd8ff 100%)'
+            : isLose
+            ? 'linear-gradient(135deg, #232a3a 0%, #3a3a3a 100%)'
+            : 'linear-gradient(135deg, #bdbdbd 0%, #e0e0e0 100%)',
+          transition: 'background 0.5s',
+          overflow: 'hidden',
+        }}
+      >
+        {/* 축하/아쉬움 이펙트 */}
+        {isWin && (
+          <div style={{
+            position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh',
+            pointerEvents: 'none', zIndex: 1,
+          }}>
+            <div style={{
+              position: 'absolute', left: '10%', top: '12%', fontSize: 48, opacity: 0.7,
+              animation: 'fadeInUp 1.2s',
+            }}>🏆</div>
+            <div style={{
+              position: 'absolute', left: '80%', top: '18%', fontSize: 38, opacity: 0.6,
+              animation: 'fadeInUp 1.5s',
+            }}>🎉</div>
+            <div style={{
+              position: 'absolute', left: '50%', top: '8%', fontSize: 60, opacity: 0.8, transform: 'translateX(-50%)',
+              animation: 'fadeInUp 1.1s',
+            }}>⭐</div>
+            <style>{`
+              @keyframes fadeInUp {
+                from { opacity: 0; transform: translateY(40px); }
+                to { opacity: 1; transform: translateY(0); }
+              }
+            `}</style>
+          </div>
+        )}
+        <div
+          style={{
+            background: isWin
+              ? 'rgba(255,255,255,0.95)'
+              : isLose
+              ? 'rgba(34,52,79,0.97)'
+              : 'rgba(220,220,220,0.97)',
+            borderRadius: 28,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.28)',
+            padding: '54px 48px 44px 48px',
+            minWidth: 400,
+            maxWidth: 520,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            zIndex: 2,
+            position: 'relative',
+          }}
+        >
+          {/* 타이틀 */}
+          <div
+            style={{
+              fontSize: 54,
+              fontWeight: 900,
+              color: isWin ? '#3a5ba0' : isLose ? '#ff7675' : '#888',
+              textShadow: isWin
+                ? '2px 2px 12px #ffe066'
+                : isLose
+                ? '2px 2px 12px #22344f'
+                : '2px 2px 12px #bbb',
+              marginBottom: 18,
+              letterSpacing: 2,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              justifyContent: 'center',
+              animation: 'popIn 0.7s',
+            }}
+          >
+            {isWin ? '🏆' : isLose ? '💀' : '🤝'} {resultText}
+          </div>
+          {/* 점수/닉네임/캐릭터 */}
+          <div style={{
+            display: 'flex',
+            gap: 40,
+            marginBottom: 18,
+            justifyContent: 'center',
+          }}>
+            {/* 나 */}
+            <div style={{
+              background: isWin ? '#fffbe6' : isLose ? '#2b2b2b' : '#f0f0f0',
+              borderRadius: 18,
+              boxShadow: '0 2px 12px rgba(0,0,0,0.13)',
+              padding: '18px 28px',
+              minWidth: 120,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              position: 'relative',
+            }}>
+              {/* 캐릭터 */}
+              <div style={{
+                marginBottom: 8,
+                position: 'relative',
+                width: 90,
+                height: 90,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <img
+                  src={`/ox_image/char${selectedChar}.png`}
+                  alt="내 캐릭터"
+                  style={{
+                    width: 90,
+                    height: 90,
+                    filter: isLose ? 'grayscale(0.7)' : 'drop-shadow(0 0 12px #ffe066)',
+                    animation: isWin
+                      ? 'jump 0.7s infinite cubic-bezier(0.5,0,0.5,1)'
+                      : isLose
+                      ? 'shake 0.3s infinite alternate'
+                      : 'none',
+                    zIndex: 2,
+                    position: 'relative',
+                  }}
+                />
+                {/* 패배시 연기 이모지 */}
+                {isLose && (
+                  <>
+                    <span style={{
+                      position: 'absolute',
+                      left: 10,
+                      top: 40,
+                      fontSize: 35,
+                      zIndex: 3,
+                      pointerEvents: 'none',
+                      animation: 'smokeUp 2s infinite linear',
+                      opacity: 0.7,
+                      filter: 'brightness(0.1) blur(1px)',
+                    }}>💨</span>
+                    <span style={{
+                      position: 'absolute',
+                      left: 50,
+                      top: 30,
+                      fontSize: 30,
+                      zIndex: 3,
+                      pointerEvents: 'none',
+                      animation: 'smokeUp 2.5s infinite linear 0.8s',
+                      opacity: 0.6,
+                      filter: 'brightness(0.1) blur(1.5px)',
+                    }}>💨</span>
+                  </>
+                )}
+              </div>
+              <div style={{
+                fontWeight: 800,
+                fontSize: 22,
+                color: isWin ? '#3a5ba0' : isLose ? '#ffe066' : '#333',
+                marginBottom: 4,
+              }}>{usernickname}</div>
+              <div style={{
+                fontSize: 20,
+                fontWeight: 700,
+                color: isWin ? '#ffb700' : isLose ? '#ff7675' : '#888',
+              }}>{myScore}점</div>
             </div>
-            <div className="ox-gameover-player">
-              <h2>{enemynickname}</h2>
-              <p>{enemyScore}점</p>
+            {/* 상대 */}
+            <div style={{
+              background: isLose ? '#fffbe6' : isWin ? '#2b2b2b' : '#f0f0f0',
+              borderRadius: 18,
+              boxShadow: '0 2px 12px rgba(0,0,0,0.13)',
+              padding: '18px 28px',
+              minWidth: 120,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              position: 'relative',
+            }}>
+              {/* 캐릭터 */}
+              <div style={{
+                marginBottom: 8,
+                position: 'relative',
+                width: 90,
+                height: 90,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <img
+                  src={`/ox_image/char${enemySelectedChar}.png`}
+                  alt="상대 캐릭터"
+                  style={{
+                    width: 90,
+                    height: 90,
+                    filter: isWin ? 'grayscale(0.7)' : 'drop-shadow(0 0 12px #ffe066)',
+                    animation: isLose
+                      ? 'jump 0.7s infinite cubic-bezier(0.5,0,0.5,1)'
+                      : isWin
+                      ? 'shake 0.3s infinite alternate'
+                      : 'none',
+                    zIndex: 2,
+                    position: 'relative',
+                  }}
+                />
+                {/* 내가 이겼을 때 상대는 연기 */}
+                {isWin && (
+                  <>
+                    <span style={{
+                      position: 'absolute',
+                      left: 10,
+                      top: 40,
+                      fontSize: 35,
+                      zIndex: 3,
+                      pointerEvents: 'none',
+                      animation: 'smokeUp 2s infinite linear',
+                      opacity: 0.7,
+                      filter: 'brightness(0.1) blur(1px)',
+                    }}>💨</span>
+                    <span style={{
+                      position: 'absolute',
+                      left: 50,
+                      top: 30,
+                      fontSize: 30,
+                      zIndex: 3,
+                      pointerEvents: 'none',
+                      animation: 'smokeUp 2.5s infinite linear 0.8s',
+                      opacity: 0.6,
+                      filter: 'brightness(0.1) blur(1.5px)',
+                    }}>💨</span>
+                  </>
+                )}
+              </div>
+              <div style={{
+                fontWeight: 800,
+                fontSize: 22,
+                color: isLose ? '#3a5ba0' : isWin ? '#ffe066' : '#333',
+                marginBottom: 4,
+              }}>{enemynickname}</div>
+              <div style={{
+                fontSize: 20,
+                fontWeight: 700,
+                color: isLose ? '#ffb700' : isWin ? '#ff7675' : '#888',
+              }}>{enemyScore}점</div>
             </div>
           </div>
-          <button onClick={() => window.location.href = 'OX_lobby'} className="ox-gameover-btn">
+          <button
+            onClick={() => window.location.href = 'OX_lobby'}
+            style={{
+              marginTop: 10,
+              padding: '14px 38px',
+              borderRadius: 12,
+              border: 'none',
+              fontWeight: 800,
+              fontSize: 22,
+              background: isWin
+                ? 'linear-gradient(90deg, #ffe066 0%, #7fd8ff 100%)'
+                : isLose
+                ? 'linear-gradient(90deg, #888 0%, #232a3a 100%)'
+                : 'linear-gradient(90deg, #bdbdbd 0%, #e0e0e0 100%)',
+              color: isWin ? '#22344f' : isLose ? '#fff' : '#333',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.13)',
+              cursor: 'pointer',
+              transition: 'background 0.18s, color 0.18s',
+              letterSpacing: 1,
+            }}
+            onMouseOver={e => {
+              e.currentTarget.style.background = isWin
+                ? 'linear-gradient(90deg, #7fd8ff 0%, #ffe066 100%)'
+                : isLose
+                ? 'linear-gradient(90deg, #232a3a 0%, #888 100%)'
+                : 'linear-gradient(90deg, #e0e0e0 0%, #bdbdbd 100%)';
+            }}
+            onMouseOut={e => {
+              e.currentTarget.style.background = isWin
+                ? 'linear-gradient(90deg, #ffe066 0%, #7fd8ff 100%)'
+                : isLose
+                ? 'linear-gradient(90deg, #888 0%, #232a3a 100%)'
+                : 'linear-gradient(90deg, #bdbdbd 0%, #e0e0e0 100%)';
+            }}
+          >
             로비로 돌아가기
           </button>
+          <style>{`
+            @keyframes jump {
+              0% { transform: translateY(0);}
+              30% { transform: translateY(-30px);}
+              50% { transform: translateY(-20px);}
+              70% { transform: translateY(-30px);}
+              100% { transform: translateY(0);}
+            }
+            @keyframes shake {
+              0% { transform: translateX(0);}
+              25% { transform: translateX(-5px);}
+              50% { transform: translateX(5px);}
+              75% { transform: translateX(-5px);}
+              100% { transform: translateX(0);}
+            }
+            @keyframes smokeUp {
+              0% { opacity: 0.7; transform: translateY(0);}
+              100% { opacity: 0; transform: translateY(-40px);}
+            }
+            @keyframes popIn {
+              0% { opacity: 0; transform: scale(0.7);}
+              100% { opacity: 1; transform: scale(1);}
+            }
+          `}</style>
         </div>
       </div>
     );
@@ -776,24 +1109,48 @@ const OX_MultiGame = () => {
               />
               {myLife <= 2 && (
                 <>
-                  <span style={{
-                    position: 'absolute', left: 10, top: 40, fontSize: 35,
-                    animation: 'smokeUp 2s infinite linear', opacity: 0.7,
+                   <span style={{
+                    position: 'absolute',
+                    left: 10,
+                    top: 40,
+                    fontSize: 35,
+                    zIndex: 2,
+                    pointerEvents: 'none',
+                    animation: 'smokeUp 2s infinite linear',
+                    opacity: 0.7,
                     filter: 'brightness(0.1) blur(1px)'
                   }}>💨</span>
                   <span style={{
-                    position: 'absolute', left: 50, top: 30, fontSize: 30,
-                    animation: 'smokeUp 2.5s infinite linear 0.8s', opacity: 0.6,
+                    position: 'absolute',
+                    left: 50,
+                    top: 30,
+                    fontSize: 30,
+                    zIndex: 2,
+                    pointerEvents: 'none',
+                    animation: 'smokeUp 2.5s infinite linear 0.8s',
+                    opacity: 0.6,
                     filter: 'brightness(0.1) blur(1.5px)'
                   }}>💨</span>
                   <span style={{
-                    position: 'absolute', left: 10, top: 8, fontSize: 25,
-                    animation: 'smokeUp 1.8s infinite linear 1.2s', opacity: 0.5,
+                    position: 'absolute',
+                    left: 10,
+                    top: 8,
+                    fontSize: 25,
+                    zIndex: 2,
+                    pointerEvents: 'none',
+                    animation: 'smokeUp 1.8s infinite linear 1.2s',
+                    opacity: 0.5,
                     filter: 'brightness(0.1) blur(1px)'
                   }}>💨</span>
                   <span style={{
-                    position: 'absolute', left: 35, top: 8, fontSize: 25,
-                    animation: 'smokeUp 1.8s infinite linear 1.2s', opacity: 0.5,
+                    position: 'absolute',
+                    left: 35,
+                    top: 8,
+                    fontSize: 25,
+                    zIndex: 2,
+                    pointerEvents: 'none',
+                    animation: 'smokeUp 1.8s infinite linear 1.2s',
+                    opacity: 0.5,
                     filter: 'brightness(0.1) blur(1px)'
                   }}>💨</span>
                 </>
@@ -801,11 +1158,21 @@ const OX_MultiGame = () => {
               {myLife === 1 && (
                 <>
                   <span style={{
-                    position: 'absolute', left: -10, top: 15, fontSize: 45,
+                    position: 'absolute',
+                    left: -10,
+                    top: 15,
+                    fontSize: 45,
+                    zIndex: 3,
+                    pointerEvents: 'none',
                     animation: 'fireFlicker 0.4s infinite alternate'
                   }}>🔥</span>
                   <span style={{
-                    position: 'absolute', left: 50, top: 20, fontSize: 40,
+                    position: 'absolute',
+                    left: 50,
+                    top: 20,
+                    fontSize: 40,
+                    zIndex: 3,
+                    pointerEvents: 'none',
                     animation: 'fireFlicker 0.7s infinite alternate 0.6s'
                   }}>🔥</span>
                 </>
@@ -817,12 +1184,13 @@ const OX_MultiGame = () => {
           </div>
 
           {/* 상대방 */}
-          <div className="ox-char">
+          <div className={`ox-char${enemyshaking ? ' ox-shake' : ''}`}>
             {showEnemyMonster && (
               <img
                 src="/ox_image/monster.png"
                 alt="enemy-monster"
                 className="ox-monster"
+                style={enemyMonsterFade ? { animation: 'monsterDrop 0.5s cubic-bezier(0.7,0,0.5,1) forwards, fadeout 0.3s linear' } : {}}
                 draggable={false}
               />
             )}
@@ -831,11 +1199,105 @@ const OX_MultiGame = () => {
                 src="/ox_image/laserYellow1.png"
                 alt="enemy-laser"
                 className="ox-laser"
-                style={{ transformOrigin: 'top' }}
+                style={enemyLaserFade ? { animation: 'laserDrop 0.5s cubic-bezier(0.7,0,0.5,1), fadeout 0.3s linear', transformOrigin: 'top' } : { transformOrigin: 'top' }}
                 draggable={false}
               />
             )}
-            <img src={`/ox_image/char${enemySelectedChar}.png`} alt="플레이어2" style={{ width: 90, height: 90 }} />
+            {showEnemyBoom && (
+              <img
+                src="/ox_image/laserboom2.png"
+                alt="enemyBoom"
+                className="ox-boom"
+                // ✅ 3. 상대 폭발 fade out 애니메이션 적용
+                style={enemyBoomFade ? { animation: 'boomShow 0.4s, fadeout 0.3s linear' } : {}}
+                draggable={false}
+              />
+            )}
+            {/* ✅ 상대방 캐릭터 이미지와 효과를 감싸는 div 추가 */}
+            <div style={{ position: 'relative', display: 'inline-block', width: 90, height: 90 }}>
+              <img
+                src={`/ox_image/char${enemySelectedChar}.png`}
+                alt="플레이어2"
+                style={{
+                  width: 90,
+                  height: 90,
+                  zIndex: 1,
+                  position: 'relative',
+                  animation: enemyLife === 1 ? 'criticalShake 0.3s infinite alternate' : 'none'
+                }}
+              />
+              {/* ✅ 상대방 생명력(enemyLife)에 따른 효과 추가 */}
+              {enemyLife <= 2 && (
+                <>
+                   <span style={{
+                    position: 'absolute',
+                    left: 10,
+                    top: 40,
+                    fontSize: 35,
+                    zIndex: 2,
+                    pointerEvents: 'none',
+                    animation: 'smokeUp 2s infinite linear',
+                    opacity: 0.7,
+                    filter: 'brightness(0.1) blur(1px)'
+                  }}>💨</span>
+                  <span style={{
+                    position: 'absolute',
+                    left: 50,
+                    top: 30,
+                    fontSize: 30,
+                    zIndex: 2,
+                    pointerEvents: 'none',
+                    animation: 'smokeUp 2.5s infinite linear 0.8s',
+                    opacity: 0.6,
+                    filter: 'brightness(0.1) blur(1.5px)'
+                  }}>💨</span>
+                  <span style={{
+                    position: 'absolute',
+                    left: 10,
+                    top: 8,
+                    fontSize: 25,
+                    zIndex: 2,
+                    pointerEvents: 'none',
+                    animation: 'smokeUp 1.8s infinite linear 1.2s',
+                    opacity: 0.5,
+                    filter: 'brightness(0.1) blur(1px)'
+                  }}>💨</span>
+                  <span style={{
+                    position: 'absolute',
+                    left: 35,
+                    top: 8,
+                    fontSize: 25,
+                    zIndex: 2,
+                    pointerEvents: 'none',
+                    animation: 'smokeUp 1.8s infinite linear 1.2s',
+                    opacity: 0.5,
+                    filter: 'brightness(0.1) blur(1px)'
+                  }}>💨</span>
+                </>
+              )}
+              {enemyLife === 1 && (
+                <>
+                  <span style={{
+                    position: 'absolute',
+                    left: -10,
+                    top: 15,
+                    fontSize: 45,
+                    zIndex: 3,
+                    pointerEvents: 'none',
+                    animation: 'fireFlicker 0.4s infinite alternate'
+                  }}>🔥</span>
+                  <span style={{
+                    position: 'absolute',
+                    left: 50,
+                    top: 20,
+                    fontSize: 40,
+                    zIndex: 3,
+                    pointerEvents: 'none',
+                    animation: 'fireFlicker 0.7s infinite alternate 0.6s'
+                  }}>🔥</span>
+                </>
+              )}
+            </div>
             <div className="ox-nick">{enemynickname}</div>
             <div className="ox-scoreboard">{enemyScore}</div>
             <div className="ox-lifewrap">{renderHearts(enemyLife)}</div>

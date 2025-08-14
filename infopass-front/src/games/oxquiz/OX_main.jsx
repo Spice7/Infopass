@@ -1,4 +1,11 @@
 import React, { useEffect, useState } from 'react'
+import './OX_Quiz.css'
+
+// ========================================
+// 🧩 파일 개요 (메인 화면)
+// - OX 게임 진입 메인: 로딩 → 연출(우주선/레이저/폭발) → 싱글/멀티 버튼
+// - 비주얼 중심, 페이지 전환은 window.location 사용
+// ========================================
 
 const styles = {
   container: {
@@ -138,13 +145,7 @@ const styles = {
   }
 }
 
-// keyframes를 전역 스타일로 추가
-const styleSheet = `
-@keyframes blink {
-  0% { opacity: 1; }
-  100% { opacity: 0.2; }
-}
-`
+// 전역 CSS(OX_Quiz.css)에서 keyframes 정의 사용
 
 const OX_main = () => {
   const [showShips, setShowShips] = useState(false)
@@ -163,11 +164,6 @@ const OX_main = () => {
   })
 
   useEffect(() => {
-    // 스타일시트 삽입(최초 1회)
-    const styleTag = document.createElement('style')
-    styleTag.innerHTML = styleSheet
-    document.head.appendChild(styleTag)
-
     // 걷기 애니메이션 타이머
     let walkTimer
     if (loading) {
@@ -198,7 +194,6 @@ const OX_main = () => {
     }
 
     return () => {
-      document.head.removeChild(styleTag)
       clearInterval(walkTimer)
       clearTimeout(timer)
       clearTimeout(shipTimer)

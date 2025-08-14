@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import boot.infopass.dto.LobbyDto;
 import boot.infopass.dto.MultiResultDto;
+import boot.infopass.dto.MultiplayerDto;
 import boot.infopass.dto.OXQuizDto;
 import boot.infopass.dto.OXQuizStatusDto;
 import boot.infopass.dto.OXQuizSubDto;
@@ -19,6 +20,7 @@ import boot.infopass.dto.UserDto;
 import boot.infopass.dto.WrongAnswerDto;
 import boot.infopass.mapper.LobbyMapper;
 import boot.infopass.mapper.MultiResultMapper;
+import boot.infopass.mapper.MultiplayerMapper;
 import boot.infopass.mapper.OXStatusMapper;
 import boot.infopass.mapper.OXSubMapper;
 import boot.infopass.mapper.OxQuizMapper;
@@ -44,6 +46,8 @@ public class OXQuizController {
 	MultiResultMapper resultmapper;
 	@Autowired
 	UserMapper usermapper;
+	@Autowired
+	MultiplayerMapper multimapper;
 	
 	@GetMapping("/quizlist")
 	public List<OXQuizDto> GetAllQuiz() {
@@ -152,6 +156,13 @@ public class OXQuizController {
 		dto.setUserRankPoint(userRankPoint);
 		dto.setGameType(gameType);
 		
+		Integer OldBestScore =  multimapper.GetBestScore(userId) ;
+		MultiplayerDto mdto = new MultiplayerDto();
+		System.out.println(userId + "의 점수 : " + OldBestScore +  "  |  " + score );
+		mdto.setScore(score);
+		mdto.setBest_score(OldBestScore >= score ?  OldBestScore : score);
+		mdto.setUser_id(userId);
+		multimapper.updateMultiRank(mdto);
 		resultmapper.CreateResult(dto);
 		
 	}
