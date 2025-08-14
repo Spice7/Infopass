@@ -1,6 +1,10 @@
 package boot.infopass.mapper;
 import java.util.List;
+
+
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
 import boot.infopass.dto.RankedUserDto;
 import boot.infopass.dto.UserDto;
 
@@ -16,4 +20,7 @@ public interface UserMapper {
 	public UserDto findByPhone(String phone);
 	public UserDto findById(Integer id);
 	public UserDto findByEmail(String email);
+	public String getResearchEmail(@Param("name") String name, @Param("phone") String phone);
+	public boolean findPwCheck(@Param("email") String email, @Param("phone") String phone);
+	public String changePw(@Param("email") String email, @Param("phone") String phone, @Param("newPw") String newPw);
 }

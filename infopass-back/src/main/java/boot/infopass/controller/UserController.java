@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import boot.infopass.dto.MultiplayerDto;
+import boot.infopass.dto.SocialUserDto;
 import boot.infopass.dto.UserDto;
 import boot.infopass.security.CustomUser;
 import boot.infopass.security.JwtTokenProvider;
@@ -116,7 +117,16 @@ public class UserController {
 	// 회원가입
 	@PostMapping("/join")
 	public ResponseEntity<?> insertUser(@RequestBody UserDto userDto) {
-		UserDto savedUser = userService.insertUser(userDto);
+		UserDto savedUser = userService.insertUser(userDto);	
+		
+		   // 2. 소셜 사용자라면 socialUser 테이블에도 저장
+	    if (userDto.getProvider() != null && userDto.getProviderKey() != null) {
+	        SocialUserDto sDto = new SocialUserDto();
+	        sDto.setUser_id(savedUser.getId());
+	        sDto.setProvider(savedUser.getProvider());
+	        sDto.setProvider_key(savedUser.getProviderKey());
+	        socialAuthService.insertSocialUser(sDto);
+	    }
 		
 		MultiplayerDto mDto = new MultiplayerDto();
 		
@@ -141,5 +151,50 @@ public class UserController {
 			return ResponseEntity.notFound().build();
 		}
 	}
+
+	@PostMapping("/getResearchEmail")
+	public ResponseEntity<?> getResearchEmail(@RequestBody Map<String, String> data) {
+		String name = data.get("name");
+		String phone = data.get("phone");
+		String email = userService.getResearchEmail(name, phone);
+		log.info("name: "+name);
+		log.info("phone: "+phone);
+		log.info("찾은 email: "+email);
+		if(email != null) {
+			return ResponseEntity.ok(Map.of("email", email));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", "일치하는 이메일이 없습니다."));
+        }		
+	}
+	
+	@PostMapping("/findPwCheck")
+	public ResponseEntity<?> findPwCheck(@RequestBody Map<String, String> data) {
+		String email = data.get("email");
+		String phone = data.get("phone");
+		boolean result = userService.findPwCheck(email, phone);
+		if (result) {
+			return ResponseEntity.ok(Map.of("message", "success"));
+		} else {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(Map.of("error", "일치하는 사용자가 없습니다."));
+		}
+	}
+
+	@PostMapping("/changePw")
+	public ResponseEntity<?> changePw(@RequestBody Map<String, String> data) {
+		UserDto userDto = new UserDto();
+		userDto.setEmail(data.get("email"));
+		userDto.setPhone(data.get("phone"));
+		userDto.setPassword(data.get("newPw"));
+		String result = userService.changePw(userDto);
+		if (result != null) {
+			return ResponseEntity.ok(Map.of("message", result));
+		} else {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(Map.of("error", "비밀번호 변경에 실패했습니다."));
+		}
+	}
+	
 
 }

@@ -61,6 +61,10 @@
 	<select id="findByPhone" parameterType="String" resultType="user">
 		select * from user where phone=#{phone}
 	</select>
-	
-	
+	<select id="getResearchEmail" parameterType="map" resultType="string">
+		select email from user where name=#{name} and phone=#{phone}
+	</select>
+	<select id="findPwCheck" parameterType="map" resultType="boolean">
+		select count(*) from user where email=#{email} and phone=#{phone}
+	</select>
 </mapper>

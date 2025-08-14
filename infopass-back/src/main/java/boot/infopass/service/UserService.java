@@ -141,4 +141,22 @@ public class UserService implements UserServiceInter {
 	public UserDto findByPhone(String phone) {
 		return userMapper.findByPhone(phone);
 	}
+
+	@Override
+	public String getResearchEmail(String name, String phone) {		
+		return userMapper.getResearchEmail(name, phone);
+	}
+
+	@Override
+	public boolean findPwCheck(String email, String phone) {		
+		return userMapper.findPwCheck(email, phone);
+	}
+
+	@Override
+	public String changePw(UserDto userDto) {
+		// 비밀번호 변경 로직
+		String password = userDto.getPassword();
+		String encodedPw = bCryptPasswordEncoder.encode(password);
+		return userMapper.changePw(userDto.getEmail(), userDto.getPhone(), encodedPw);
+	}
 }

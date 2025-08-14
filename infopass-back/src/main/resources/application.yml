@@ -44,8 +44,8 @@ jwt:
 
 social:
   kakao:
-    client-id: fa7d04c313de20f6b40342ac0b591b34 #YOUR_KAKAO_REST_API_KEY
-    client-secret: W0nmvu5z8BRhKzPqH70gIFPtqIwmObU3 # (보통 카카오 REST API는 client-secret optional)
+    client-id: e1a223829a67fa4d5555d824be78d1c7
+    client-secret: TDcon0Mz2DzhNceLsXqRAI1j6gvG8JpV
     redirect-uri: http://localhost:5173/auth/callback/kakao
   naver:
     client-id: kY3Gxh_p4svxg1tae7id

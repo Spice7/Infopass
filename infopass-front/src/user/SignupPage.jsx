@@ -119,12 +119,18 @@ const SignupPage = () => {
 
   // 아이디 중복 체크 핸들러
   const handleCheckId = async () => {
-    const email = `${userInfo.id}@${userInfo.emailDomain === '직접입력' ? userInfo.emailInput : userInfo.emailDomain}`;
+    const email = `${socialUser.email !== null ? socialUser.email.split("@")[0] : userInfo.id}@${userInfo.emailDomain === '직접입력' ? userInfo.emailInput : userInfo.emailDomain}`;
     setIdmsg("");
-
-    if (userInfo.id.length < 5) {
-      setIdmsg({ text: '아이디는 5자 이상이어야 합니다.', color: 'red' });
-      return;
+    if (!socialUser) {
+      if (userInfo.id.length < 5) {
+        setIdmsg({ text: '아이디는 5자 이상이어야 합니다.', color: 'red' });
+        return;
+      }
+    } else {
+      if (socialUser.email.split("@")[0].length < 5) {
+        setIdmsg({ text: '아이디는 5자 이상이어야 합니다.', color: 'red' });
+        return;
+      }
     }
 
     try {
@@ -245,8 +251,8 @@ const SignupPage = () => {
     const phone = userInfo.phonePrefix + userInfo.phone;
     const address = `${userInfo.addressRoad} ${userInfo.addressDetail}`.trim();
 
-    console.log("email: " + email + ", name: " + name + ", phone: " + phone + ", address: " + address + ", nickname: " + userInfo.nickname + ", password: " + userInfo.password);
-    
+
+
     if (!passwordValid) {
       alert('비밀번호 형식이 올바르지 않습니다.');
       return;
@@ -259,7 +265,7 @@ const SignupPage = () => {
       alert('닉네임 중복체크 해주세요');
       return;
     }
-    if(!socialUser){
+    if (!socialUser) {
       if (!userCheck) {
         alert('아이디 중복체크 해주세요');
         return;
@@ -280,6 +286,7 @@ const SignupPage = () => {
       provider: socialUser?.provider || null,
       providerKey: socialUser?.providerKey || null,
     };
+    console.log(sendInfo);
     try {
       await auth.join(sendInfo);
       console.log("회원가입 성공");
@@ -335,6 +342,9 @@ const SignupPage = () => {
                     disabled
                     placeholder='이메일 도메인'
                   />
+                  <button type='button' className='CheckOfId' onClick={handleCheckId}>
+                    이메일 중복확인
+                  </button>
                 </>
               ) : (
                 // 기존 회원가입 방식 (소셜유저 정보 없을 때)
@@ -393,7 +403,7 @@ const SignupPage = () => {
                 minLength='8'
                 name="password"
                 value={userInfo.password}
-                onChange={inputChangeEvent}                
+                onChange={inputChangeEvent}
               />
               {!passwordValid && (
                 <span style={{ color: 'red' }}>비밀번호는 8자 이상, 영문+숫자+특수문자를 포함해야 합니다.(@$!%*#?&)</span>
@@ -408,7 +418,7 @@ const SignupPage = () => {
                 value={userInfo.passwordConfirm}
                 onChange={inputChangeEvent}
                 onFocus={() => setPasswordConfirmFocused(true)}
-                onBlur={() => setPasswordConfirmFocused(false)}                
+                onBlur={() => setPasswordConfirmFocused(false)}
               />
               {passwordConfirmFocused && userInfo.password !== userInfo.passwordConfirm && (
                 <span style={{ color: "red" }}>비밀번호가 일치하지 않습니다.</span>

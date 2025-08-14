@@ -28,5 +28,9 @@ public class UserDto {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
 	private Timestamp created_at;
 	private Integer enabled;
+	
+    // 소셜 로그인 관련
+    private String provider;
+    private String providerKey;
 
 }

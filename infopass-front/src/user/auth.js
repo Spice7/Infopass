@@ -1,4 +1,4 @@
-//import axios from 'axios';
+
 import api from './api';
 
 // 로그인
@@ -29,7 +29,16 @@ export const sendSms = (phone) => api.post(`/user/sendSms`, { phone: phone });
 export const verifyCode = (smsToken, code) => api.post('/user/verifyCode', { smsToken: smsToken, code: code });
 
 //소셜 로그인 
-export const socialSignup = (provider,code) => api.post(`/user/social/${provider}`, { provider, code });
+export const socialSignup = (provider, code) => api.post(`/user/social/${provider}`, { provider, code });
+
+// 아이디 찾기
+export const getResearchEmail = (name, phone) => api.post(`/user/getResearchEmail`, { name, phone });
+
+// 비밀번호 찾기
+export const findPw = (email, phone) => api.post(`/user/findPwCheck`, { email, phone });
+
+// 새 비밀번호 변경
+export const changePw = (email, phone, newPw) => api.post(`/user/changePw`, { email, phone, newPw });
 
 export const getWrongAnswers = () => api.post('/wrong-answers');
 

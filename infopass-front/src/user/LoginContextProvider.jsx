@@ -36,7 +36,7 @@ const LoginContextProvider = ({ children }) => {
 
    const openSignUpModal = () => setSignUpModalOpen(true);
 
-  const closeSignUpModal = () => {
+  const closeSignUpModal = () => {    
     setExistingUser(null); //모달 닫으면 소셜 유저 정보 초기화
     setSignUpModalOpen(false);
   };
@@ -139,6 +139,9 @@ const LoginContextProvider = ({ children }) => {
   // 로그아웃 세팅
   const logoutSetting = () => {
     Cookies.remove("accessToken");
+    Cookies.remove("user");
+    Cookies.remove("naver_oauth_state");
+    Cookies.remove("kakao_oauth_state");
     setLogin(false);
     setUserInfo(null);
     setRoles({ isUser: false, isAdmin: false });

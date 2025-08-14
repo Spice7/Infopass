@@ -8,8 +8,8 @@ import lombok.Data;
 @Alias("socialUser")
 public class SocialUserDto {
 
-    private int id;
-    private int user_id;
+    private Integer id;
+    private Integer user_id;
     private String provider;
     private String provider_key;
 }
