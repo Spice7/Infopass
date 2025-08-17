@@ -10,12 +10,7 @@ export const KakaoLoginButton = () => {
   Cookies.set('kakao_oauth_state', state);
 
   const kakaoUrl =
-    `https://kauth.kakao.com/oauth/authorize` +
-    `?response_type=code` +
-    `&client_id=${REST_API_KEY}` +
-    `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
-    `&state=${state}` +
-    `&auth_type=reauthenticate`;
+    `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${REST_API_KEY}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&state=${state}&auth_type=reauthenticate`;
 
   return (
     <a href={kakaoUrl} className="social-login-link">
@@ -25,7 +20,7 @@ export const KakaoLoginButton = () => {
           alt="카카오 로그인" 
           className="social-login-icon"
         />
-        <span>카카오로 시작하기</span>
+        <span>카카오</span>
       </button>
     </a>
   );
@@ -38,12 +33,7 @@ export const NaverLoginButton = () => {
   Cookies.set('naver_oauth_state', state);
 
   const naverUrl =
-    `https://nid.naver.com/oauth2.0/authorize` +
-    `?response_type=code` +
-    `&client_id=${NAVER_CLIENT_ID}` +
-    `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
-    `&state=${state}` +
-    `&auth_type=reauthenticate`;
+    `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${NAVER_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&state=${state}&auth_type=reauthenticate`;
 
   return (
     <a href={naverUrl} className="social-login-link">
@@ -53,7 +43,7 @@ export const NaverLoginButton = () => {
           alt="네이버 로그인" 
           className="social-login-icon"
         />
-        <span>네이버로 시작하기</span>
+        <span>네이버</span>
       </button>
     </a>
   );

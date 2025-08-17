@@ -15,7 +15,7 @@ public interface UserServiceInter {
 	public Map<String, String> sendSms(String phone);
 	public Map<String, String> verifyCode(String phone, String sendCode, HttpSession session);
 	public UserDto findByPhone(String phone);
-	public String getResearchEmail(String name, String phone);
-	public boolean findPwCheck(String email, String phone);
-	public String changePw(String email, String phone, String newPw);
+	public String getResearchEmail(UserDto userDto);
+	public boolean findPwCheck(UserDto userDto);
+	public void changePw(UserDto userDto);
 }

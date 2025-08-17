@@ -11,34 +11,31 @@ import Modal from '@mui/material/Modal';
 import './userInfo.css';
 
 const LoginForm = () => {
-    const { login, openSignUpModal, openSignUpModalWithUser } = useContext(LoginContext)          // 📦 LoginContext 의 login 함수
+    const { login, openSignUpModal, openSignUpModalWithUser } = useContext(LoginContext)
 
     const navi = useNavigate();
     const location = useLocation();
-    //console.log(location.state?.from); // 로그인 전 페이지 경로
-
+    
     // location.state?.socialUser 에 소셜 로그인 후 받은 사용자 정보가 있다면 모달 열기
     useEffect(() => {
-    
         if (location.state?.socialUser) {
             openSignUpModalWithUser(location.state.socialUser);
-
             // 상태 초기화
             navi(location.pathname, { replace: true, state: {} });
         }
-    }, [location.state?.socialUser, openSignUpModalWithUser]);
+    }, [location.state?.socialUser, openSignUpModalWithUser, location.pathname, navi]);
    
     const [showFindId, setShowFindId] = useState(false);
     const [showFindPw, setShowFindPw] = useState(false);
 
     const onLogin = (e) => {
-        e.preventDefault()                      // 기본 이벤트 방지 
-        const form = e.target                   // <form> 요소
-        const email = form.email.value    // 아이디   - <form> 아래 input name="username" 의 value
-        const password = form.password.value    // 비밀번호 - <form> 아래 input name="passwword" 의 value
+        e.preventDefault()
+        const form = e.target
+        const email = form.email.value
+        const password = form.password.value
 
         // 로그인 처리 요청
-        login(email, password, location) // LoginContextProvider 의 login 함수 호출
+        login(email, password, location)
     }
 
     return (
@@ -48,7 +45,7 @@ const LoginForm = () => {
 
                 <form className='login-form' onSubmit={(e) => onLogin(e)}>                
                     <div className="login-input-container">
-                        <label htmlFor="name">아이디</label>
+                        <label htmlFor="email">아이디</label>
                         <input type="text"
                             id='email'
                             placeholder='이메일'
@@ -67,16 +64,30 @@ const LoginForm = () => {
                             required
                         />
                     </div>
-                    <button type='submit' className='btn btn-form btn-login'>
-                        로그인
-                    </button>
-                    <button type='button' className='btn btn-form btn-signup'
-                        onClick={openSignUpModal}>
-                        회원가입
-                    </button>
+                    
+                    {/* 로그인/회원가입 버튼 그룹 */}
+                    <div className="auth-buttons-group">
+                        <button type='submit' className='btn btn-form btn-login'>
+                            로그인
+                        </button>
+                        <button type='button' className='btn btn-form btn-signup'
+                            onClick={openSignUpModal}>
+                            회원가입
+                        </button>
+                    </div>
                 </form>
-                <button type='button' className='btn btn-id' onClick={() => setShowFindId(true)}>아이디 찾기</button>
-                <button type='button' className='btn btn-password' onClick={() => setShowFindPw(true)}>비밀번호 찾기</button>
+                
+                {/* 아이디/비밀번호 찾기 버튼 그룹 */}
+                <div className="find-buttons-group">
+                    <button type='button' className='btn btn-id' onClick={() => setShowFindId(true)}>
+                        아이디 찾기
+                    </button>
+                    <button type='button' className='btn btn-password' onClick={() => setShowFindPw(true)}>
+                        비밀번호 찾기
+                    </button>
+                </div>
+                
+                {/* 소셜 로그인 버튼 그룹 */}
                 <div className="social-login-container">
                     <KakaoLoginButton />
                     <NaverLoginButton />
@@ -121,8 +132,10 @@ const LoginForm = () => {
                 </Box>
             </Modal>
 
+            {/* 회원가입 모달 */}
             <SignupPage />
         </>
     )
 }
+
 export default LoginForm

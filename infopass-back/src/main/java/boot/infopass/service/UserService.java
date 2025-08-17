@@ -143,20 +143,21 @@ public class UserService implements UserServiceInter {
 	}
 
 	@Override
-	public String getResearchEmail(String name, String phone) {		
-		return userMapper.getResearchEmail(name, phone);
+	public String getResearchEmail(UserDto userDto) {		
+		return userMapper.getResearchEmail(userDto);
 	}
 
 	@Override
-	public boolean findPwCheck(String email, String phone) {		
-		return userMapper.findPwCheck(email, phone);
+	public boolean findPwCheck(UserDto userDto) {		
+		return userMapper.findPwCheck(userDto);
 	}
 
 	@Override
-	public String changePw(UserDto userDto) {
+	public void changePw(UserDto userDto) {
 		// 비밀번호 변경 로직
-		String password = userDto.getPassword();
-		String encodedPw = bCryptPasswordEncoder.encode(password);
-		return userMapper.changePw(userDto.getEmail(), userDto.getPhone(), encodedPw);
+		
+		String encodedPw = bCryptPasswordEncoder.encode(userDto.getPassword());
+		userDto.setPassword(encodedPw);
+		userMapper.changePw(userDto);
 	}
 }

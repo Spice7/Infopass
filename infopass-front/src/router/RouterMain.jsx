@@ -6,6 +6,7 @@ import AdminRoutes from './AdminRoutes'
 import UserRoutes from './UserRoutes'
 import OxQuizRoutes from './OxQuizRoutes'
 import BlockRoutes from './BlockRoutes'
+import CardRoutes from './CardRoutes'
 import Home from '../pages/Home'
 import MyPageRoutes from './MyPageRoutes'
 import Ranking from "./Ranking";
@@ -45,6 +46,7 @@ const RouterMain = () => {
                 {UserRoutes}
                 {OxQuizRoutes}
                 {BlockRoutes}
+                {CardRoutes}
                 {blankgame}
 
                 <Route path='*' element={<h1>잘못된 주소입니다</h1>} />

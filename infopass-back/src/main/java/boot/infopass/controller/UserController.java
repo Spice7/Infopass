@@ -73,7 +73,7 @@ public class UserController {
     public ResponseEntity<?> verifyCode(@RequestBody Map<String, String> data) {
         String token = data.get("smsToken"); // React에서 받은 SMS 토큰
         String inputCode = data.get("code"); // 사용자가 입력한 인증번호
-
+		String purpose = data.get("purpose"); // "signup" 또는 "findPw"
         Map<String, String> tokenData = jwtTokenProvider.parseSmsToken(token);
         log.info(inputCode);
         if (tokenData == null || tokenData.isEmpty()) {
@@ -90,7 +90,11 @@ public class UserController {
         UserDto user = userService.findByPhone(phoneFromToken);
 
         if (user != null) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 가입된 휴대폰 번호입니다.");
+			if(purpose.equals("signup")) {
+            	return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 가입된 휴대폰 번호입니다.");
+			} else {
+            	return ResponseEntity.status(HttpStatus.CONFLICT).body("핸드폰 인증이 완료되었습니다.");
+        	}
         } else {
             return ResponseEntity.ok("사용 가능한 휴대폰 번호입니다.");
         }
@@ -154,11 +158,12 @@ public class UserController {
 
 	@PostMapping("/getResearchEmail")
 	public ResponseEntity<?> getResearchEmail(@RequestBody Map<String, String> data) {
-		String name = data.get("name");
-		String phone = data.get("phone");
-		String email = userService.getResearchEmail(name, phone);
-		log.info("name: "+name);
-		log.info("phone: "+phone);
+		UserDto userDto = new UserDto();
+		userDto.setName(data.get("name"));
+		userDto.setPhone(data.get("phone"));
+		String email = userService.getResearchEmail(userDto);
+		log.info("name: "+userDto.getName());
+		log.info("phone: "+userDto.getPhone());
 		log.info("찾은 email: "+email);
 		if(email != null) {
 			return ResponseEntity.ok(Map.of("email", email));
@@ -170,9 +175,10 @@ public class UserController {
 	
 	@PostMapping("/findPwCheck")
 	public ResponseEntity<?> findPwCheck(@RequestBody Map<String, String> data) {
-		String email = data.get("email");
-		String phone = data.get("phone");
-		boolean result = userService.findPwCheck(email, phone);
+		UserDto userDto = new UserDto();
+		userDto.setEmail(data.get("email"));
+		userDto.setPhone(data.get("phone"));
+		boolean result = userService.findPwCheck(userDto);
 		if (result) {
 			return ResponseEntity.ok(Map.of("message", "success"));
 		} else {
@@ -187,9 +193,10 @@ public class UserController {
 		userDto.setEmail(data.get("email"));
 		userDto.setPhone(data.get("phone"));
 		userDto.setPassword(data.get("newPw"));
-		String result = userService.changePw(userDto);
-		if (result != null) {
-			return ResponseEntity.ok(Map.of("message", result));
+		userService.changePw(userDto);
+		boolean result = userService.findById(data.get("email"));
+		if (result) {
+			return ResponseEntity.ok(Map.of("success", result));
 		} else {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND)
 					.body(Map.of("error", "비밀번호 변경에 실패했습니다."));

@@ -26,7 +26,7 @@ export const checkNickName = (nickname) => api.post(`/user/checkNickName`, { nic
 export const sendSms = (phone) => api.post(`/user/sendSms`, { phone: phone });
 
 // 문자메세지 검증 요청
-export const verifyCode = (smsToken, code) => api.post('/user/verifyCode', { smsToken: smsToken, code: code });
+export const verifyCode = (smsToken, code, purpose) => api.post('/user/verifyCode', { smsToken, code, purpose});
 
 //소셜 로그인 
 export const socialSignup = (provider, code) => api.post(`/user/social/${provider}`, { provider, code });
