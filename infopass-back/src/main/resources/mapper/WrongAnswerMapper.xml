@@ -31,7 +31,7 @@
   <result property="question" column="question"/>
   <result property="correctAnswer" column="correct_answer"/>
   <result property="category" column="category"/>
-  <result property="explanation" column="explanation"/>
+  <result property="explanation" column="quiz_explanition"/>
   
 </resultMap>
 
