@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import org.springframework.security.web.SecurityFilterChain;
@@ -18,6 +19,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -53,6 +56,8 @@ public class SecurityConfig {
         // CSRF(Cross-Site Request Forgery) 공격 방어 기능 비활성화
         http.csrf(csrf -> csrf.disable());
 
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
         // CORS 설정
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
@@ -69,28 +74,23 @@ public class SecurityConfig {
 
         // JWT 요청 필터 1️
         // JWT 인증 필터 2️
-        http.addFilterAt(new JwtAuthenticationFilter(authenticationManager, jwtTokenProvider),
-                UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new JwtRequestFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
         // 인가 설정 (authorizeHttpRequests)
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // ✅ 1. 공개적으로 허용할 정적 리소스 및 경로를 먼저 지정합니다.
-                .requestMatchers("/", "/login", "/user/**", "/oxquiz/**", "/ws/**", "/ws*", "/block/**", "/rank/**",
-                        "/lobby/**", "/blankgamesingle/**")
+                .requestMatchers("/", "/login", "/user/**", "/oxquiz/**", "/ws/**", "/ws*", "/block/**",
+                        "/rank/**",
+                        "/lobby/**", "/blankgamesingle/**", "/api/rooms/**", "/api/**")
                 .permitAll()
 
                 // 2. 특정 권한이 필요한 경로를 지정합니다.
-                .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers("/user/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+
                 .requestMatchers("/admin/**").hasRole("ADMIN")
 
                 // ✅ 3. 위의 규칙에 해당하지 않는 모든 요청은 인증이 필요합니다.
                 .anyRequest().authenticated());
-
-        // 사용자 정보를 불러오는 서비스 설정
-        http.userDetailsService(customUserDetailService);
-
         return http.build();
     }
 
@@ -123,6 +123,12 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
 
         return source;
+    }
+
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        // 인증 없이 허용할 경로를 여기에 추가
+        return path.startsWith("/api/rooms/");
     }
 
 }

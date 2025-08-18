@@ -30,6 +30,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
+
         try {
             String path = request.getRequestURI();
             String method = request.getMethod();

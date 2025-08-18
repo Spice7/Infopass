@@ -9,6 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import boot.infopass.dto.UserDto;
+import io.jsonwebtoken.lang.Collections;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -16,26 +17,31 @@ import lombok.ToString;
 @ToString
 public class CustomUser implements UserDetails {
 
-    private UserDto userDto;         
+    private final UserDto userDto;
 
     public CustomUser(UserDto userDto) {
         this.userDto = userDto;
     }
 
+    // UserDto를 반환하는 getter 메소드
+    public UserDto getUserDto() {
+        return userDto;
+    }
+
     /**
-     *  권한 getter 메소드
-     *  UserDetails 를 CustomUser 로 구현하여, 
-     *     Spring Security 의 User 대신 사용자 정의 인증 객체(CustomUser)를 사용한다면,
-     *     권한은 'ROLE_' 붙여서 사용해야한다.
+     * 권한 getter 메소드
+     * UserDetails 를 CustomUser 로 구현하여,
+     * Spring Security 의 User 대신 사용자 정의 인증 객체(CustomUser)를 사용한다면,
+     * 권한은 'ROLE_' 붙여서 사용해야한다.
      */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-    	 // 권한을 담을 리스트를 생성합니다.
+        // 권한을 담을 리스트를 생성합니다.
         List<GrantedAuthority> authorities = new ArrayList();
-        
+
         // userDto에서 usertype 문자열을 가져와 "ROLE_" 접두사를 붙여 GrantedAuthority 객체로 만듭니다.
         authorities.add(new SimpleGrantedAuthority("ROLE_" + userDto.getUsertype()));
-        
+
         return authorities;
     }
 
@@ -69,9 +75,8 @@ public class CustomUser implements UserDetails {
         return userDto.getEnabled() == 0 ? false : true;
     }
 
-    public UserDto getUserData(){
+    public UserDto getUserData() {
         return userDto;
     }
 
-    
 }
