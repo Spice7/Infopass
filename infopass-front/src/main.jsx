@@ -7,13 +7,16 @@ import RouterMain from './router/RouterMain.jsx'
 import { BrowserRouter } from 'react-router-dom'
 
 import LoginContextProvider from './user/LoginContextProvider';
+import GlobalBackground from './pages/GlobalBackground.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <LoginContextProvider>
-        <RouterMain />
-      </LoginContextProvider>
+        <GlobalBackground>
+        <LoginContextProvider>
+          <RouterMain />
+        </LoginContextProvider>
+      </GlobalBackground>
     </BrowserRouter>
   </StrictMode>
   

@@ -582,9 +582,15 @@ const OX_MultiGame = () => {
   // 로딩 화면
   if (loading) {
     return (
-      <div className="ox-loading">
-        <img src={walkImgs[walkFrame]} alt="로딩중" style={{ width: '100px' }} />
-        로딩중...
+      <div className="ox-stage-loading">
+        <div className="ox-loading-scroll">
+          <img src="/ox_image/002.png" alt="bg" />
+          <img src="/ox_image/002.png" alt="bg" />
+        </div>
+        <div className="ox-loading-inner">
+          <img src={walkImgs[walkFrame]} alt="로딩중" style={{ width: '110px' }} />
+          <div style={{ marginTop: 18 }}>로딩중...</div>
+        </div>
       </div>
     );
   }
@@ -648,20 +654,16 @@ const OX_MultiGame = () => {
   // 게임 종료 화면
   // ==================================================
   if (gameResult) {
-    let resultText = '';
-    let resultClass = '';
+  let resultText = '';
     let isWin = false, isLose = false;
     if (gameResult === 'WIN') {
       resultText = 'WIN';
-      resultClass = 'win';
       isWin = true;
     } else if (gameResult === 'LOSE') {
       resultText = 'LOSE';
-      resultClass = 'lose';
       isLose = true;
     } else {
       resultText = 'DRAW';
-      resultClass = 'draw';
     }
   
     return (
@@ -988,20 +990,8 @@ const OX_MultiGame = () => {
   // 게임 화면
   // ================
   return (
-    <div style={{
-      width: '100vw',
-      height: '100vh',
-      minHeight: '100vh',
-      minWidth: '100vw',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      position: 'fixed',
-      left: 0,
-      top: 0,
-      zIndex: 1
-    }}>
-      <div className="ox-container">
+    <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+      <div className="ox-stage">
         {/* 문제 */}
         <div className="ox-quiz">
           {showCorrectOverlay ? (

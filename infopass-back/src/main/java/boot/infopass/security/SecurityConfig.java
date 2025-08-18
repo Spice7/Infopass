@@ -65,7 +65,7 @@ public class SecurityConfig {
                 .addFilterBefore(new JwtRequestFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
         http.authorizeHttpRequests(authorize -> authorize
                 // ✅ 1. 웹소켓 경로는 모든 보안 규칙에서 제외 (가장 중요!)
-                .requestMatchers("/ws/**").permitAll()
+                .requestMatchers("/ws/**").permitAll() // websocket
 
                 // ✅ 2. 인증 없이 접근을 허용할 경로들
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()

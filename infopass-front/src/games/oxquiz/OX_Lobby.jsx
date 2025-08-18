@@ -316,14 +316,21 @@ const OX_Lobby = () => {
 
     return (
         <div style={{
-            padding: '0',
-            width: '100%',
-            minHeight: '100vh',
-            minWidth: '450px',
-            maxWidth: '664px',
+            width: '70vw',
+            maxWidth: '1200px',
+            height: '70vh',
+            minWidth: '620px',
+            minHeight: '420px',
             background: 'linear-gradient(135deg, #1e2a47 0%, #233a5e 100%)',
+            borderRadius: '40px',
+            boxShadow: '0 18px 46px -10px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.08) inset',
+            margin: '140px auto 80px',
+            position: 'relative',
+            overflow: 'hidden',
             color: '#fff',
             fontFamily: 'Pretendard, Noto Sans KR, sans-serif',
+            display: 'flex',
+            flexDirection: 'column'
         }}>
             {/* 상단 타이틀 영역 */}
             <div style={{

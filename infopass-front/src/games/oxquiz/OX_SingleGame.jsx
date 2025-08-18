@@ -16,7 +16,7 @@ import { useNavigate } from 'react-router-dom';
 // 상수: 게임 규칙/리소스
 // =========================
 const MAX_LIFE = 3;                 // 초기 목숨
-const TIMER_DURATION = 5;           // 문제당 제한 시간(초)
+const TIMER_DURATION = 15;           // 문제당 제한 시간(초)
 const walkImgs = Array.from({ length: 16 }, (_, i) => `/ox_image/walk${i + 1}.png`); // 로딩 애니메이션 프레임
 
 const OX_SingleGame = () => {
@@ -304,12 +304,20 @@ const OX_SingleGame = () => {
   // 화면 렌더링
   // =========================
 
-  // 로딩 화면
+  // 공통 레이아웃 클래스 (.ox-stage / .ox-stage-loading) 사용
+
+  // 로딩 화면 (크기/z-index OX_main과 통일)
   if (loading) {
     return (
-      <div className="ox-loading">
-        <img src={walkImgs[walkFrame]} alt="로딩중" style={{ width: '100px' }} />
-        로딩중...
+      <div className="ox-stage-loading">
+        <div className="ox-loading-scroll">
+          <img src="/ox_image/002.png" alt="bg" />
+          <img src="/ox_image/002.png" alt="bg" />
+        </div>
+        <div className="ox-loading-inner">
+          <img src={walkImgs[walkFrame]} alt="로딩중" style={{ width: '110px' }} />
+          <div style={{ marginTop: 18 }}>로딩중...</div>
+        </div>
       </div>
     );
   }
@@ -391,7 +399,7 @@ const OX_SingleGame = () => {
         minWidth: '100vw',
         width: '100vw',
         height: '100vh',
-        background: 'linear-gradient(135deg, #1e2a47 0%, #233a5e 100%)',
+        backgroundColor: 'rgba(0, 0, 0, 0.2)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -410,15 +418,15 @@ const OX_SingleGame = () => {
         }}>
           {/* 별/트로피/파티콘 이모지 애니메이션 */}
           <div style={{
-            position: 'absolute', left: '10%', top: '12%', fontSize: 48, opacity: 0.7,
+            position: 'absolute', left: '10%', top: '12%', fontSize: 48, 
             animation: 'fadeInUp 1.2s',
           }}>{myScore < 3 || myLife <= 0 ? '💀' : '🏆'}</div>
           <div style={{
-            position: 'absolute', left: '80%', top: '18%', fontSize: 38, opacity: 0.6,
+            position: 'absolute', left: '82%', top: '12%', fontSize: 58,
             animation: 'fadeInUp 1.5s',
           }}>{myScore < 3 || myLife <= 0 ? '😵' : '🎉'}</div>
           <div style={{
-            position: 'absolute', left: '50%', top: '8%', fontSize: 60, opacity: 0.8, transform: 'translateX(-50%)',
+            position: 'absolute', left: '48%', top: '8%', fontSize: 60,
             animation: 'fadeInUp 1.1s',
           }}>{myScore < 3 || myLife <= 0 ? '☠️' : '⭐'}</div>
           <style>{`
@@ -429,7 +437,10 @@ const OX_SingleGame = () => {
           `}</style>
         </div>
         <div style={{
-          background: 'rgba(34,52,79,0.97)',
+          backgroundImage: 'url(/ox_image/002.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
           borderRadius: 28,
           boxShadow: '0 8px 32px rgba(0,0,0,0.28)',
           padding: '54px 48px 44px 48px',
@@ -597,20 +608,8 @@ const OX_SingleGame = () => {
 
   // 게임 화면
   return (
-    <div style={{
-      width: '100vw',
-      height: '100vh',
-      minHeight: '100vh',
-      minWidth: '100vw',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      position: 'fixed',
-      left: 0,
-      top: 0,
-      zIndex: 1,
-    }}>
-      <div className="ox-container" style={{ display: 'block' }}>
+    <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+      <div className="ox-stage">
         {/* 문제 영역 */}
         <div className="ox-quiz">
           {resultMsg ? <span className='resultMsg'>{resultMsg}</span> : (showQuiz ? currentindex + 1 + ". " + quizlist[currentindex]?.question : "")}
@@ -805,36 +804,14 @@ const OX_SingleGame = () => {
           </div>
         )}
       </div>
-      {/* showTimeOver이 true면 오버레이만 추가 */}
+      {/* showTimeOver이 true면 오버레이 (전역) */}
       {showTimeOver && (
         <div style={{
-          position: 'fixed',
-          left: 0, top: 0, width: '100vw', height: '100vh',
-          background: 'rgba(20,30,50,0.55)',
-          zIndex: 999,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          pointerEvents: 'none',
+          position: 'fixed', left: 0, top: 0, width: '100vw', height: '100vh',
+          background: 'rgba(20,30,50,0.55)', zIndex: 999,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none'
         }}>
-          <div style={{
-            fontSize: 60,
-            fontWeight: 900,
-            color: '#ffe066',
-            textShadow: '2px 2px 18px #22344f',
-            animation: 'timeOverPop 1.1s',
-            padding: '32px 60px',
-            borderRadius: 24,
-            background: 'rgba(34,52,79,0.97)',
-            border: '3px solid #ffe066',
-          }}>
-            ⏰ TIME OVER!
-          </div>
-          <style>{`
-            @keyframes timeOverPop {
-              0% { opacity: 0; transform: scale(0.7); }
-              60% { opacity: 1; transform: scale(1.1); }
-              100% { opacity: 1; transform: scale(1); }
-            }
-          `}</style>
+          <div style={{ fontSize: 60, fontWeight: 900, color: '#ffe066', textShadow: '2px 2px 18px #22344f', animation: 'timeOverPop 1.1s', padding: '32px 60px', borderRadius: 24, background: 'rgba(34,52,79,0.97)', border: '3px solid #ffe066' }}>⏰ TIME OVER!</div>
         </div>
       )}
     </div>
