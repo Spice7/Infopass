@@ -39,6 +39,68 @@
   gap: 30px;
 }
 
+/* 게임 모드 선택기 */
+.game-mode-selector {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 30px;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 20px;
+}
+
+.game-mode-selector h3 {
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  color: #fff;
+}
+
+.mode-buttons {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.mode-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mode-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+.mode-btn.active {
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  border-color: #ff9800;
+  box-shadow: 0 5px 15px rgba(255, 152, 0, 0.3);
+}
+
+.time-limit-info {
+  background: rgba(255, 152, 0, 0.2);
+  padding: 15px;
+  border-radius: 15px;
+  border: 1px solid rgba(255, 152, 0, 0.3);
+}
+
+.time-limit-info p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+  color: #ffeb3b;
+}
+
 /* 난이도 선택기 */
 .difficulty-selector {
   text-align: center;
@@ -188,6 +250,25 @@
   color: #4caf50;
 }
 
+/* 타임어택 모드 스타일 */
+.info-item.time-attack .value {
+  color: #ff9800;
+}
+
+.info-item.time-attack .value.warning {
+  color: #f44336;
+  animation: timeWarning 1s infinite;
+}
+
+@keyframes timeWarning {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
 /* 카드 그리드 */
 .cards-grid {
   display: grid;
@@ -324,19 +405,18 @@
 /* 게임 완료 화면 */
 .game-complete {
   text-align: center;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(76, 175, 80, 0.2);
   padding: 40px;
   border-radius: 20px;
-  margin: 30px auto;
-  max-width: 600px;
+  margin-top: 30px;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(76, 175, 80, 0.3);
 }
 
 .game-complete h2 {
-  font-size: 2rem;
-  margin-bottom: 20px;
   color: #4caf50;
+  margin-bottom: 20px;
+  font-size: 2rem;
 }
 
 .game-complete p {
@@ -352,10 +432,25 @@
 }
 
 .final-stats p {
-  font-size: 1.2rem;
   margin: 10px 0;
-  color: #4caf50;
-  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+/* 시간 초과 화면 */
+.game-timeout {
+  text-align: center;
+  background: rgba(244, 67, 54, 0.2);
+  padding: 40px;
+  border-radius: 20px;
+  margin-top: 30px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.game-timeout h2 {
+  color: #f44336;
+  margin-bottom: 20px;
+  font-size: 2rem;
 }
 
 /* 스크롤바 스타일 */

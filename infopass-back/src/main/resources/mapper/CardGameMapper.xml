@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="boot.infopass.mapper.CardMapper">
+	<select id="getAllCards" resultType="card">
+		select * from cardgame_question order by id asc
+	</select>
+	<select id="getSingleData" parameterType="Integer" resultType="card">
+		select * from cardgame_question where id=#{id}
+	</select>
+	<insert id="insertCard" parameterType="card">
+		insert into cardgame_question (question, answer, created_at) values (#{question}, #{answer}, now())
+	</insert>
+	<update id="updateCard" parameterType="card">
+		update cardgame_question set question=#{question}, answer=#{answer} where id=#{id}
+	</update>
+	<delete id="deleteCard" parameterType="Integer">
+		delete from cardgame_question where id=#{id}
+	</delete>
+
+	<!-- 오답노트 저장 -->
+	<insert id="insertCardSub" parameterType="cardSub">
+		insert into cardgame_submission (user_id, question_id, submitted_answer, created_at) values (#{user_id}, #{question_id}, #{submitted_answer}, now())
+	</insert>
+	
+	<!-- 게임 결과 저장 -->
+	<insert id="saveGameResult" parameterType="cardStatus">
+		insert into cardgame_status (user_id, card_id, is_correct, created_at) 
+		values (#{user_id}, #{card_id}, #{is_correct}, now())
+	</insert>
+</mapper>
