@@ -72,7 +72,7 @@ public class SecurityConfig {
 
                 .requestMatchers("/", "/login", "/user/**", "/wrong-answers/**").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/ox_image/**").permitAll()
-                .requestMatchers("/lobby/**", "/oxquiz/**", "/rank/**", "/block/**", "/blankgamesingle/**").permitAll() // 게임 관련 API 허용
+                .requestMatchers("/lobby/**", "/oxquiz/**", "/rank/**", "/block/**", "/blankgamesingle/**", "/card/**").permitAll() // 게임 관련 API 허용
 
                 // ✅ 3. 특정 권한이 필요한 경로
                 .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")

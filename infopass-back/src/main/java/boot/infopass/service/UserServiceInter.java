@@ -2,6 +2,7 @@ package boot.infopass.service;
 
 import java.util.Map;
 
+
 import boot.infopass.dto.UserDto;
 import jakarta.servlet.http.HttpSession;
 
@@ -14,4 +15,7 @@ public interface UserServiceInter {
 	public Map<String, String> sendSms(String phone);
 	public Map<String, String> verifyCode(String phone, String sendCode, HttpSession session);
 	public UserDto findByPhone(String phone);
+	public String getResearchEmail(UserDto userDto);
+	public boolean findPwCheck(UserDto userDto);
+	public void changePw(UserDto userDto);
 }

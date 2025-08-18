@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -9,65 +9,49 @@ import Postcode from './Postcode';
 import * as auth from './auth';
 import { LoginContext } from './LoginContextProvider';
 
+const PHONENUMBER_LIST = ['010', '011', '016', '018', '019'];
+const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+const phoneRegex = /^(010|011|016|018|019)\d{8}$/;
+
+const initialUserInfo = {
+  id: '',
+  emailDomain: 'naver.com',
+  emailInput: '',
+  password: '',
+  passwordConfirm: '',
+  name: '',
+  nickname: '',
+  phonePrefix: PHONENUMBER_LIST[0],
+  phone: '',
+  addressZipCode: '',
+  addressRoad: '',
+  addressDetail: '',
+};
+
 const SignupPage = () => {
   const { isSignUpModalOpen, closeSignUpModal, existingUser } = useContext(LoginContext);
   const navi = useNavigate();
 
-  // 정규 표현식
-  const [passwordValid, setPasswordValid] = useState(true);
-  const phoneRegex = /^(010|011|016|018|019)\d{8}$/;
-  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
-
-
-  const [detailAddress, setDetailAddress] = useState(''); // 사용자가 직접 입력할 상세 주소
-  const [isPostcodeModalOpen, setIsPostcodeModalOpen] = useState(false); // 주소 검색 모달 열림/닫힘 상태
-
-  //중복체크버튼 클릭여부
+  // 상태
+  const [userInfo, setUserInfo] = useState(initialUserInfo);
+  const [socialUser, setSocialUser] = useState(null);
+  const [detailAddress, setDetailAddress] = useState('');
+  const [isPostcodeModalOpen, setIsPostcodeModalOpen] = useState(false);
   const [userCheck, setUserCheck] = useState(false);
   const [nickNameCheck, setNickNameCheck] = useState(false);
   const [isIdSent, setIsIdSent] = useState(false);
-
-  //중복체크 메세지
-  const [idmsg, setIdmsg] = useState('');
-  const [nickNameMsg, setNickNameMsg] = useState('');
-
-  // 비밀번호 유효성 검사 포커스
+  const [idmsg, setIdmsg] = useState({ text: '', color: '' });
+  const [nickNameMsg, setNickNameMsg] = useState({ text: '', color: '' });
+  const [passwordValid, setPasswordValid] = useState(true);
   const [passwordConfirmFocused, setPasswordConfirmFocused] = useState(false);
-
-  // 핸드폰 번호 옵션
-  const PHONENUMBER_LIST = ['010', '011', '016', '018', '019'];
   const [phonePrefix, setPhonePrefix] = useState(PHONENUMBER_LIST[0]);
-
-  //문자메세지 인증
-  const [smsToken, setSmsToken] = useState(''); // 백엔드에서 받은 SMS JWT
-  const [inputCode, setInputCode] = useState(''); // 사용자가 입력하는 인증번호
-  const [message, setMessage] = useState('');
+  const [smsToken, setSmsToken] = useState('');
+  const [inputCode, setInputCode] = useState('');
+  const [message, setMessage] = useState({ text: '', color: '' });
   const [isSent, setIsSent] = useState(false);
-  const [isVerified, setIsVerified] = useState(false); // 휴대폰 인증 완료 여부
+  const [isVerified, setIsVerified] = useState(false);
 
-  //사용자 정보
-  const initialUserInfo = {
-    id: '',               // 이메일 앞부분 (소셜 유저일 땐 사용안함)
-    emailDomain: 'naver.com', // 이메일 도메인 선택
-    emailInput: '',       // 직접입력 이메일
-    password: '',
-    passwordConfirm: '',
-    name: '',
-    nickname: '',
-    phonePrefix: PHONENUMBER_LIST[0],
-    phone: '',
-    addressZipCode: '',
-    addressRoad: '',
-    addressDetail: '',
-  };
-
-  // 로컬 유저 정보
-  const [userInfo, setUserInfo] = useState(initialUserInfo);
-
-  // 소셜 유저 정보 (provider, providerKey, email, username)
-  const [socialUser, setSocialUser] = useState(null);
-
-  // 모달이 열릴 때마다 상태를 초기화
+  // 모달 열릴 때마다 상태 초기화
   useEffect(() => {
     if (isSignUpModalOpen) {
       if (existingUser) {
@@ -82,81 +66,80 @@ const SignupPage = () => {
           addressRoad: existingUser.roadAddress || '',
           addressDetail: existingUser.detailAddress || '',
         });
-        setUserCheck(true);   // 소셜 유저는 id 중복체크 불필요
+        setUserCheck(true);
       } else {
         setUserInfo(initialUserInfo);
         setSocialUser(null);
         setUserCheck(false);
       }
-      // 초기화
       setPasswordValid(true);
       setNickNameCheck(false);
-      setIdmsg('');
-      setNickNameMsg('');
+      setIdmsg({ text: '', color: '' });
+      setNickNameMsg({ text: '', color: '' });
       setPasswordConfirmFocused(false);
       setSmsToken('');
       setInputCode('');
-      setMessage('');
+      setMessage({ text: '', color: '' });
       setIsSent(false);
       setIsVerified(false);
       setIsIdSent(false);
+      setPhonePrefix(PHONENUMBER_LIST[0]);
+      setDetailAddress('');
     }
   }, [isSignUpModalOpen, existingUser]);
 
-  // *** 이벤트 핸들러 ***
-
-  // 사용자 정보 입력 이벤트
-  const inputChangeEvent = (e) => {
+  // 입력 핸들러
+  const inputChangeEvent = useCallback((e) => {
     const { name, value } = e.target;
-    if (name === "password") {
-      setPasswordValid(passwordRegex.test(value));
+    if (name === "password") setPasswordValid(passwordRegex.test(value));
+    setUserInfo(prev => ({ ...prev, [name]: value }));
+  }, []);
+
+  const handleInputCodeChange = useCallback((e) => setInputCode(e.target.value), []);
+
+  // 아이디 중복 체크
+  const handleCheckId = useCallback(async () => {
+    const email = socialUser
+      ? socialUser.email
+      : (userInfo.emailDomain === '직접입력' ? `${userInfo.id}@${userInfo.emailInput}` : `${userInfo.id}@${userInfo.emailDomain}`);
+    setIdmsg({ text: '', color: '' });
+    if (!socialUser) {
+      if (userInfo.id.length < 5) {
+        setIdmsg({ text: '아이디는 5자 이상이어야 합니다.', color: 'red' });
+        return;
+      }
+    } else {
+      if (socialUser.email.split("@")[0].length < 5) {
+        setIdmsg({ text: '아이디는 5자 이상이어야 합니다.', color: 'red' });
+        return;
+      }
     }
-    setUserInfo(userInfo => ({ ...userInfo, [name]: value }));
-  };
-
-  // 사용자 정보 입력 이벤트  
-  const handleInputCodeChange = (e) => setInputCode(e.target.value);
-
-  // 아이디 중복 체크 핸들러
-  const handleCheckId = async () => {
-    const email = `${userInfo.id}@${userInfo.emailDomain === '직접입력' ? userInfo.emailInput : userInfo.emailDomain}`;
-    setIdmsg("");
-
-    if (userInfo.id.length < 5) {
-      setIdmsg({ text: '아이디는 5자 이상이어야 합니다.', color: 'red' });
-      return;
-    }
-
     try {
       const response = await auth.checkId(email);
       if (response.data) {
-        setIdmsg({ 'text': '이미 사용중인 아이디입니다.', 'color': 'red' });
+        setIdmsg({ text: '이미 사용중인 아이디입니다.', color: 'red' });
         setUserCheck(false);
         setIsIdSent(false);
       } else {
-        setIdmsg({ 'text': '사용 가능한 아이디입니다.', 'color': 'yellowgreen' });
+        setIdmsg({ text: '사용 가능한 아이디입니다.', color: 'yellowgreen' });
         setUserCheck(true);
         setIsIdSent(true);
       }
     } catch (error) {
-      console.error('아이디 중복 확인 중 오류 발생:', error);
-      alert('아이디 중복 확인 중 오류가 발생했습니다.');
+      setIdmsg({ text: '중복 확인 중 오류가 발생했습니다.', color: 'red' });
       setUserCheck(false);
-      setIdmsg('중복 확인 중 오류가 발생했습니다.');
+      console.log(error);
     }
-  };
+  }, [socialUser, userInfo]);
 
-  //닉네임 중복 체크 이벤트
-  const handleCheckNickName = async () => {
+  // 닉네임 중복 체크
+  const handleCheckNickName = useCallback(async () => {
     const nickname = userInfo.nickname.trim();
-    setNickNameCheck("");
-
     if (nickname.length < 2) {
       setNickNameMsg({ text: '닉네임은 2자 이상이어야 합니다.', color: 'red' });
       setNickNameCheck(false);
       return;
     }
-
     try {
       const response = await auth.checkNickName(nickname);
       if (response.data) {
@@ -167,27 +150,19 @@ const SignupPage = () => {
         setNickNameCheck(true);
       }
     } catch (error) {
-      console.error('닉네임 중복 확인 중 오류 발생:', error);
-      alert('닉네임 중복 확인 중 오류가 발생했습니다.');
-      setUserCheck(false);
+      setNickNameMsg({ text: '중복 확인 중 오류가 발생했습니다.', color: 'red' });
+      setNickNameCheck(false);
+      console.log(error);
     }
-  };
+  }, [userInfo.nickname]);
 
-  // 문자메세지 인증 이벤트
-  const SendSmsEvent = async () => {
-    const phone = userInfo.phonePrefix + userInfo.phone;
-
-    // 전화번호 유효성 검사
+  // 문자 인증
+  const SendSmsEvent = useCallback(async () => {
+    const phone = phonePrefix + userInfo.phone;
     if (!phoneRegex.test(phone)) {
       setMessage({ text: '올바른 휴대폰 번호를 입력하세요', color: "red" });
       return;
     }
-
-    if (!phone) {
-      setMessage({ text: '핸드폰 번호를 입력하세요', color: "red" });
-      return;
-    }
-
     try {
       const response = await auth.sendSms(phone);
       const token = response.data.smsToken;
@@ -200,53 +175,49 @@ const SignupPage = () => {
       }
     } catch (err) {
       setMessage({ text: '문자 발송 중 오류가 발생했습니다.', color: "red" });
-      console.log("문자발송에러: ", err)
+      console.log(err);
     }
-  };
+  }, [phonePrefix, userInfo.phone]);
 
-  // 인증번호 검증 요청 
-  const handleVerifyCode = async () => {
+  // 인증번호 검증
+  const handleVerifyCode = useCallback(async () => {
+    const purpose = "signup";
     if (!inputCode) {
       setMessage({ text: '인증번호를 입력하세요', color: "red" });
       return;
     }
     try {
-      await auth.verifyCode(smsToken, inputCode);
+      await auth.verifyCode(smsToken, inputCode, purpose);
       setMessage({ text: '인증 성공', color: "yellowgreen" });
       setIsVerified(true);
     } catch (err) {
       setMessage({ text: err.response ? err.response.data : '인증 중 오류가 발생했습니다.', color: "red" });
       setIsVerified(false);
     }
-  };
+  }, [smsToken, inputCode]);
 
-  // 주소 검색 모달 열기/닫기
-  const handleOpenPostcodeModal = () => setIsPostcodeModalOpen(true);
-  const handleClosePostcodeModal = () => setIsPostcodeModalOpen(false);
-
-  // Postcode 컴포넌트에서 주소 선택 시 호출될 콜백 함수
-  const handleAddressSelect = (data) => {
-    setUserInfo(userinfo => ({
-      ...userinfo,
+  // 주소 검색
+  const handleOpenPostcodeModal = useCallback(() => setIsPostcodeModalOpen(true), []);
+  const handleClosePostcodeModal = useCallback(() => setIsPostcodeModalOpen(false), []);
+  const handleAddressSelect = useCallback((data) => {
+    setUserInfo(prev => ({
+      ...prev,
       addressZipCode: data.zonecode,
       addressRoad: data.roadAddress,
     }));
     setIsPostcodeModalOpen(false);
-  };
+  }, []);
 
-  // 중복체크없이 submit 방지 및 회원가입 처리
+  // 회원가입 처리
   const onSubmitButton = async (e) => {
     e.preventDefault();
-    // 소셜유저일 경우 이메일과 이름은 socaialUser에서, 아니면 userInfo에서
     const email = socialUser
       ? socialUser.email
       : (userInfo.emailDomain === '직접입력' ? `${userInfo.id}@${userInfo.emailInput}` : `${userInfo.id}@${userInfo.emailDomain}`);
     const name = socialUser ? socialUser.username : userInfo.name;
-    const phone = userInfo.phonePrefix + userInfo.phone;
-    const address = `${userInfo.addressRoad} ${userInfo.addressDetail}`.trim();
+    const phone = phonePrefix + userInfo.phone;
+    const address = `${userInfo.addressRoad} ${detailAddress}`.trim();
 
-    console.log("email: " + email + ", name: " + name + ", phone: " + phone + ", address: " + address + ", nickname: " + userInfo.nickname + ", password: " + userInfo.password);
-    
     if (!passwordValid) {
       alert('비밀번호 형식이 올바르지 않습니다.');
       return;
@@ -259,7 +230,7 @@ const SignupPage = () => {
       alert('닉네임 중복체크 해주세요');
       return;
     }
-    if(!socialUser){
+    if (!socialUser) {
       if (!userCheck) {
         alert('아이디 중복체크 해주세요');
         return;
@@ -282,14 +253,14 @@ const SignupPage = () => {
     };
     try {
       await auth.join(sendInfo);
-      console.log("회원가입 성공");
       closeSignUpModal();
       navi("/");
     } catch (error) {
-      console.error('회원가입 실패:', error.response ? error.response.data : error.message);
-      alert("회원가입에 실패했습니다.");
+      alert("회원가입에 실패했습니다.", error);
     }
   };
+
+  if (!isSignUpModalOpen) return null;
 
   return (
     <Modal
@@ -306,42 +277,39 @@ const SignupPage = () => {
         </Typography>
         <Typography id="modal-modal-description" component='div' sx={{ mt: 2 }}>
           <form onSubmit={onSubmitButton}>
-
-            {/* 소셜 유저일 경우 hidden input으로 provider 정보 전달 */}
             {socialUser && (
               <>
                 <input type="hidden" name="provider" value={socialUser.provider} />
                 <input type="hidden" name="providerKey" value={socialUser.providerKey} />
               </>
             )}
-
-            {/* Form content */}
-            <div className='userInputFrame'>
-              {/* 소셜 유저 이메일, 이름 (수정 불가) */}
+            <div className='userInputFrame email-input-frame'>
               {socialUser ? (
                 <>
                   <input
                     type="text"
-                    className='UserInput'
+                    className='UserInput UserInput--small'
                     placeholder='아이디'
                     value={socialUser.email.split('@')[0]}
                     disabled
                   />
-                  <span style={{ color: 'white', alignContent: 'center' }}>@</span>
+                  <span className="email-separator">@</span>
                   <input
                     type="text"
-                    className='UserInput'
+                    className='UserInput UserInput--small'
                     value={socialUser.email.split('@')[1]}
                     disabled
                     placeholder='이메일 도메인'
                   />
+                  <button type='button' className='CheckOfId' onClick={handleCheckId}>
+                    이메일 중복확인
+                  </button>
                 </>
               ) : (
-                // 기존 회원가입 방식 (소셜유저 정보 없을 때)
                 <>
                   <input
                     type="text"
-                    className='UserInput'
+                    className='UserInput UserInput--small'
                     placeholder='아이디'
                     name='id'
                     minLength='5'
@@ -350,9 +318,9 @@ const SignupPage = () => {
                     onChange={inputChangeEvent}
                     required
                   />
-                  <span style={{ color: 'white', alignContent: 'center' }}>@</span>
+                  <span className="email-separator">@</span>
                   <select
-                    className='UserInput'
+                    className='UserInput UserInput--small'
                     name='emailDomain'
                     value={userInfo.emailDomain}
                     onChange={inputChangeEvent}
@@ -369,10 +337,9 @@ const SignupPage = () => {
                   </button>
                 </>
               )}
-
               {userInfo.emailDomain === "직접입력" && !socialUser && (
                 <input
-                  className='UserInput'
+                  className='UserInput UserInput--small'
                   type="text"
                   name="emailInput"
                   placeholder="이메일 직접입력"
@@ -385,15 +352,14 @@ const SignupPage = () => {
                 {idmsg.text}
               </span>
             </div>
-            {/* 비밀번호 */}
             <div className='userInputFrame'>
               <input type="password"
-                className='UserInput'
+                className='UserInput auth-userInput-input'
                 placeholder='비밀번호'
                 minLength='8'
                 name="password"
                 value={userInfo.password}
-                onChange={inputChangeEvent}                
+                onChange={inputChangeEvent}
               />
               {!passwordValid && (
                 <span style={{ color: 'red' }}>비밀번호는 8자 이상, 영문+숫자+특수문자를 포함해야 합니다.(@$!%*#?&)</span>
@@ -401,27 +367,25 @@ const SignupPage = () => {
             </div>
             <div className='userInputFrame'>
               <input type="password"
-                className='UserInput'
+                className='UserInput auth-userInput-input'
                 placeholder='비밀번호 확인'
                 minLength='8'
                 name="passwordConfirm"
                 value={userInfo.passwordConfirm}
                 onChange={inputChangeEvent}
                 onFocus={() => setPasswordConfirmFocused(true)}
-                onBlur={() => setPasswordConfirmFocused(false)}                
+                onBlur={() => setPasswordConfirmFocused(false)}
               />
               {passwordConfirmFocused && userInfo.password !== userInfo.passwordConfirm && (
                 <span style={{ color: "red" }}>비밀번호가 일치하지 않습니다.</span>
               )}
             </div>
-
-            {/* 닉네임 */}
             <div className="infoTextFrame">
               <span className="userinfoText">닉네임</span>
             </div>
             <div className='userInputFrame'>
               <input type="text"
-                className='UserInput'
+                className='UserInput auth-userInput-input'
                 placeholder='닉네임'
                 name='nickname'
                 minLength={2}
@@ -431,24 +395,19 @@ const SignupPage = () => {
               <button type="button" className='CheckOfId' onClick={handleCheckNickName}>중복확인</button>
               <span style={{ color: nickNameMsg.color }}>{nickNameMsg.text}</span>
             </div>
-
-            {/* 이름 */}
             <div className="infoTextFrame">
               <span className="userinfoText">이름</span>
             </div>
             <div className="userInputFrame">
               {socialUser ? (
-                <>
-                  <input className="UserInput"
-                    type="text"
-                    placeholder="이름을 입력해주세요"
-                    value={socialUser.username}
-                    onChange={inputChangeEvent}
-                    disabled
-                  />
-                </>
+                <input className="UserInput auth-userInput-input"
+                  type="text"
+                  placeholder="이름을 입력해주세요"
+                  value={socialUser.username}
+                  disabled
+                />
               ) : (
-                <input className="UserInput"
+                <input className="UserInput auth-userInput-input"
                   type="text"
                   placeholder="이름을 입력해주세요"
                   name="name"
@@ -456,32 +415,26 @@ const SignupPage = () => {
                   onChange={inputChangeEvent}
                 />
               )}
-
             </div>
-
             <div className="infoTextFrame">
               <span className="userinfoText">전화번호</span>
             </div>
             {socialUser ? (
-              <>
-                <div className="numberSelectFrame">
-
-                  <input className="numberBox"
-                    value={socialUser.mobile.split("-")[0]}
-                    disabled
-                  >
-                  </input>
-                  <input className="UserInput"
-                    type="number"
-                    placeholder="휴대폰 번호를 입력해주세요"
-                    name="phone"
-                    maxLength='8'
-                    minLength='8'
-                    disabled
-                    value={socialUser.mobile.split("-")[1] + socialUser.mobile.split("-")[2]}
-                    onChange={inputChangeEvent} />
-                </div>
-              </>
+              <div className="numberSelectFrame">
+                <input className="numberBox"
+                  value={socialUser.mobile.split("-")[0]}
+                  disabled
+                />
+                <input className="UserInput"
+                  type="number"
+                  placeholder="휴대폰 번호를 입력해주세요"
+                  name="phone"
+                  maxLength='8'
+                  minLength='8'
+                  disabled
+                  value={socialUser.mobile.split("-")[1] + socialUser.mobile.split("-")[2]}
+                />
+              </div>
             ) : (
               <>
                 <div className="numberSelectFrame">
@@ -498,7 +451,8 @@ const SignupPage = () => {
                     minLength='8'
                     disabled={isSent}
                     value={userInfo.phone}
-                    onChange={inputChangeEvent} />
+                    onChange={inputChangeEvent}
+                  />
                   <button type='button' className='CheckOfId' onClick={SendSmsEvent}>휴대폰 인증</button>
                 </div>
                 <br />
@@ -517,12 +471,11 @@ const SignupPage = () => {
                 </div>
               </>
             )}
-
-
             <div className="infoTextFrame"><span className="userinfoText">주소</span></div>
             <div className='userInputFrame'>
-              <label>우편번호&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+              <label>우편번호</label>
               <input type="text"
+                style={{ marginLeft: '28px' }}
                 className='UserInput'
                 value={userInfo.addressZipCode}
                 readOnly
@@ -530,34 +483,35 @@ const SignupPage = () => {
               <button type="button" onClick={handleOpenPostcodeModal}>우편번호 검색</button>
             </div>
             <div className='userInputFrame'>
-              <label>도로명 주소&nbsp;&nbsp;</label>
+              <label>도로명 주소</label>
               <input type="text"
+                style={{ marginLeft: '10px' }}
                 className='UserInput'
                 value={userInfo.addressRoad}
                 readOnly
                 placeholder="도로명 주소" />
             </div>
-            <div className='userInputFrame'>
-              <label>상세 주소&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+            <div className='userInputFrame' >
+              <label>상세 주소</label>
               <input className='UserInput'
+                style={{ marginLeft: '25px' }}
                 type="text"
                 value={detailAddress}
-                onChange={(e) => setDetailAddress(e.target.value)}
+                onChange={e => setDetailAddress(e.target.value)}
                 placeholder="상세주소"
                 minLength={2}
                 maxLength={50} />
             </div>
-
             <Postcode isOpen={isPostcodeModalOpen} onClose={handleClosePostcodeModal} onaddressSelect={handleAddressSelect} />
             <div className="button-container">
               <Button1 type='submit' variant="outlined" color='success'>회원가입</Button1>
-              <Button1 variant="outlined" type='button' onClick={closeSignUpModal}>로그인</Button1>
+              <Button1 variant="outlined" type='button' onClick={closeSignUpModal}>로그인으로 돌아가기</Button1>
             </div>
           </form>
         </Typography>
       </Box>
-    </Modal >
+    </Modal>
   );
-}
+};
 
 export default SignupPage;

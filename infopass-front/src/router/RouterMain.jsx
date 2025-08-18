@@ -4,6 +4,7 @@ import AdminRoutes from './AdminRoutes'
 import UserRoutes from './UserRoutes'
 import OxQuizRoutes from './OxQuizRoutes'
 import BlockRoutes from './BlockRoutes'
+import CardRoutes from './CardRoutes'
 import Home from '../pages/Home'
 import MyPageRoutes from './MyPageRoutes'
 import Ranking from "./Ranking";
@@ -25,6 +26,7 @@ const RouterMain = () => {
                 {UserRoutes}
                 {OxQuizRoutes}
                 {BlockRoutes}
+                {CardRoutes}
                 {blankgame}
                 {/* Flip Game placeholder route */}
                 <Route path='/flip' element={<div style={{padding:'40px', textAlign:'center'}}><h2>카드 뒤집기 게임</h2><p>준비 중입니다. 곧 찾아뵐게요!</p></div>} />
