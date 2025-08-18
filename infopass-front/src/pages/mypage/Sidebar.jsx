@@ -21,7 +21,7 @@ const Sidebar = ({ selectedMenu, setSelectedMenu }) => {
         p: 3,
         bgcolor: '#fff',
         borderRadius: '0 20px 20px 0',
-        height: '80vh',
+        height: 'calc(80vh - 60px)',
         boxSizing: 'border-box',
         width: 'auto',
         minWidth: 260,

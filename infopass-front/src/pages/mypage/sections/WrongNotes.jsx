@@ -57,7 +57,7 @@ const WrongNotes = () => {
   // 각 회차 답 포맷팅: null -> ?
   const formatAnswers = (answers) => {
     return answers
-      .map((a) => (a == null || a === '' ? '?' : convertOX(a)))
+      .map((a) => (a == null || a === '' ? '미제출' : convertOX(a)))
 // == null 은 null 과 undefined 둘 다 잡음
 
       .join(', ');

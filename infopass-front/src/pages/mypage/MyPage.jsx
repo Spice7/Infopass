@@ -25,8 +25,18 @@ const MyPage = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', bgcolor: '#f9faff', height: '80vh' }}>
+    <Box
+      sx={{
+        display: 'flex',
+        bgcolor: '#f9faff',
+        height: 'calc(80vh - 60px)', // 헤더 높이만큼 줄이기
+        mt: '60px',                   // 헤더 아래로 내리기
+      }}
+    >
+      {/* 사이드바 */}
       <Sidebar selectedMenu={selectedMenu} setSelectedMenu={setSelectedMenu} />
+
+      {/* 메인 콘텐츠 */}
       <Box
         component="main"
         sx={{
@@ -38,15 +48,15 @@ const MyPage = () => {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          height: '100%',      // 부모 박스 꽉 채우기
-          overflow: 'hidden',  // 스크롤 없음
+          height: '100%',
+          overflow: 'hidden',
         }}
       >
         <Box
           sx={{
             width: '100%',
             maxWidth: 900,
-            height: '100%',      // 내부 꽉 채우기
+            height: '100%',
             display: 'flex',
             flexDirection: 'column',
           }}
