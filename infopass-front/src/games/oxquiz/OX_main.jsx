@@ -1,49 +1,15 @@
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import './OX_Quiz.css'
+
+// ========================================
+// 🧩 파일 개요 (메인 화면)
+// - OX 게임 진입 메인: 로딩 → 연출(우주선/레이저/폭발) → 싱글/멀티 버튼
+// - 비주얼 중심, 페이지 전환은 window.location 사용
+// ========================================
 
 const styles = {
-  container: {
-    width: '60vw',
-    height: '75vh',
-    minWidth: '600px',
-    minHeight: '400px',
-    //backgroundColor: '#5ca5e9',
-    background: 'url(/ox_image/002.png) center/cover no-repeat',
-    borderRadius: '32px',
-    boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
-    margin: 'auto',
-    marginTop: '150px',
-    position: 'absolute',
-    left: '0', right: '0', top: '0', bottom: '0',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '32px 0 0 0',
-    zIndex: 10,
-    overflow: 'hidden',
-  },
-  loading: {
-    width: '60vw',
-    height: '75vh',
-    minWidth: '600px',
-    minHeight: '400px',
-    backgroundColor: '#5ca5e9',
-    borderRadius: '32px',
-    boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
-    margin: 'auto',
-    marginTop: '150px',
-    position: 'absolute',
-    left: '0', right: '0', top: '0', bottom: '0',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '2.2rem',
-    color: '#fff',
-    fontWeight: 'bold',
-    letterSpacing: '2px',
-    zIndex: 20,
-  },
+  // 컨테이너/로딩은 .ox-stage / .ox-stage-loading 클래스로 대체
   // ...이하 기존 styles...
   beige: {
     width: '150px',
@@ -105,8 +71,8 @@ const styles = {
     width: '290px',
     transform: 'rotate(12deg)',
     position: 'absolute',
-    left: '67.8%',
-    top: '51%',
+    left: '68.5%',
+    top: '51.8%',
     zIndex: 0,
     opacity: 0,
     transition: 'opacity 0.3s',
@@ -138,15 +104,10 @@ const styles = {
   }
 }
 
-// keyframes를 전역 스타일로 추가
-const styleSheet = `
-@keyframes blink {
-  0% { opacity: 1; }
-  100% { opacity: 0.2; }
-}
-`
+// 전역 CSS(OX_Quiz.css)에서 keyframes 정의 사용
 
 const OX_main = () => {
+  const navigate = useNavigate();
   const [showShips, setShowShips] = useState(false)
   const [showLaser, setShowLaser] = useState(false)
   const [showBoom, setShowBoom] = useState(false)
@@ -163,11 +124,6 @@ const OX_main = () => {
   })
 
   useEffect(() => {
-    // 스타일시트 삽입(최초 1회)
-    const styleTag = document.createElement('style')
-    styleTag.innerHTML = styleSheet
-    document.head.appendChild(styleTag)
-
     // 걷기 애니메이션 타이머
     let walkTimer
     if (loading) {
@@ -198,7 +154,6 @@ const OX_main = () => {
     }
 
     return () => {
-      document.head.removeChild(styleTag)
       clearInterval(walkTimer)
       clearTimeout(timer)
       clearTimeout(shipTimer)
@@ -212,12 +167,12 @@ const OX_main = () => {
     ...styles[name],
     ...(showShips ? shipPos[name] : shipPos[name])
   })
-  const entermultigame=()=>{
-      window.location.href='OX_Lobby';
-  }
-  const enterSingleGame=()=>{
-    window.location.href='OX_SingleGame';
-  }
+  const entermultigame = () => {
+    navigate('/oxquiz/OX_Lobby');
+  };
+  const enterSingleGame = () => {
+    navigate('/oxquiz/OX_SingleGame');
+  };
 
   if (loading) {
     const walkImgs = [
@@ -227,15 +182,21 @@ const OX_main = () => {
       "/ox_image/walk4.png"
     ]
     return (
-      <div style={styles.loading}>
-        <img src={walkImgs[walkFrame]} alt="" style={{width:'100px'}}/>
-        로딩중...
+      <div className="ox-stage-loading">
+        <div className="ox-loading-scroll">
+          <img src="/ox_image/002.png" alt="bg" />
+          <img src="/ox_image/002.png" alt="bg" />
+        </div>
+        <div className="ox-loading-inner">
+          <img src={walkImgs[walkFrame]} alt="" style={{width:'110px'}}/>
+          <div style={{ marginTop: 18 }}>로딩중...</div>
+        </div>
       </div>
     )
   }
 
   return (
-    <div style={styles.container}>
+  <div className={`ox-stage${showBoom ? ' quake' : ''}`}>
       {/* 우주선들 */}
       <img src="/ox_image/char1.png" alt="" style={getShipStyle('beige')} />
       <img src="/ox_image/char2.png" alt="" style={getShipStyle('blue')} />
@@ -245,7 +206,7 @@ const OX_main = () => {
 
       {/* 레이저/버스트 */}
       <img src="/ox_image/laserGreen1.png" style={{ ...styles.greenlaser, opacity: showLaser ? 1 : 0, height: showLaser ? '350px' : '0px' }} />
-      <img src="/ox_image/laserGreen_burst.png" style={{ ...styles.greenboom, opacity: showBoom ? 1 : 0 }} />
+  <img src="/ox_image/laserGreen_burst.png" className={showBoom ? 'ox-main-boom' : ''} style={{ ...styles.greenboom, opacity: showBoom ? 1 : 0 }} />
 
       {/* 로고/버튼 */}
       <img src="/ox_image/oxgame_logo.png" alt="OX Quiz Logo" style={styles.oxlogo} />

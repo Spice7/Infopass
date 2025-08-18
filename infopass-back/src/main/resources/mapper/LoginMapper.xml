@@ -4,9 +4,8 @@
     <!-- UserDto 매핑-->
 
     <resultMap type="user" id="userMap">
-        <id property="id" column="id" jdbcType="INTEGER" />
+        <id property="id" column="id" jdbcType="INTEGER" />        
         
-        <result property="id" column="id" jdbcType="INTEGER" />
         <result property="password" column="password" jdbcType="VARCHAR" />
         <result property="name" column="name" jdbcType="VARCHAR" />
         <result property="nickname" column="nickname" jdbcType="VARCHAR" />
@@ -21,11 +20,14 @@
         <result property="created_at" column="created_at" jdbcType="TIMESTAMP" />
         
     </resultMap>
-	<insert id="insertUser" parameterType="user">
+	<insert id="insertUser" parameterType="user" useGeneratedKeys="true" keyProperty="id">
 		insert into user(password, name, nickname, email, phone, address, usertype, enabled, rank_updated_at, created_at) values(#{password}, #{name}, #{nickname}, #{email}, #{phone}, #{address}, #{usertype}, 1, now(), now())
 	</insert>
 	<!-- 회원조회 -->
 	<select id="getUserData" parameterType="Integer" resultType="user">
+		select * from user where id=#{id}
+	</select>
+	<select id="findByEmail" parameterType="Integer" resultType="user">
 		select * from user where id=#{id}
 	</select>
 	<!-- 회원조회-아이디 -->
@@ -55,6 +57,16 @@
 	<select id="findByNickName" parameterType="user" resultType="boolean">
 		select count(*) from user where nickname=#{nickname}
 	</select>
-	
-	
-</mapper>
+	<select id="findByPhone" parameterType="String" resultType="user">
+		select * from user where phone=#{phone}
+	</select>
+	<select id="getResearchEmail" parameterType="user" resultType="string">
+		select email from user where name=#{name} and phone=#{phone}
+	</select>
+	<select id="findPwCheck" parameterType="user" resultType="boolean">
+		select count(*) from user where email=#{email} and phone=#{phone}
+	</select>
+	<update id="changePw" parameterType="user">
+		update user set password=#{password} where email=#{email} and phone=#{phone}
+	</update>
+	</mapper>

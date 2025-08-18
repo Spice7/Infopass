@@ -5,15 +5,18 @@
 		insert into multiplayer_lobby (host_user_id,title, game_type, status, max_players, created_at) values (#{host_user_id},#{title},'oxquiz','WAITING',#{max_players}, NOW())
 	</insert>
 	<select id="GetAllLobbys" resultType="boot.infopass.controller.OXWebController$Room">
-		SELECT l.*, u.nickname AS hostNick FROM multiplayer_lobby l LEFT JOIN user u ON l.host_user_id = u.id ORDER BY l.id;
+		SELECT l.*, u.nickname AS hostNick FROM multiplayer_lobby l LEFT JOIN user u ON l.host_user_id = u.id where status = 'waiting' ORDER BY l.id ;
 	</select>
 	<delete id="DeleteOXLobby" parameterType="Integer">
 	 	delete from  multiplayer_lobby where id = #{id}
 	</delete>
 	<update id="UpdateHost" parameterType="boot.infopass.controller.OXWebController$Room">
-		update multiplayer_lobby set host_user_id = #{hostId} where id = #{id}
+		update multiplayer_lobby set host_user_id = #{host_user_id} where id = #{id}
 	</update>
 	<update id="UpdateStatus" parameterType="boot.infopass.controller.OXWebController$Room">
-		update multiplayer_lobby set status = #{status} where id = #{id}
+		update multiplayer_lobby set status = #{status} where id = #{id} and host_user_id = #{host_user_id}
+	</update>
+	<update id="endedStatus" parameterType="lobby">
+		update multiplayer_lobby set status = #{status}, ended_at = now() where id = #{id} and host_user_id = #{host_user_id}
 	</update>
 </mapper>

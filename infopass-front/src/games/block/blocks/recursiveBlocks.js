@@ -97,7 +97,19 @@ const RECURSE_BLOCKS = [
         "colour": "#e66767",
         "tooltip": "정수 오버로드 calc(int) 호출: value-2 (혼동 유도)",
         "helpUrl": ""
-    }
+    },
+
+    // calc 메소드 블록
+    {
+        "type": "calc_string_block",
+        "message0": "calc(String str) %1",
+        "args0": [{ "type": "input_statement", "name": "BODY" }],
+        "previousStatement": null,
+        "nextStatement": null,
+        "colour": "#718093",
+        "tooltip": "calc(String str) 함수 본문",
+        "helpUrl": ""
+    },
 ];
 
 const generateBlocks = () => {
@@ -137,6 +149,11 @@ const generateBlocks = () => {
 
     JavaGenerator.forBlock['call_calc_minus_2'] = function () {
         return ['calc(value - 2)', JavaGenerator.ORDER_ATOMIC];
+    };
+
+    JavaGenerator.forBlock['calc_string_block'] = function (block) {
+        const body = JavaGenerator.statementToCode(block, 'BODY');
+        return `int calc(String str){\n${body}}\n`;
     };
 }
 

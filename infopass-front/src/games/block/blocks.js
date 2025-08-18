@@ -4,10 +4,11 @@ import JavaGenerator from "./javaGenerator.js";
 
 
 // 위에 정의한 커스텀 블록들을 Blockly에 등록
-
 export const registerAllBlocks = () => {
+  // 블록 정의를 Blockly에 등록
   Blockly.defineBlocksWithJsonArray(BLOCK_DEFINITIONS);
-
+  
+  // Java 코드 생성기를 위한 블록별 코드 생성 함수 등록
   blockRegister();
 }
 

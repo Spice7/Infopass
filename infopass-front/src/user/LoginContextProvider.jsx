@@ -20,7 +20,26 @@ const LoginContextProvider = ({ children }) => {
   // 권한 정보
   const [roles, setRoles] = useState({ isUser: false, isAdmin: false });
 
-  const [isLoading, setIsLoading] = useState(true); // 👈 (1) isLoading 상태 추가
+  // 회원가입 모달 상태
+  const [isSignUpModalOpen, setSignUpModalOpen] = useState(false);
+
+  // 소셜 유저 정보
+  const [existingUser, setExistingUser] = useState(null); 
+
+
+  // 소셜 유저 받아서 회원가입 모달 열 때 호출하는 함수
+  const openSignUpModalWithUser = (user) => {    
+    setExistingUser(user);
+    setSignUpModalOpen(true);
+  };
+
+   const openSignUpModal = () => setSignUpModalOpen(true);
+
+  const closeSignUpModal = () => {    
+    setExistingUser(null); //모달 닫으면 소셜 유저 정보 초기화
+    setSignUpModalOpen(false);
+  };
+
 
   /* -------------------------------------------------------- */
 
@@ -131,6 +150,9 @@ const LoginContextProvider = ({ children }) => {
   // 로그아웃 세팅
   const logoutSetting = () => {
     Cookies.remove("accessToken");
+    Cookies.remove("user");
+    Cookies.remove("naver_oauth_state");
+    Cookies.remove("kakao_oauth_state");
     setLogin(false);
     setUserInfo(null);
     setRoles({ isUser: false, isAdmin: false });
@@ -166,7 +188,20 @@ const LoginContextProvider = ({ children }) => {
 
   return (
     <LoginContext.Provider
-      value={{ isLogin, userInfo, roles, isLoading, login, loginCheck, logout }}
+      value={{
+        isLogin,
+        userInfo,
+        roles,
+        login,
+        logout,
+        loginCheck,
+        isSignUpModalOpen,
+        openSignUpModal,
+        closeSignUpModal,
+        existingUser,
+        setExistingUser,
+        openSignUpModalWithUser,
+      }}
     >
       {children}
     </LoginContext.Provider>

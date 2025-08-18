@@ -1,23 +1,54 @@
-/* 모달 스타일 */
+/* ===== CSS 변수 정의 ===== */
+:root {
+  /* 색상 */
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --white: #ffffff;
+  --white-transparent-1: rgba(255, 255, 255, 0.1);
+  --white-transparent-2: rgba(255, 255, 255, 0.2);
+  --white-transparent-3: rgba(255, 255, 255, 0.3);
+  --white-transparent-5: rgba(255, 255, 255, 0.5);
+  --white-transparent-7: rgba(255, 255, 255, 0.7);
+  --white-transparent-8: rgba(255, 255, 255, 0.8);
+  --white-transparent-9: rgba(255, 255, 255, 0.9);
+  
+  /* 크기 */
+  --input-height: 48px;
+  --input-padding: 12px 16px;
+  --border-radius: 12px;
+  --border-width: 2px;
+  
+  /* 그림자 */
+  --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.2);
+  --shadow-heavy: 0 20px 40px rgba(0, 0, 0, 0.3);
+  
+  /* 애니메이션 */
+  --transition: all 0.3s ease;
+}
+
+/* ===== 모달 스타일 ===== */
 div.SignupPage-modal-container {
-  position: absolute;
+  position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 600px;
-  max-width: 90vw;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  width: 90vw;
+  height: 90vh;
+  max-width: 750px;
+  max-height: 800px;
+  background: var(--primary-gradient);
   border-radius: 20px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-heavy);
   padding: 40px;
-  color: white;
+  color: var(--white);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--white-transparent-2);
+  overflow-y: auto;
 }
 
-/* 기본 정보 텍스트 프레임 */
+/* ===== 기본 정보 텍스트 프레임 ===== */
 .infoTextFrame {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   text-align: left;
 }
 
@@ -25,11 +56,11 @@ div.SignupPage-modal-container {
   font-size: 24px;
   font-weight: 700;
   margin: 0;
-  background: linear-gradient(45deg, #fff, #f0f0f0);
+  background: linear-gradient(45deg, var(--white), #f0f0f0);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-shadow: var(--shadow-light);
 }
 
 .infoOptionalText {
@@ -39,93 +70,141 @@ div.SignupPage-modal-container {
   font-weight: 300;
 }
 
-/* 사용자 입력 프레임 */
+/* ===== 사용자 입력 프레임 ===== */
 .userInputFrame {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 20px;
   flex-wrap: wrap;
+  position: relative;
 }
 
-/* 폼 컨트롤 스타일 */
+/* ===== 입력 필드 기본 스타일 ===== */
 .UserInput {
-  padding: 12px 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  padding: var(--input-padding);
+  border: var(--border-width) solid var(--white-transparent-3);
+  border-radius: var(--border-radius);
+  background: var(--white-transparent-1);
+  color: var(--white);
   font-size: 14px;
-  transition: all 0.3s ease;
+  transition: var(--transition);
   backdrop-filter: blur(5px);
-  width: 170px;
+  height: var(--input-height);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
+/* ===== 입력 필드 크기 변형 ===== */
+.UserInput--small {
+  width: 160px;
+}
+
+.UserInput--medium {
+  width: 180px;
+}
+
+.UserInput--large {
+  width: 230px;
+}
+
+/* ===== 입력 필드 상태 스타일 ===== */
 .UserInput::placeholder {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--white-transparent-7);
 }
 
 .UserInput:focus {
   outline: none;
-  border-color: #fff;
-  background: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  border-color: var(--white);
+  background: var(--white-transparent-2);
+  box-shadow: 0 0 20px var(--white-transparent-3);
   transform: translateY(-2px);
 }
 
 .UserInput:hover {
-  border-color: rgba(255, 255, 255, 0.5);
-  background: rgba(255, 255, 255, 0.15);
+  border-color: var(--white-transparent-5);
+  background: var(--white-transparent-1);
 }
 
-/* 아이디 입력 필드 */
-.UserInput[placeholder="아이디"] {
-  width: 160px;
+/* ===== 이메일 입력 특별 스타일 ===== */
+.email-input-frame {
+  gap: 8px;
+  align-items: center;
 }
 
-/* 비밀번호 입력 필드 */
-.UserInput[placeholder="비밀번호"],
-.UserInput[placeholder="비밀번호 확인"] {
-  width: 200px;
+.email-separator {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  color: var(--white);
 }
 
-/* 닉네임 입력 필드 */
-.UserInput[placeholder="닉네임"] {
-  width: 200px;
+/* ===== select 태그 스타일 ===== */
+select.UserInput {
+  cursor: pointer;
 }
 
-/* 이메일 도메인 선택 */
-.UserInput[style*="width:150px"] {
-  width: 150px;
-  color: white;
-}
-
-.UserInput[style*="width:150px"] option {
+select.UserInput option {
   background: #667eea;
-  color: white;
+  color: var(--white);
+  padding: 8px;
 }
 
-/* 아이디 확인 버튼 */
+/* ===== 특정 입력 필드 스타일 ===== */
+.UserInput[name="emailInput"] {
+  margin-top: 0;
+  margin-left: 0;
+}
+
+.UserInput[placeholder="비밀번호 확인"] {
+  margin: 0;
+}
+
+/* ===== 아이디 중복체크 메시지 ===== */
+.id-check-message {
+  display: inline-block;
+  margin-left: 10px;
+  min-height: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  vertical-align: middle;
+  flex-shrink: 0;
+  min-width: 150px;
+}
+
+/* ===== 아이디 확인 버튼 ===== */
 .CheckOfId {
-  padding: 12px 20px;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  border-radius: 12px;
+  padding: 0 16px;
+  border: var(--border-width) solid var(--white-transparent-5);
+  border-radius: var(--border-radius);
   background: transparent;
-  color: white;
+  color: var(--white);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition);
   backdrop-filter: blur(5px);
+  width: 180px;
+  height: var(--input-height);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .CheckOfId:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: white;
+  background: var(--white-transparent-2);
+  border-color: var(--white);
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.3);
+  box-shadow: 0 5px 15px var(--white-transparent-3);
 }
 
-/* 전화번호 프레임 */
+/* ===== 전화번호 관련 스타일 ===== */
 .numberFrame {
   margin: 30px 0;
 }
@@ -136,32 +215,65 @@ div.SignupPage-modal-container {
   align-items: center;
 }
 
-/* 전화번호 선택 박스 */
 .numberBox {
-  padding: 12px 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  padding: var(--input-padding);
+  border: var(--border-width) solid var(--white-transparent-3);
+  border-radius: var(--border-radius);
+  background: var(--white-transparent-1);
+  color: var(--white);
   font-size: 14px;
-  transition: all 0.3s ease;
+  transition: var(--transition);
   backdrop-filter: blur(5px);
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  height: var(--input-height);
+  box-sizing: border-box;
 }
 
 .numberBox:focus {
   outline: none;
-  border-color: #fff;
-  background: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  border-color: var(--white);
+  background: var(--white-transparent-2);
+  box-shadow: 0 0 20px var(--white-transparent-3);
 }
 
 .numberBox option {
   background: #667eea;
-  color: white;
+  color: var(--white);
 }
 
-/* 버튼 컨테이너 */
+/* ===== 인증 관련 스타일 ===== */
+.auth-message {
+  display: inline-block;
+  margin-left: 10px;
+  min-height: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  vertical-align: middle;
+}
+
+.auth-input-frame {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+.auth-code-input {
+  width: 300px;
+  height: var(--input-height);
+  box-sizing: border-box;
+}
+.auth-userInput-input {
+  width: 300px;
+  height: var(--input-height);
+  box-sizing: border-box;
+}
+
+/* ===== 버튼 컨테이너 ===== */
 .button-container {
   display: flex;
   gap: 15px;
@@ -169,23 +281,29 @@ div.SignupPage-modal-container {
   margin-top: 30px;
 }
 
-/* Material-UI 버튼 스타일 오버라이드 */
+/* ===== Material-UI 버튼 스타일 오버라이드 ===== */
 .MuiButton-outlined {
-  border: 2px solid rgba(255, 255, 255, 0.5) !important;
-  color: white !important;
-  border-radius: 12px !important;
-  padding: 12px 24px !important;
+  border: var(--border-width) solid var(--white-transparent-5) !important;
+  color: var(--white) !important;
+  border-radius: var(--border-radius) !important;
+  padding: 0 16px !important;
   font-weight: 600 !important;
-  transition: all 0.3s ease !important;
+  transition: var(--transition) !important;
   backdrop-filter: blur(5px) !important;
   background: transparent !important;
+  width: 180px !important;
+  height: var(--input-height) !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .MuiButton-outlined:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
-  border-color: white !important;
+  background: var(--white-transparent-2) !important;
+  border-color: var(--white) !important;
   transform: translateY(-2px) !important;
-  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 5px 15px var(--white-transparent-3) !important;
 }
 
 .MuiButton-outlined.MuiButton-colorSuccess {
@@ -196,49 +314,264 @@ div.SignupPage-modal-container {
 .MuiButton-outlined.MuiButton-colorSuccess:hover {
   background: rgba(76, 175, 80, 0.2) !important;
   border-color: #4caf50 !important;
-  color: white !important;
+  color: var(--white) !important;
 }
 
-/* 반응형 디자인 */
-@media (max-width: 768px) {
-  .SignupPage-modal-container {
-    width: 95vw;
-    padding: 30px 20px;
-  }
-  
-  .userInputFrame {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .UserInput,
-  .numberInput {
-    width: 100% !important;
-  }
-  
-  .numberSelectFrame {
-    flex-direction: column;
-  }
-  
-  .button-container {
-    flex-direction: column;
-  }
+/* ===== 아이디/비밀번호 찾기 모달 ===== */
+div.find-id-modal-container,
+div.find-pw-modal-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90vw;
+  height: 90vh;
+  max-width: 600px;
+  max-height: 600px;
+  background: var(--primary-gradient);
+  border-radius: 20px;
+  box-shadow: var(--shadow-heavy);
+  padding: 40px;
+  color: var(--white);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--white-transparent-2);
+  overflow-y: auto;
 }
 
-/* 애니메이션 효과 */
-@keyframes signup-fadeInUp {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -40%);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%);
-  }
+.find-modal-result {
+  margin: 20px 0;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 500;
 }
 
-.SignupPage-modal-container {
-  animation: signup-fadeInUp 0.5s ease-out;
+.find-modal-result.success {
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.find-modal-result.error {
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.result-message-container {
+  min-height: 40px;
+  margin: 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* ===== LoginForm 스타일 ===== */
+.login-form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; 
+  min-height: 100vh;
+  background: var(--primary-gradient);
+  padding: 20px;
+  color: var(--white);
+  width: 100%;
+}
+
+.login-title {
+  font-size: 48px;
+  font-weight: 700;
+  margin-bottom: 40px;
+  background: linear-gradient(45deg, var(--white), #f0f0f0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: var(--shadow-medium);
+  text-align: center;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 30px;
+}
+
+.login-form > div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.login-form label {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--white-transparent-9);
+  text-transform: capitalize;
+}
+
+.login-form input {
+  padding: 16px 20px;
+  border: var(--border-width) solid var(--white-transparent-3);
+  border-radius: var(--border-radius);
+  background: var(--white-transparent-1);
+  color: var(--white);
+  font-size: 16px;
+  transition: var(--transition);
+  backdrop-filter: blur(5px);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.login-form input::placeholder {
+  color: var(--white-transparent-7);
+}
+
+.login-form input:focus {
+  outline: none;
+  border-color: var(--white);
+  background: var(--white-transparent-2);
+  box-shadow: 0 0 25px var(--white-transparent-3);
+  transform: translateY(-2px);
+}
+
+.login-form input:hover {
+  border-color: var(--white-transparent-5);
+  background: var(--white-transparent-1);
+}
+
+/* ===== 버튼 공통 스타일 ===== */
+.btn {
+  padding: 16px 24px;
+  border: var(--border-width) solid var(--white-transparent-5);
+  border-radius: var(--border-radius);
+  background: transparent;
+  color: var(--white);
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: var(--transition);
+  backdrop-filter: blur(5px);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.btn:hover {
+  background: var(--white-transparent-2);
+  border-color: var(--white);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px var(--white-transparent-3);
+}
+
+/* ===== 버튼 그룹 스타일 ===== */
+.auth-buttons-group,
+.find-buttons-group {
+  display: flex;
+  gap: 15px;
+  width: 100%;
+}
+
+.auth-buttons-group {
+  max-width: 400px;
+}
+
+.find-buttons-group {
+  max-width: 400px;
+  margin-bottom: 30px;
+}
+
+.auth-buttons-group .btn,
+.find-buttons-group .btn {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ===== 개별 버튼 스타일 ===== */
+.btn-login {
+  background: linear-gradient(135deg, #4caf50, #45a049);
+  border-color: #4caf50;
+  color: var(--white);
+  font-weight: 700;
+}
+
+.btn-login:hover {
+  background: linear-gradient(135deg, #45a049, #3d8b40);
+  border-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+}
+
+.btn-signup {
+  background: linear-gradient(135deg, #2196f3, #1976d2);
+  border-color: #2196f3;
+  color: var(--white);
+  font-weight: 700;
+}
+
+.btn-signup:hover {
+  background: linear-gradient(135deg, #1976d2, #1565c0);
+  border-color: #1976d2;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(33, 150, 243, 0.4);
+}
+
+.btn-id {
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  border-color: #ff9800;
+  color: var(--white);
+  font-weight: 700;
+}
+
+.btn-id:hover {
+  background: linear-gradient(135deg, #f57c00, #ef6c00);
+  border-color: #f57c00;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 152, 0, 0.4);
+}
+
+.btn-password {
+  background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+  border-color: #9c27b0;
+  color: var(--white);
+  font-weight: 700;
+}
+
+.btn-password:hover {
+  background: linear-gradient(135deg, #7b1fa2, #6a1b9a);
+  border-color: #7b1fa2;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(156, 39, 176, 0.4);
+}
+
+/* ===== 소셜 로그인 스타일 ===== */
+.social-login-container {
+  margin-top: 20px;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  gap: 15px;
+}
+
+.social-login-container > * {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ===== 유틸리티 스타일 ===== */
+/* input의 number 타입 숫자 증감(업/다운) 제거 */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
 }
 
 /* 스크롤바 스타일 */
@@ -249,17 +582,212 @@ div.SignupPage-modal-container {
 
 .UserInput::-webkit-scrollbar-track,
 .numberBox::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--white-transparent-1);
   border-radius: 3px;
 }
 
 .UserInput::-webkit-scrollbar-thumb,
 .numberBox::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--white-transparent-3);
   border-radius: 3px;
 }
 
 .UserInput::-webkit-scrollbar-thumb:hover,
 .numberBox::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--white-transparent-5);
+}
+
+.SignupPage-modal-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.SignupPage-modal-container::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 10px 0;
+}
+
+.SignupPage-modal-container::-webkit-scrollbar-thumb {
+  background: var(--white-transparent-3);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.SignupPage-modal-container::-webkit-scrollbar-thumb:hover {
+  background: var(--white-transparent-5);
+  background-clip: content-box;
+}
+
+.SignupPage-modal-container {
+  scrollbar-width: thin;
+  scrollbar-color: var(--white-transparent-3) transparent;
+}
+
+/* ===== 애니메이션 효과 ===== */
+@keyframes signup-fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.SignupPage-modal-container {
+  animation: signup-fadeInUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ===== 반응형 디자인 ===== */
+@media (max-width: 768px) {
+  /* 모달 컨테이너 */
+  .SignupPage-modal-container {
+    width: 95vw;
+    height: 95vh;
+    max-width: none;
+    max-height: none;
+    padding: 15px 10px;
+  }
+  
+  /* 입력 프레임 */
+  .userInputFrame {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  /* 이메일 입력 프레임 특별 처리 */
+  .email-input-frame {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+  
+  /* 이메일 입력 필드들 */
+  .email-input-frame .UserInput {
+    width: 100% !important;
+    min-width: 100%;
+  }
+  
+  /* 이메일 구분자 */
+  .email-separator {
+    display: none;
+  }
+  
+  /* 전화번호 선택 프레임 */
+  .numberSelectFrame {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+  
+  /* 전화번호 입력 필드들 */
+  .numberSelectFrame .UserInput,
+  .numberSelectFrame .numberBox {
+    width: 100% !important;
+    min-width: 100%;
+  }
+  
+  /* 입력 필드 */
+  .UserInput,
+  .numberInput {
+    width: 100% !important;
+  }
+  
+  /* 버튼 컨테이너 */
+  .button-container {
+    flex-direction: column;
+  }
+  
+  /* 중복체크 메시지 */
+  .id-check-message {
+    min-width: 100%;
+    text-align: center;
+    margin: 10px 0 0 0;
+  }
+  
+  /* LoginForm */
+  .login-title {
+    font-size: 36px;
+    margin-bottom: 30px;
+  }
+  
+  .login-form {
+    max-width: 100%;
+    gap: 20px;
+  }
+  
+  .btn {
+    padding: 14px 20px;
+    font-size: 14px;
+  }
+  
+  /* 버튼 그룹 */
+  .auth-buttons-group,
+  .find-buttons-group,
+  .social-login-container {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .auth-buttons-group .btn,
+  .find-buttons-group .btn,
+  .social-login-container > * {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  /* 이메일 입력 프레임 */
+  .email-input-frame {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  /* 이메일 입력 필드들 */
+  .email-input-frame .UserInput {
+    width: 100% !important;
+    min-width: 100%;
+  }
+  
+  /* 이메일 구분자 숨김 */
+  .email-separator {
+    display: none;
+  }
+  
+  /* 전화번호 선택 프레임 */
+  .numberSelectFrame {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  /* 전화번호 입력 필드들 */
+  .numberSelectFrame .UserInput,
+  .numberSelectFrame .numberBox {
+    width: 100% !important;
+    min-width: 100%;
+  }
+  
+  /* LoginForm */
+  .login-title {
+    font-size: 28px;
+    margin-bottom: 25px;
+  }
+  
+  .login-form {
+    gap: 18px;
+  }
+  
+  .btn {
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+  
+  /* 버튼 그룹 */
+  .auth-buttons-group,
+  .find-buttons-group,
+  .social-login-container {
+    gap: 10px;
+  }
 }

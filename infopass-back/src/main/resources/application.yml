@@ -40,4 +40,14 @@ mybatis:
     - /mapper/*.xml
 
 jwt:
-  secret-key: 2Jo!]8VlO)ohjFt5]9.h=n>}Knn!icdHTdT-7ra!:c."$oD#rh"#*kO*#y}^}{ZE
+  secret-key: 2Jo!]8VlO)ohjFt5]9.h=n>}Knn!icdHTdT-7ra!:c."$oD#rh"#*kO*#y}^}{ZE}
+
+social:
+  kakao:
+    client-id: e1a223829a67fa4d5555d824be78d1c7
+    client-secret: TDcon0Mz2DzhNceLsXqRAI1j6gvG8JpV
+    redirect-uri: http://localhost:5173/auth/callback/kakao
+  naver:
+    client-id: kY3Gxh_p4svxg1tae7id
+    client-secret: DTJKEYynxi
+    redirect-uri: http://localhost:5173/auth/callback/naver

@@ -1,28 +1,143 @@
 /* ======================================== */
-/* 🎮 OX 퀴즈 게임 - 공통 스타일 */
+/* 🎮 OX 퀴즈 게임 스타일 (통합) */
+/* - 섹션: 공통CSS / 싱글게임용CSS / 멀티게임용CSS */
 /* ======================================== */
 
-.ox-container {
-  width: 60vw;
-  height: 75vh;
-  min-width: 600px;
-  min-height: 400px;
+/* ======================================== */
+/* ✅ 공통 컨테이너 / 로딩 래퍼 클래스  */
+/* - 기존 컴포넌트별 unifiedContainerStyle / unifiedLoadingStyle 인라인 제거 */
+/* - .ox-stage: 일반 게임/메인 컨테이너 (70vw x 70vh) */
+/* - .ox-stage-loading: 로딩 전용 (동일 사이즈 + 그Rad 그라데이션 배경) */
+/* ======================================== */
+
+.ox-stage {
+  width: 70vw;
+  max-width: 1200px;
+  height: 70vh;
+  min-width: 620px;
+  min-height: 693px;
   background: url(/ox_image/002.png) center/cover no-repeat;
-  border-radius: 32px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18), 0 0 20px rgba(92, 165, 233, 0.3);
-  margin: auto;
-  margin-top: 150px;
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
+  border-radius: 40px;
+  box-shadow: 0 18px 46px -10px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.08) inset;
+  margin: 100px auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   padding: 32px 0 0 0;
   z-index: 10;
   overflow: hidden;
-  border: 3px solid rgba(92, 165, 233, 0.5);
-  animation: containerGlow 2s ease-in-out infinite alternate;
 }
+
+.ox-stage-loading {
+  width: 70vw;
+  max-width: 1200px;
+  height: 70vh;
+  min-width: 620px;
+  min-height: 720px;
+  /* background: linear-gradient(135deg, #667eea 50%, #764ba2 100%); */
+  border-radius: 40px;
+  box-shadow: 0 18px 46px -10px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.08) inset;
+  margin: 100px auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  color: #fff;
+  font-weight: bold;
+  letter-spacing: 2px;
+  z-index: 20;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 호환성: 기존 .ox-container - 기존 코드에서 여전히 사용 중인 경우를 위해 동일 속성 복제 */
+.ox-container {
+  width: 70vw;
+  max-width: 1200px;
+  height: 70vh;
+  min-width: 620px;
+  min-height: 420px;
+  background: url(/ox_image/002.png) center/cover no-repeat;
+  border-radius: 40px;
+  box-shadow: 0 18px 46px -10px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.08) inset;
+  margin: 140px auto 80px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 0 0 0;
+  z-index: 10;
+  overflow: hidden;
+}
+
+/* 반응형 (모바일 좁은 화면 대응) */
+@media (max-width: 900px) {
+  .ox-stage, .ox-stage-loading {
+    width: 94vw;
+    height: auto;
+    min-height: 520px;
+    margin: 110px auto 60px;
+    padding-bottom: 32px;
+  }
+  .ox-quiz { font-size: 1.3rem; top: 6%; }
+  .ox-oxwrap img { width: 150px; }
+}
+
+/* ======================================== */
+/* 💥 메인 화면 Boom(폭발) 연출 전용 */
+/* - boom 나타날 때 스케일 + 회전 + 흔들림 복합 */
+/* ======================================== */
+@keyframes oxBoomAppearShake {
+  0% { transform: scale(0.2) rotate(0deg); opacity: 0; }
+  15% { transform: scale(1.25) rotate(6deg); opacity: 1; }
+  30% { transform: scale(0.9) rotate(-5deg); }
+  45% { transform: scale(1.08) rotate(4deg); }
+  60% { transform: scale(0.96) rotate(-3deg); }
+  75% { transform: scale(1.03) rotate(2deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes oxStageQuake {
+  0%,100% { transform: translate3d(0,0,0); }
+  20% { transform: translate3d(-4px,2px,0); }
+  40% { transform: translate3d(5px,-3px,0); }
+  60% { transform: translate3d(-3px,4px,0); }
+  80% { transform: translate3d(4px,-2px,0); }
+}
+
+.ox-main-boom { animation: oxBoomAppearShake 0.75s ease-out forwards; filter: drop-shadow(0 0 22px rgba(255,220,120,0.85)); }
+.ox-stage.quake { animation: oxStageQuake 0.55s ease-in-out; }
+
+/* ======================================== */
+/* ⏳ OX 로딩 - 배경 스크롤 (BlockLoading 패턴 재사용) */
+/* ======================================== */
+@keyframes oxLoadingBgMove {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ox-loading-scroll {
+  position: absolute;
+  top: 0; left: 0;
+  width: 200%;
+  height: 100%;
+  display: flex;
+  animation: oxLoadingBgMove 12s linear infinite;
+  opacity: 0.65;
+  mix-blend-mode: lighten;
+}
+.ox-loading-scroll img {
+  width: 50%;
+  height: 100%;
+  object-fit: cover;
+  flex-shrink: 0;
+  filter: brightness(1.05) saturate(1.08);
+  opacity: 1;
+}
+.ox-loading-inner { position: relative; z-index: 5; display: flex; flex-direction: column; align-items: center; }
 
 @keyframes containerGlow {
   0% {
@@ -378,7 +493,7 @@
 .ox-timerbar {
   height: 100%;
   background: linear-gradient(90deg, #ffe066 0%, #ffd700 50%, #ffb300 100%);
-  transition: width 0.2s linear;
+  transition: width 0.1s linear;
   box-shadow: 0 0 10px rgba(255, 224, 102, 0.5);
   position: relative;
 }
@@ -947,4 +1062,73 @@
   background: #222;
   transform: scale(1.18);
   box-shadow: none;
+}
+
+
+/* 종료화면 */
+
+.ox-gameover-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.ox-gameover-box {
+  background-color: white;
+  padding: 40px 60px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border: 5px solid #333;
+}
+
+.ox-gameover-title {
+  font-size: 5rem;
+  margin-bottom: 20px;
+  font-weight: bold;
+  text-shadow: 3px 3px 0 #ddd;
+}
+
+.ox-gameover-box.win .ox-gameover-title {
+  color: #28a745; /* 승리 - 초록색 */
+}
+.ox-gameover-box.lose .ox-gameover-title {
+  color: #dc3545; /* 패배 - 빨간색 */
+}
+.ox-gameover-box.draw .ox-gameover-title {
+  color: #6c757d; /* 무승부 - 회색 */
+}
+
+.ox-gameover-scores {
+  display: flex;
+  justify-content: space-around;
+  width: 400px;
+  margin-bottom: 30px;
+  font-size: 1.5rem;
+}
+
+.ox-gameover-player h2 {
+  margin-bottom: 10px;
+}
+
+.ox-gameover-btn {
+  padding: 15px 30px;
+  font-size: 1.2rem;
+  border-radius: 10px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.ox-gameover-btn:hover {
+  background-color: #0056b3;
 }

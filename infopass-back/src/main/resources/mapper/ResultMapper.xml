@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="boot.infopass.mapper.GameResultMapper">
+
+    <!-- ResultMap 정의 -->
+    <resultMap id="GameResultResultMap" type="boot.infopass.dto.GameResultDto">
+        <id property="id" column="id"/>
+        <result property="lobbyId" column="lobby_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="score" column="score"/>
+        <result property="userRank" column="user_rank"/>
+        <result property="userRankPoint" column="user_rank_point"/>
+        <result property="gameType" column="game_type"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="resultType" column="result_type"/>
+    </resultMap>
+
+    <!-- 멀티플레이 결과 생성 -->
+    <insert id="CreateMultiplayerResult" parameterType="boot.infopass.dto.GameResultDto">
+        INSERT INTO multiplayer_result 
+            (lobby_id, user_id, score, user_rank, user_rank_point, game_type, created_at)
+        VALUES 
+            (#{lobbyId}, #{userId}, #{score}, #{userRank}, #{userRankPoint}, #{gameType}, NOW())
+    </insert>
+
+    <!-- 싱글플레이 결과 생성 -->
+    <insert id="CreateSingleplayResult" parameterType="boot.infopass.dto.GameResultDto">
+        INSERT INTO singleplay_result 
+            (user_id, score, user_rank, user_rank_point, game_type, created_at)
+        VALUES 
+            (#{userId}, #{score}, #{userRank}, #{userRankPoint}, #{gameType}, NOW())
+    </insert>
+
+    <!-- 모든 멀티 결과 조회 -->
+    <select id="getGameResults" resultMap="GameResultResultMap">
+        SELECT 
+            id,
+            lobby_id,
+            user_id,
+            score,
+            user_rank,
+            user_rank_point,
+            game_type,
+            created_at,
+            'multi' AS result_type
+        FROM multiplayer_result
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 특정 유저 멀티 결과 -->
+    <select id="getMultiplayerResults" parameterType="int" resultMap="GameResultResultMap">
+        SELECT 
+            id,
+            lobby_id,
+            user_id,
+            score,
+            user_rank,
+            user_rank_point,
+            game_type,
+            created_at,
+            'multi' AS result_type
+        FROM multiplayer_result
+        WHERE user_id = #{userId}
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 특정 유저 싱글 결과 -->
+    <select id="getSingleplayResults" parameterType="int" resultMap="GameResultResultMap">
+        SELECT 
+            id,
+            NULL AS lobby_id,
+            user_id,
+            score,
+            user_rank,
+            user_rank_point,
+            game_type,
+            created_at,
+            'single' AS result_type
+        FROM singleplay_result
+        WHERE user_id = #{userId}
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 특정 유저 모든 결과 통합 조회 -->
+    <select id="getAllResults" parameterType="int" resultMap="GameResultResultMap">
+        SELECT 
+            id,
+            lobby_id,
+            user_id,
+            score,
+            user_rank,
+            user_rank_point,
+            game_type,
+            created_at,
+            'multi' AS result_type
+        FROM multiplayer_result
+        WHERE user_id = #{userId}
+
+        UNION ALL
+
+        SELECT 
+            id,
+            NULL AS lobby_id,
+            user_id,
+            score,
+            user_rank,
+            user_rank_point,
+            game_type,
+            created_at,
+            'single' AS result_type
+        FROM singleplay_result
+        WHERE user_id = #{userId}
+
+        ORDER BY created_at DESC
+    </select>
+    
+    
+    
+    
+    
+
+</mapper>

@@ -1,41 +1,21 @@
 
-
-import React, { useContext } from 'react'
-import { Route, Router, Routes, Link } from 'react-router-dom'
+import { Route, Router, Routes, Link} from 'react-router-dom'
 import AdminRoutes from './AdminRoutes'
 import UserRoutes from './UserRoutes'
 import OxQuizRoutes from './OxQuizRoutes'
 import BlockRoutes from './BlockRoutes'
+import CardRoutes from './CardRoutes'
 import Home from '../pages/Home'
 import MyPageRoutes from './MyPageRoutes'
 import Ranking from "./Ranking";
 import { LoginContext } from '../user/LoginContextProvider.jsx'
 import blankgame from './BlankGame.jsx'
-
-
+import Menu from '../pages/menu.jsx'
 
 const RouterMain = () => {
-    const { isLogin, userInfo, logout } = useContext(LoginContext);
-
     return (
-        <div>
-
-            <header>
-                <nav>
-                    {isLogin ? (
-                        <div>
-                            <span>{userInfo?.nickname}님 환영합니다.</span>
-                            <Link to="/" onClick={logout}>로그아웃</Link>
-                        </div>
-                    ) : (
-                        <div>
-                            <Link to="/login">로그인</Link>
-                            <Link to="/signup">회원가입</Link>
-                        </div>
-                    )}
-                </nav>
-            </header>
-            <hr />
+    <div className="app-shell">
+            <Menu/>
             <main>
 
             <Routes>
@@ -46,7 +26,10 @@ const RouterMain = () => {
                 {UserRoutes}
                 {OxQuizRoutes}
                 {BlockRoutes}
+                {CardRoutes}
                 {blankgame}
+                {/* Flip Game placeholder route */}
+                <Route path='/flip' element={<div style={{padding:'40px', textAlign:'center'}}><h2>카드 뒤집기 게임</h2><p>준비 중입니다. 곧 찾아뵐게요!</p></div>} />
 
                 <Route path='*' element={<h1>잘못된 주소입니다</h1>} />
             </Routes>

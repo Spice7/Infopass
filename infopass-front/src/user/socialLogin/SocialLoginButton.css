@@ -1,0 +1,109 @@
+/* 소셜 로그인 버튼 스타일 */
+.social-login-link {
+  text-decoration: none;
+  display: block;
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.social-login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 16px 24px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+.social-login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.social-login-btn:active {
+  transform: translateY(0);
+}
+
+/* 소셜 로그인 아이콘 */
+.social-login-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;  
+}
+
+/* 카카오 로그인 버튼 */
+.kakao-btn {
+  background: linear-gradient(135deg, #FEE500, #FDD800);
+  color: #3C1E1E;
+  box-shadow: 0 4px 15px rgba(254, 229, 0, 0.3);
+}
+
+.kakao-btn:hover {
+  background: linear-gradient(135deg, #FDD800, #FCC800);
+  box-shadow: 0 8px 25px rgba(254, 229, 0, 0.4);
+}
+
+.kakao-btn:active {
+  background: linear-gradient(135deg, #FCC800, #FBB800);
+}
+
+/* 네이버 로그인 버튼 */
+.naver-btn {
+  background: linear-gradient(135deg, #03C75A, #02B351);
+  color: white;
+  box-shadow: 0 4px 15px rgba(3, 199, 90, 0.3);
+}
+
+.naver-btn:hover {
+  background: linear-gradient(135deg, #02B351, #019F47);
+  box-shadow: 0 8px 25px rgba(3, 199, 90, 0.4);
+}
+
+.naver-btn:active {
+  background: linear-gradient(135deg, #019F47, #018F3F);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .social-login-btn {
+    padding: 14px 20px;
+    font-size: 14px;
+  }
+  
+  .social-login-icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .social-login-btn span {
+    font-size: 14px;
+  }
+}
+
+/* 애니메이션 효과 */
+@keyframes social-btn-pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.social-login-btn:hover {
+  animation: social-btn-pulse 0.3s ease-in-out;
+}

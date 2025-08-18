@@ -1,4 +1,3 @@
-// MyPage.jsx
 import React, { useState } from 'react';
 import { Box } from '@mui/material';
 import Sidebar from './Sidebar';
@@ -26,23 +25,44 @@ const MyPage = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', bgcolor: '#f9faff' }}> {/* height: '100vh' 제거 */}
-      <Sidebar selectedMenu={selectedMenu} setSelectedMenu={setSelectedMenu} />
-      <Box component="main"
+    <Box
       sx={{
-        flexGrow: 1,
-        width: 'calc(100vw - 280px)', // Sidebar width와 동일하게 맞춤
-        // height: '100vh', 제거
-        boxSizing: 'border-box',
-        p: 5,
-        overflowY: 'auto', // overflowY: 'auto'는 그대로 유지
-        backgroundColor: '#f5f5f5',
         display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
+        bgcolor: '#f9faff',
+        height: 'calc(80vh - 60px)', // 헤더 높이만큼 줄이기
+        mt: '60px',                   // 헤더 아래로 내리기
       }}
     >
-      <Box sx={{ width: '100%', maxWidth: 900 }}>{renderMainContent()}</Box>
+      {/* 사이드바 */}
+      <Sidebar selectedMenu={selectedMenu} setSelectedMenu={setSelectedMenu} />
+
+      {/* 메인 콘텐츠 */}
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          width: 'calc(100vw - 280px)',
+          boxSizing: 'border-box',
+          p: 2,
+          backgroundColor: '#f5f5f5',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          height: '100%',
+          overflow: 'hidden',
+        }}
+      >
+        <Box
+          sx={{
+            width: '100%',
+            maxWidth: 900,
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          {renderMainContent()}
+        </Box>
       </Box>
     </Box>
   );

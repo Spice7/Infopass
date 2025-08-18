@@ -1,3 +1,4 @@
+
 import api from './api';
 
 // 로그인
@@ -20,3 +21,28 @@ export const checkId = (email) => api.post(`/user/checkId`, { email: email });
 
 // 닉네임 중복 확인
 export const checkNickName = (nickname) => api.post(`/user/checkNickName`, { nickname: nickname });
+
+// 문자메세지 인증 요청
+export const sendSms = (phone) => api.post(`/user/sendSms`, { phone: phone });
+
+// 문자메세지 검증 요청
+export const verifyCode = (smsToken, code, purpose) => api.post('/user/verifyCode', { smsToken, code, purpose});
+
+//소셜 로그인 
+export const socialSignup = (provider, code) => api.post(`/user/social/${provider}`, { provider, code });
+
+// 아이디 찾기
+export const getResearchEmail = (name, phone) => api.post(`/user/getResearchEmail`, { name, phone });
+
+// 비밀번호 찾기
+export const findPw = (email, phone) => api.post(`/user/findPwCheck`, { email, phone });
+
+// 새 비밀번호 변경
+export const changePw = (email, phone, newPw) => api.post(`/user/changePw`, { email, phone, newPw });
+
+//오답 노트 가져오기
+export const getWrongAnswers = () => api.post('/wrong-answers');
+
+// 게임 결과 가져오기
+export const getGameResults = () => api.post('/results');
+

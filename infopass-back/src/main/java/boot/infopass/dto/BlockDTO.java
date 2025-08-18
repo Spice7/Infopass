@@ -12,6 +12,8 @@ public class BlockDTO {
 	private String question_blocks;
 	private String answer;
 	private String toolbox;
+	private String explanation_image;
+	private String explanation_text;
 	private String category;
 	private String created_at;
 }
