@@ -40,5 +40,9 @@ export const findPw = (email, phone) => api.post(`/user/findPwCheck`, { email, p
 // 새 비밀번호 변경
 export const changePw = (email, phone, newPw) => api.post(`/user/changePw`, { email, phone, newPw });
 
+//오답 노트 가져오기
 export const getWrongAnswers = () => api.post('/wrong-answers');
+
+// 게임 결과 가져오기
+export const getGameResults = () => api.post('/results');
 

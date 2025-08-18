@@ -9,11 +9,11 @@
   </insert>
 
   <select id="selectWrongAnswersByUserId" parameterType="int" resultMap="WrongAnswerResultMap">
-  SELECT wal.id, wal.user_id, wal.game_type, wal.question_id, wal.submitted_answer, wal.created_at, wal.explanation ,
+  SELECT wal.id, wal.user_id, wal.game_type, wal.question_id, wal.submitted_answer, wal.created_at,
          oxq.question,
          oxq.answer AS correct_answer,
-         oxq.category
-
+         oxq.category,
+         oxq.quiz_explanition
   FROM wronganswer_log wal
   LEFT JOIN oxquiz_question oxq
     ON wal.question_id = oxq.id AND wal.game_type = 'oxquiz'
