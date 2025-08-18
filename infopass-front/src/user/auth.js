@@ -31,5 +31,9 @@ export const verifyCode = (smsToken, code) => api.post('/user/verifyCode', { sms
 //소셜 로그인 
 export const socialSignup = (provider,code) => api.post(`/user/social/${provider}`, { provider, code });
 
+//오답 노트 가져오기
 export const getWrongAnswers = () => api.post('/wrong-answers');
+
+// 게임 결과 가져오기
+export const getGameResults = () => api.post('/results');
 
