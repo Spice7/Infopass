@@ -4,10 +4,9 @@ import { JavaGenerator } from '../javaGenerator';
 import { registerAllBlocks } from '../blocks';
 import { generateNewSession, getRandomUnsolvedQuestion, submitAnswerToBackend } from '../BlockAPI';
 
-/**
- * 블록 코딩 게임 상태와 로직을 캡슐화한 커스텀 훅
- * BlockMain.jsx의 기존 동작을 변경하지 않고 그대로 유지합니다.
- */
+// 블록 코딩 게임 상태와 로직을 캡슐화한 커스텀 훅
+// 게임 시작, 초기화, 다음 문제 넘어가기 등 주요 기능들이 여기 있다
+
 export function useBlockGame(userInfo) {
   const blocklyDivRef = useRef(null);
   const workspaceRef = useRef(null);
@@ -126,7 +125,7 @@ export function useBlockGame(userInfo) {
     }
   }, [currentQuestion, sessionId, userInfo]);
 
-  // XML 생성 (클립보드 복사)
+  // XML 생성 (클립보드 복사)   // XML 변환은 디버깅용  // 관리자 페이지에서 문제 생성, 편집 기능이 생긴다면 유용하게 쓸 거임
   const generateXml = useCallback(() => {
     if (!workspaceRef.current) return;
     try {
@@ -235,7 +234,7 @@ export function useBlockGame(userInfo) {
   };
 }
 
-// 내부 유틸: XML 정규화
+// XML 정규화  // 문제와 답안이 정확히 일치해야 정답으로 취급   // 굳이 비교할 필요없는 속성들은 제거하고 비교해주는게 좋다
 function normalizeXml(xmlString) {
   const parser = new DOMParser();
   const dom = parser.parseFromString(xmlString, 'text/xml');
