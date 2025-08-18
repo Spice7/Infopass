@@ -12,13 +12,13 @@ import boot.infopass.dto.CardSubDto;
 @Mapper
 public interface CardMapper {   
 
-    public List<CardDto> getAllCards();
+    public List<CardDto> getRandomQuestionsBySubjectExceptSolved(Map<String, Object> data);
 	public CardDto getSingleData(Integer id);
     public void insertCard(CardDto card);
     public void updateCard(CardDto card);
     public void deleteCard(Integer id);
     public void insertCardSub(CardSubDto cardSub);
-    public List<CardSubDto> getCardSubsByUserId(Integer userId);
+    public List<CardSubDto> getCardSubsByUserId(Integer user_id);
     public void saveResult(CardStatusDto cardStatus);
     public void saveGameResult(CardStatusDto gameResult);
 }

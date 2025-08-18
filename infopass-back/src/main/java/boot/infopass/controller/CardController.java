@@ -2,20 +2,17 @@ package boot.infopass.controller;
 
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
 import org.springframework.web.bind.annotation.RestController;
-
 import boot.infopass.dto.CardDto;
 import boot.infopass.dto.CardSubDto;
 import boot.infopass.dto.CardStatusDto;
 import boot.infopass.service.CardGameService;
+import boot.infopass.service.UserService;
 import org.springframework.web.bind.annotation.RequestBody;
-
 
 @RestController
 @RequestMapping("/card")
@@ -24,14 +21,13 @@ public class CardController {
 	@Autowired
 	CardGameService cardGameService;
 	
+	@Autowired
+	UserService userService;
 	@PostMapping("/questions")
-	public ResponseEntity<Map<String, List<CardDto>>> getAllCards(){
-        Map<String, List<CardDto>> result = cardGameService.getAllCards();
-        if (result.containsKey("error")) {
-            return ResponseEntity.badRequest().body(result);
-        }
-        return ResponseEntity.ok(result);
-	}
+    public ResponseEntity<List<CardDto>> getQuestions(@RequestBody Map<String, Object> data) {           
+        
+        return ResponseEntity.ok(cardGameService.getRandomQuestionsBySubjectExceptSolved(data));
+    }
 
     @PostMapping("/submit")
     public ResponseEntity<String> postMethodName(@RequestBody CardSubDto cardSub) {

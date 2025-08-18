@@ -1,6 +1,5 @@
 package boot.infopass.service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,13 +17,10 @@ public class CardGameService {
 	@Autowired
 	CardMapper cardMapper;
 	
-	public Map<String, List<CardDto>> getAllCards(){
-		Map<String, List<CardDto>> result = new HashMap<>();
-		List<CardDto> list = cardMapper.getAllCards();
-		
-		result.put("Cards", list);
-		return result;
+	public List<CardDto> getRandomQuestionsBySubjectExceptSolved(Map<String, Object> data) {
+		return cardMapper.getRandomQuestionsBySubjectExceptSolved(data);
 	}
+	
     public CardDto getSingleData(Integer id) {
     	return cardMapper.getSingleData(id);
     }
@@ -35,4 +31,5 @@ public class CardGameService {
 	public void saveGameResult(CardStatusDto gameResult) {
 		cardMapper.saveGameResult(gameResult);
 	}
+
 }

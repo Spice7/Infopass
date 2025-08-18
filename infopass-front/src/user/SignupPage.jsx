@@ -421,10 +421,12 @@ const SignupPage = () => {
             </div>
             {socialUser ? (
               <div className="numberSelectFrame">
-                <input className="numberBox"
-                  value={socialUser.mobile.split("-")[0]}
-                  disabled
-                />
+                <select className="numberBox"
+                    value={socialUser.mobile.split("-")[0]}
+                    disabled
+                >
+                    {PHONENUMBER_LIST.map((number, index) => (<option key={index} disabled={isSent}>{number}</option>))}
+                  </select>
                 <input className="UserInput"
                   type="number"
                   placeholder="휴대폰 번호를 입력해주세요"

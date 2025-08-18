@@ -125,11 +125,8 @@ public class UserController {
 		
 		   // 2. 소셜 사용자라면 socialUser 테이블에도 저장
 	    if (userDto.getProvider() != null && userDto.getProviderKey() != null) {
-	        SocialUserDto sDto = new SocialUserDto();
-	        sDto.setUser_id(savedUser.getId());
-	        sDto.setProvider(savedUser.getProvider());
-	        sDto.setProvider_key(savedUser.getProviderKey());
-	        socialAuthService.insertSocialUser(sDto);
+	        
+	        socialAuthService.insertSocialUser(userDto);
 	    }
 		
 		MultiplayerDto mDto = new MultiplayerDto();
