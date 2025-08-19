@@ -35,15 +35,17 @@ public class GameRoomService {
         playerMapper.updatePlayerReady(playerDto.getId(), ready);
     }
 
-    public void joinRoom(Long roomId, UserDto userDto) { // ✅ 파라미터 변경
-        // 새로운 GameRoomPlayerDto 객체를 생성하고, UserDto의 정보를 담음
+    public void joinRoom(Long roomId, UserDto userDto) {
+        // 이미 참가한 경우 insert하지 않음
+        if (playerMapper.existsByRoomIdAndUserId(roomId, userDto.getId())) {
+            return;
+        }
         GameRoomPlayerDto newPlayer = new GameRoomPlayerDto();
         newPlayer.setRoomId(roomId);
         newPlayer.setUserId(userDto.getId());
-        newPlayer.setNickname(userDto.getNickname()); // ✅ UserDto에서 닉네임 정보를 가져옴
-        newPlayer.setReady(false); // 초기 준비 상태는 false
-
-        playerMapper.insertPlayer(newPlayer); // ✅ 수정된 DTO로 mapper 호출
+        newPlayer.setNickname(userDto.getNickname());
+        newPlayer.setReady(false);
+        playerMapper.insertPlayer(newPlayer);
     }
 
     public void setReady(Long playerId, Boolean ready) {
