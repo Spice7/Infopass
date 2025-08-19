@@ -63,7 +63,7 @@ const UserStatsSection = ({ user }) => {
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
           <Typography variant="h5" fontWeight={700} sx={{ color: primaryColor, display: 'flex', alignItems: 'center' }}>
             <FlashOn sx={{ mr: 1, color: '#ffc107' }} />
-            경험치 (XP)
+            경험치 (EXP)
           </Typography>
           <Typography
             variant="body1"
@@ -92,7 +92,7 @@ const UserStatsSection = ({ user }) => {
           />
         </Box>
         <Typography variant="body2" color="text.secondary" textAlign="right" sx={{ mt: 1 }}>
-          다음 레벨까지 <b style={{ color: primaryColor }}>{expRemaining} XP</b> 남음 🚀
+          다음 레벨까지 <b style={{ color: primaryColor }}>{expRemaining} EXP</b> 남음 🚀
         </Typography>
       </Card>
 
