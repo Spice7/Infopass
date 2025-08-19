@@ -25,4 +25,6 @@ public interface UserMapper {
 	public String getResearchEmail(UserDto userDto);
 	public boolean findPwCheck(UserDto userDto);
 	public void changePw(UserDto userDto);
+	public void updateUserExpAndLevel(UserDto user);
+	UserDto getUserById(int userId);
 }
