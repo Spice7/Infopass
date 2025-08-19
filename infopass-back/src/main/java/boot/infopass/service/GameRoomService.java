@@ -32,7 +32,7 @@ public class GameRoomService {
     }
 
     public void updatePlayerReady(GameRoomPlayerDto playerDto, boolean ready) {
-        playerMapper.updatePlayerReady(playerDto, ready);
+        playerMapper.updatePlayerReady(playerDto.getId(), ready);
     }
 
     public void joinRoom(Long roomId, UserDto userDto) { // ✅ 파라미터 변경
