@@ -14,59 +14,113 @@ const Home = () => {
       key: 'ox',
       name: 'OX 퀴즈',
       players: '싱글/멀티 지원',
-      desc: 'O 또는 X로 빠르게 판단하는 반응형 퀴즈',
+      mode: '싱글 / 멀티',
+      // 소개
+      highlight: '정보처리기사 5과목 문제가 무작위로 쏟아진다',
+      details: [
+        '5분 제한 안에 O 또는 X를 번개처럼 골라 최대한 많이 생존하라.',
+        '3번 틀리면 게임 오버, 목숨 관리가 관건!',
+        '멀티에서는 같은 문제를 동시에 풀며 누가 더 오래 버티는지 심리전까지.'
+      ],
+      desc: '정보처리기사 5과목 문제가 무작위로 쏟아진다! 5분 제한 안에 O 또는 X를 번개처럼 골라 최대한 많이 생존하라. 3번 틀리면 게임 오버, 목숨 관리가 관건! 멀티에서는 같은 문제를 동시에 풀며 누가 더 오래 버티는지 심리전까지.',
       to: '/oxquiz/OX_main',
-      thumbnail: '/ox_image/oxgame_logo.png'
+      thumbav: '/OxquizAd.gif',
+      thumbnail: '/ox_image/oxgame_logo.png',
+      dev: 'Infopass Team - 박용희',
+      release: '2025.08.15',
+      tech: 'React · SockJS · STOMP · Spring',
     },
     {
       key: 'blank',
       name: '퀴즈(빈칸 채우기)',
-      players: '싱글',
-      desc: '개념을 채워 넣는 학습형 퀴즈',
+      players: '싱글/멀티 지원',
+      mode: '싱글 / 멀티',
+      // 소개
+      highlight: '정보처리기사 5과목 핵심 용어 빈칸이 랜덤 출제',
+      details: [
+        '5분 동안 빠르게 정확한 단어를 입력해 콤보를 이어가라.',
+        '3회 오답 시 종료, 남은 목숨이 곧 집중력 지표.',
+        '멀티에서는 동일 문제 실시간 경쟁 & 체력(목숨) 싸움.'
+      ],
+      desc: '정보처리기사 5과목 핵심 용어 빈칸이 랜덤 출제! 5분 동안 빠르게 정확한 단어를 입력해 콤보를 이어가라. 3회 오답 시 종료, 남은 목숨이 곧 집중력 지표. 멀티에서는 동일 문제 실시간 경쟁 & 체력(목숨) 싸움.',
       to: '/blankgamemain',
-      thumbnail: '/ox_image/guide1.png'
+      thumbav: '/BlankquizAd.gif',
+      thumbnail: '/ox_image/guide1.png',
+      dev: 'Infopass Team - 이창연',
+      release: '2025.08.16',
+      tech: 'React · SockJS · STOMP · Spring',
     },
     {
       key: 'block',
       name: '블록 코딩',
       players: '싱글',
-      desc: '블록을 조립하며 코딩 개념을 익혀요',
+      mode: '싱글',
+      // 소개
+      highlight: '주어진 코드 속 빈칸을 올바른 알고리즘/구문 블록으로 채워 “정상 실행”을 완성하라',
+      details: [
+        '문제를 해석 → 로직 추론 → 블록 선택 순으로 사고력을 단련.',
+        '퍼즐처럼 맞춰지며 동작할 때의 쾌감이 핵심.'
+      ],
+      desc: '주어진 코드 속 빈칸을 올바른 알고리즘/구문 블록으로 채워 “정상 실행”을 완성하라. 문제를 해석 → 로직 추론 → 블록 선택 순으로 사고력을 단련. 퍼즐처럼 맞춰지며 동작할 때의 쾌감이 핵심.',
       to: '/block/main',
-      thumbnail: '/ox_image/002ex.png'
+      thumbav: '/BlockquizAd.gif',
+      thumbnail: '/ox_image/002ex.png',
+      dev: 'Infopass Team - 이건호',
+      release: '2025.08.19',
+      tech: 'React · Blockly · Spring',
     },
     {
       key: 'flip',
       name: '카드 뒤집기',
       players: '싱글',
-      desc: '기억력과 집중력을 테스트해요',
+      mode: '싱글',
+      // 소개
+      highlight: '문제 카드와 정답 카드가 섞여있는 기억 매칭 게임',
+      details: [
+        '한 장씩 뒤집으며 개념-정의 짝을 찾아내라.',
+        '패턴 기억 & 위치 추적이 관건, 후반 갈수록 두뇌 워밍업 효과 UP.'
+      ],
+      desc: '문제 카드와 정답 카드가 섞여있는 기억 매칭 게임. 한 장씩 뒤집으며 개념-정의 짝을 찾아내라. 패턴 기억 & 위치 추적이 관건, 후반 갈수록 두뇌 워밍업 효과 UP.',
       to: '/card/main',
-      thumbnail: '/ox_image/alarm.png'
+      thumbav: '/CardquizAd.gif',
+      thumbnail: '/ox_image/alarm.png',
+      dev: 'Infopass Team - 이정민',
+      release: '2025.08.20',
+      tech: 'React · Spring',
     },
     {
       key: 'algo-battle',
       name: '알고리즘 배틀',
       players: '멀티',
+      mode: '멀티 (개발 중)',
       desc: '실시간 문제 풀이 대전 모드 (개발 중)',
       to: '#',
       thumbnail: '/ox_image/fire.jpg',
-      comingSoon: true
+      comingSoon: true,
+      dev: 'Infopass Team - 김기범',
+      release: '개발 중',
+      tech: 'React · WebSocket · Spring',
     },
     {
       key: 'typing-challenge',
       name: '타자 챌린지',
       players: '싱글',
+      mode: '싱글 (개발 중)',
       desc: '속도와 정확도를 겨루는 타자 게임 (개발 중)',
       to: '#',
       thumbnail: '/ox_image/laserGreen1.png',
-      comingSoon: true
+      comingSoon: true,
+      dev: 'Infopass Team - 김기범',
+      release: '개발 중',
+      tech: 'React',
     },
   ]), []);
 
   // 모달 상태/핸들러
   const [selected, setSelected] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const openModal = useCallback((g)=>{ setSelected(g); setModalOpen(true); },[]);
-  const closeModal = useCallback(()=>{ setModalOpen(false); setTimeout(()=>setSelected(null),180); },[]);
+  const openModal = useCallback((g) => { setSelected(g); setModalOpen(true); }, []);
+  const closeModal = useCallback(() => { setModalOpen(false); setTimeout(() => setSelected(null), 180); }, []);
 
   return (
     <div className="home-container">
@@ -81,20 +135,21 @@ const Home = () => {
         {/* 전체 게임 그리드 */}
         <section className="game-section">
           <h2 className="grid-title">전체 게임</h2>
-          <div className="game-grid">
+          <div className="home-game-grid">
             {games.map(g => (
               <div
                 key={g.key}
                 className={"game-card" + (g.comingSoon ? ' coming-soon' : '')}
-                onClick={()=> openModal(g)}
+                onClick={() => openModal(g)}
                 role="button"
                 tabIndex={0}
-                onKeyDown={(e)=>{ if(e.key==='Enter') openModal(g); }}
+                onKeyDown={(e) => { if (e.key === 'Enter') openModal(g); }}
               >
-                <div className="card-thumb" style={g.thumbnail ? {backgroundImage:`url(${g.thumbnail})`}:undefined} />
+                <div className="card-thumb" style={g.thumbnail ? { backgroundImage: `url(${g.thumbnail})` } : undefined} />
                 <div className="card-info">
                   <h3 className="card-title">{g.name}</h3>
                   <p className="card-players">{g.players}</p>
+                  <p className='card-highlight'>{g.highlight}</p>
                 </div>
                 {g.comingSoon && <span className="badge-coming">준비중</span>}
               </div>
@@ -104,19 +159,32 @@ const Home = () => {
 
         {modalOpen && selected && (
           <div className="modal-overlay" onClick={closeModal}>
-            <div className="home-game-modal" onClick={(e)=>e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="hg-title">
+            <div className="home-game-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="hg-title">
               <button className="modal-close" onClick={closeModal} aria-label="닫기">✕</button>
               <div className="modal-body">
-                <div className="modal-thumb" style={selected.thumbnail ? {backgroundImage:`url(${selected.thumbnail})`}:undefined} />
+                <div className="modal-breadcrumb">게임 <span className="chevron">&gt;&gt;</span> <strong>{selected.name}</strong></div>
+                <div className="home-modal-thumb" style={(selected.thumbav || selected.thumbnail) ? { backgroundImage: `url(${selected.thumbav || selected.thumbnail})` } : undefined} />
                 <h3 id="hg-title" className="modal-title">{selected.name}</h3>
-                <p className="modal-players">{selected.players}</p>
-                <p className="modal-desc">{selected.desc}</p>
+                <div className="modal-meta">
+                  <div className="meta-item"><span className="meta-label">개발자</span><span className="meta-value">{selected.dev}</span></div>
+                  <div className="meta-item"><span className="meta-label">출시</span><span className="meta-value">{selected.release}</span></div>
+                  <div className="meta-item"><span className="meta-label">기술</span><span className="meta-value">{selected.tech}</span></div>
+                  <div className="meta-item"><span className="meta-label">게임 모드</span><span className="meta-value">{selected.mode || selected.players}</span></div>
+                </div>
+                <div className="modal-divider" aria-hidden="true" />
+                {/* <h4 className="modal-section-title">게임 소개</h4> */}
+                {selected.highlight && <p className="modal-desc highlight-line">{selected.highlight}</p>}
+                {Array.isArray(selected.details) && (
+                  <ul className="modal-desc-list">
+                    {selected.details.map((line,i)=> <li key={i}>{line}</li> )}
+                  </ul>
+                )}
               </div>
               <div className="modal-actions">
                 <button
                   className={"start-btn" + (selected.comingSoon ? ' disabled' : '')}
                   disabled={!!selected.comingSoon}
-                  onClick={()=>{ if(!selected.comingSoon){ closeModal(); navigate(selected.to);} }}
+                  onClick={() => { if (!selected.comingSoon) { closeModal(); navigate(selected.to); } }}
                 >{selected.comingSoon ? '준비중' : '게임 시작'}</button>
               </div>
             </div>
