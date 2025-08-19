@@ -37,7 +37,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             log.info("JwtRequestFilter URI: " + path + ", Method: " + method);
 
             // OPTIONS 요청이나 /rank, /user/social 경로는 필터 통과
-            if ("OPTIONS".equals(method) || path.startsWith("/rank") || path.startsWith("/user/social/**") || path.startsWith("/user/join")) {
+            if ("OPTIONS".equals(method) || path.startsWith("/rank") || path.startsWith("/user/social/**")
+                    || path.startsWith("/user/join")) {
                 log.info("Skipping JWT check for " + method + " " + path);
                 filterChain.doFilter(request, response);
                 return;

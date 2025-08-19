@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="boot.infopass.mapper.GameRoomPlayerMapper">
+    <insert id="insertPlayer" parameterType="GameRoomPlayerDto"> insert into
+        game_room_player(room_id, user_id, nickname, ready, joined_at) values (#{roomId}, #{userId},
+        #{nickname}, #{ready}, NOW()) </insert>
+    <select id="selectPlayersByRoom" resultType="boot.infopass.dto.GameRoomPlayerDto"> select id,
+        room_id as roomId, user_id as userId, nickname, ready, joined_at as joinedAt from
+        game_room_player where room_id=#{roomId} </select>
+    <update id="updatePlayerReady"> update game_room_player set ready=#{ready} where id=#{playerId} </update>
+    <delete id="deletePlayer"> delete from game_room_player where Id=#{playerId} </delete>
+
+</mapper>
