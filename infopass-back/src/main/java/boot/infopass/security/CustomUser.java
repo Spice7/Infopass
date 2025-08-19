@@ -9,7 +9,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import boot.infopass.dto.UserDto;
-import io.jsonwebtoken.lang.Collections;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -17,15 +16,10 @@ import lombok.ToString;
 @ToString
 public class CustomUser implements UserDetails {
 
-    private final UserDto userDto;
+    private UserDto userDto;
 
     public CustomUser(UserDto userDto) {
         this.userDto = userDto;
-    }
-
-    // UserDto를 반환하는 getter 메소드
-    public UserDto getUserDto() {
-        return userDto;
     }
 
     /**

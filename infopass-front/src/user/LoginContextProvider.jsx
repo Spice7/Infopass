@@ -24,22 +24,20 @@ const LoginContextProvider = ({ children }) => {
   const [isSignUpModalOpen, setSignUpModalOpen] = useState(false);
 
   // 소셜 유저 정보
-  const [existingUser, setExistingUser] = useState(null); 
-
+  const [existingUser, setExistingUser] = useState(null);
 
   // 소셜 유저 받아서 회원가입 모달 열 때 호출하는 함수
-  const openSignUpModalWithUser = (user) => {    
+  const openSignUpModalWithUser = (user) => {
     setExistingUser(user);
     setSignUpModalOpen(true);
   };
 
-   const openSignUpModal = () => setSignUpModalOpen(true);
+  const openSignUpModal = () => setSignUpModalOpen(true);
 
-  const closeSignUpModal = () => {    
+  const closeSignUpModal = () => {
     setExistingUser(null); //모달 닫으면 소셜 유저 정보 초기화
     setSignUpModalOpen(false);
   };
-
 
   /* -------------------------------------------------------- */
 
@@ -48,14 +46,11 @@ const LoginContextProvider = ({ children }) => {
 
   // 🍪➡💍 로그인 체크
   const loginCheck = async () => {
-    setIsLoading(true); // 👈 (2) 로딩 시작
     const accessToken = Cookies.get("accessToken");
     console.log(`accessToken: ${accessToken}`);
 
     if (!isLogin && !accessToken) {
       logoutSetting();
-      setIsLoading(false); // 👈 토큰이 없으면 바로 로딩 종료
-
       return;
     }
 
@@ -75,10 +70,8 @@ const LoginContextProvider = ({ children }) => {
         console.error("사용자 정보 요청 중 에러 발생:", error);
       }
       logoutSetting(); // 인증 실패 시 로그아웃 처리
-    } finally {
-      setIsLoading(false); // 👈 (3) try/catch 블록이 끝나면 로딩 종료
+      return;
     }
-    return;
   };
 
   // 🔐 로그인
@@ -103,10 +96,6 @@ const LoginContextProvider = ({ children }) => {
       // 로그인 성공 시 accessToken을 쿠키에 저장하고 상태 업데이트
       if (status === 200) {
         Cookies.set("accessToken", accessToken);
-
-        const userInfoResponse = await auth.info();
-        const data = userInfoResponse.data;
-
         loginSetting(data, accessToken);
 
         Swal.alert("로그인 성공", "메인 화면으로 이동합니다", "success", () => {
@@ -114,11 +103,11 @@ const LoginContextProvider = ({ children }) => {
         });
       }
     } catch (error) {
-      console.error("로그인 실패:", error);
       Swal.alert(
         "로그인 실패",
         "아이디 또는 비밀번호가 일치하지 않습니다",
-        "error"
+        "error",
+        error
       );
     }
   };

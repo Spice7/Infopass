@@ -10,7 +10,6 @@ import Stomp from "stompjs";
 const socket = new SockJS("http://localhost:9000/ws-game");
 const stompClient = Stomp.over(socket);
 
-
 const API_BASE_URL = "http://localhost:9000";
 
 // Axios 인스턴스 설정
@@ -45,20 +44,18 @@ export default function RoomWaitPage({ onReady }) {
   const location = useLocation();
   const { roomId } = location.state || {}; // userInfo는 useContext로 가져오므로 필요 없음
 
-
   useEffect(() => {
-  stompClient.connect({}, () => {
-    stompClient.subscribe(`/topic/room/${roomId}`, (msg) => {
-      const data = JSON.parse(msg.body);
-      if (data.type === "start") {
-        navigate("/blankgame/multi", {
-          state: { roomId, quizList: data.quizeList },
-        });
-      }
+    stompClient.connect({}, () => {
+      stompClient.subscribe(`/topic/room/${roomId}`, (msg) => {
+        const data = JSON.parse(msg.body);
+        if (data.type === "start") {
+          navigate("/blankgame/multi", {
+            state: { roomId, quizList: data.quizeList },
+          });
+        }
+      });
     });
-  });
-}, [roomId,navigate]);
-
+  }, [roomId, navigate]);
 
   // 방 정보가 없을 경우 처리
   if (!roomId || !userInfo) {
@@ -99,7 +96,7 @@ export default function RoomWaitPage({ onReady }) {
     };
 
     joinRoom();
-  }, [roomId, userInfo.id, userInfo.nickname]);
+  }, [roomId]);
 
   // 방 입장 후 내 playerId 찾기
   useEffect(() => {
@@ -116,7 +113,7 @@ export default function RoomWaitPage({ onReady }) {
   // 준비 버튼 클릭
   const handleReady = async () => {
     setReady(true);
-    stompClient.send("/app/ready",{},JSON.stringify({roomId,playerId}));
+    stompClient.send("/app/ready", {}, JSON.stringify({ roomId, playerId }));
     if (playerId) {
       try {
         await axiosInstance.post(
