@@ -97,7 +97,9 @@ export function useBlockGame(userInfo) {
   const checkAnswer = useCallback(async () => {
     if (!currentQuestion || !workspaceRef.current) return;
     try {
-      const userXmlText = normalizeXml(Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspaceRef.current)));
+      // 비교용 정규화 XML과 저장용 원본 XML을 분리
+      const rawXmlText = Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspaceRef.current));
+      const userXmlText = normalizeXml(rawXmlText);
       const answerXmlText = normalizeXml(currentQuestion.answer);
       const isAnswerCorrect = (userXmlText === answerXmlText);
       setIsCorrect(isAnswerCorrect);
@@ -107,7 +109,8 @@ export function useBlockGame(userInfo) {
           user_id: userInfo.id,
           session_id: sessionId,
           is_correct: true,
-          submitted_answer: userXmlText
+          // 저장은 원본 XML (프리뷰/복원 가능)
+          submitted_answer: rawXmlText
         });
         setSolvedQuestions(prev => new Set([...prev, currentQuestion.id]));
         setShowNextButton(true);
@@ -116,7 +119,8 @@ export function useBlockGame(userInfo) {
           user_id: userInfo.id,
           session_id: sessionId,
           is_correct: false,
-          submitted_answer: userXmlText
+          // 오답도 원본 XML 저장
+          submitted_answer: rawXmlText
         });
       }
     } catch (err) {
