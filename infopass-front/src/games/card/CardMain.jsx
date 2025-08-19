@@ -13,51 +13,65 @@ const CardMain = () => {
   const [moves, setMoves] = useState(0);
   const [timer, setTimer] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [difficulty, setDifficulty] = useState('normal'); // easy, normal, hard
+  const [difficulty] = useState('normal'); // normal
   const [gameMode, setGameMode] = useState('normal'); // normal, timeAttack
   const [timeLimit, setTimeLimit] = useState(300); // 5분 (초 단위)
   const [remainingTime, setRemainingTime] = useState(300);
   const [hints, setHints] = useState(3);
   const [showHint, setShowHint] = useState(false);
-  const [isLoading, setIsLoading] = useState(true); // 페이지 진입 시 로딩 표시
+  const [isLoading, setIsLoading] = useState(false); // 페이지 진입 시 로딩 표시
   const [questionData, setQuestionData] = useState([]);
   const { userInfo } = useContext(LoginContext);
+  const [randomSubject, setRandomSubject] = useState('소프트웨어 설계'); // 기본 과목
+  const [showNextButton, setShowNextButton] = useState(false);
+  const [question_id, setQuestionId] = useState(null); // 맞힌 문제 ID
 
+  // 과목 리스트 예시
+  const subjectList = [
+    '소프트웨어 설계',
+    '소프트웨어 개발',
+    '데이터베이스 구축',
+    '프로그래밍 언어 활용',
+    '정보시스템 구축 관리'
+  ];
+
+  // 랜덤 과목 선택 함수
+  const getRandomSubject = () => {
+    return subjectList[Math.floor(Math.random() * subjectList.length)];
+  };
+  
   // 문제 불러오기 + 카드 배열 생성 통합
-  const startNewGame = async (difficultyLevel = difficulty, mode = gameMode) => {
+  const startNewGame = async (difficulty, mode = gameMode) => {    
+    
     setIsLoading(true);
+    setShowNextButton(false);
     try {
-      const response = await auth.getCardQuestions();
+      // 랜덤 과목 선택 함수
+      const subject = getRandomSubject();
+      setRandomSubject(subject); // 상태 업데이트
+      console.log(subject);
+
+      const response = await auth.getCardQuestions(subject, userInfo?.id);
+      console.log("문제리스트: ", response.data);
       let questions = [];
       if (response && response.data) {
-        questions = response.data.Cards;
+        questions = response.data;
       } else {
         setIsLoading(false);
         return;
       }
 
-      // 난이도에 따른 문제 수 조절
-      let selectedQuestions = questions;
-      if (difficultyLevel === 'easy') {
-        selectedQuestions = questions.slice(0, 8); // 8문제
-      } else if (difficultyLevel === 'hard') {
-        selectedQuestions = questions.slice(0, 20); // 20문제
-      } else {
-        selectedQuestions = questions.slice(0, 12); // 12문제 (기본)
-      }
+      // 8문제 고정
+    const selectedQuestions = questions;
 
       // 타임어택 모드일 때 시간 제한 설정
       let gameTimeLimit = timeLimit;
       if (mode === 'timeAttack') {
-        if (difficultyLevel === 'easy') {
-          gameTimeLimit = 180; // 3분
-        } else if (difficultyLevel === 'hard') {
-          gameTimeLimit = 600; // 10분
-        } else {
-          gameTimeLimit = 300; // 5분
-        }
+        if (difficulty === 'normal') {
+          gameTimeLimit = 180; // 3분        
         setTimeLimit(gameTimeLimit);
         setRemainingTime(gameTimeLimit);
+        }
       }
 
       // 질문과 답변을 각각 카드로 생성
@@ -98,6 +112,8 @@ const CardMain = () => {
       setIsPlaying(true);
       setHints(3);
       setShowHint(false);
+    } catch (error) {
+      console.error('문제 불러오기 실패:', error);
     } finally {
       setIsLoading(false);
     }
@@ -178,7 +194,7 @@ const CardMain = () => {
       const timeBonus = Math.max(0, Math.floor(remainingTime / 10));
       finalScore += timeBonus;
     } else {
-      finalScore += Math.max(0, 1200 - timer * 10);
+      finalScore += Math.max(0, 180 - timer * 10);
     }
 
     // 타임아웃일 때 오답노트 저장
@@ -228,8 +244,18 @@ const CardMain = () => {
       cards.every(c => c.isMatched)
     ) {
       handleGameEnd({ isTimeout: false });
+      setShowNextButton(true); // 게임 완료 시 다음 문제로 넘어가기 버튼 표시
     }
+    // eslint-disable-next-line
   }, [cards, gameStarted, isPlaying]);
+
+  // "다음 문제" 버튼 클릭 시 새로운 랜덤 과목의 문제로 새 게임 시작
+  const handleNextQuestions = () => {
+    setGameStarted(false);
+    setTimeout(() => {
+      startNewGame();
+    }, 300); // 약간의 딜레이로 UX 개선
+  };
 
   // 타이머 효과 및 타임어택 시간 초과 처리
   useEffect(() => {
@@ -252,6 +278,7 @@ const CardMain = () => {
       }, 1000);
     }
     return () => clearInterval(interval);
+    // eslint-disable-next-line
   }, [isPlaying, gameStarted, gameMode]);
 
   // 힌트 사용
@@ -263,50 +290,18 @@ const CardMain = () => {
     }
   };
 
-  // 난이도 변경
-  const changeDifficulty = (newDifficulty) => {
-    setDifficulty(newDifficulty);
-  };
-
   // 게임 모드 변경
   const changeGameMode = (mode) => {
     setGameMode(mode);
     if (mode === 'timeAttack') {
       // 타임어택 모드일 때 난이도별 시간 제한 설정
-      if (difficulty === 'easy') {
+      if (difficulty === 'normal') {
         setTimeLimit(180);
         setRemainingTime(180);
-      } else if (difficulty === 'hard') {
-        setTimeLimit(600);
-        setRemainingTime(600);
-      } else {
-        setTimeLimit(300);
-        setRemainingTime(300);
       }
     }
   };
 
-  // 최초 마운트 시 문제 데이터만 미리 로드
-  useEffect(() => {
-    if (userInfo) {
-      const loadInitialData = async () => {
-        try {
-          const response = await auth.getCardQuestions();
-          if (response && response.data) {
-            setQuestionData(response.data.Cards);
-          }
-        } catch (error) {
-          console.error('초기 데이터 로드 실패:', error);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      loadInitialData();
-    } else {
-      setIsLoading(false);
-    }
-    // eslint-disable-next-line
-  }, [userInfo]);
 
   // "게임 재시작" 버튼 클릭 시
   const handleRestart = () => {
@@ -321,8 +316,8 @@ const CardMain = () => {
     setHints(3);
     setShowHint(false);
     setGameMode('normal');
-    setTimeLimit(300);
-    setRemainingTime(300);
+    setTimeLimit(180);
+    setRemainingTime(180);
   };
 
   // 시간 포맷팅
@@ -341,6 +336,7 @@ const CardMain = () => {
       <div className="game-header">
         <h1>정보처리기사 카드게임</h1>
         <p>질문과 답변을 매칭하여 모든 카드를 찾아보세요!</p>
+        <p style={{fontWeight:'bold'}}>이번 문제 과목: {randomSubject}</p>
       </div>
 
       {!gameStarted ? (
@@ -364,33 +360,9 @@ const CardMain = () => {
             {gameMode === 'timeAttack' && (
               <div className="time-limit-info">
                 <p>⏱️ 제한 시간:</p>
-                <p>🟢 쉬움: 3분 | 🟡 보통: 5분 | 🔴 어려움: 10분</p>
+                <p>🟢  3분 </p>
               </div>
             )}
-          </div>
-
-          <div className="difficulty-selector">
-            <h3>난이도를 선택하세요</h3>
-            <div className="difficulty-buttons">
-              <button
-                className={`difficulty-btn ${difficulty === 'easy' ? 'active' : ''}`}
-                onClick={() => changeDifficulty('easy')}
-              >
-                🟢 쉬움 (8문제)
-              </button>
-              <button
-                className={`difficulty-btn ${difficulty === 'normal' ? 'active' : ''}`}
-                onClick={() => changeDifficulty('normal')}
-              >
-                🟡 보통 (12문제)
-              </button>
-              <button
-                className={`difficulty-btn ${difficulty === 'hard' ? 'active' : ''}`}
-                onClick={() => changeDifficulty('hard')}
-              >
-                🔴 어려움 (20문제)
-              </button>
-            </div>
           </div>
           <button className="start-button" onClick={() => startNewGame(difficulty, gameMode)}>
             게임 시작
@@ -473,6 +445,13 @@ const CardMain = () => {
               게임 재시작
             </button>
           </div>
+          {showNextButton && (
+            <div className="next-question-btn-wrap" style={{ textAlign: 'center', margin: '20px 0' }}>
+              <button className="next-question-btn" onClick={handleNextQuestions}>
+                다음 문제로 ▶
+              </button>
+            </div>
+          )}
           
           {!isPlaying && matchedPairs.length === questionData.length && (
             <div className="game-complete">

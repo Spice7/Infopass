@@ -11,6 +11,7 @@ public class CardDto {
     private Integer id;
     private String question;
     private String answer;
+    private String subject;
     private Timestamp created_at;
     
 }

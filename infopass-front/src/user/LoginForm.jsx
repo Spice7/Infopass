@@ -1,13 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { LoginContext } from './LoginContextProvider'
 import { useLocation, useNavigate } from 'react-router-dom';
 import SignupPage from './SignupPage';
 import { KakaoLoginButton, NaverLoginButton } from './socialLogin/SocialLoginButton';
 import FindIdModal from './FindIdModal';
-import FindPwModal from './FindPWModal';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Modal from '@mui/material/Modal';
+import FindPwModal from './FindPwModal';
 import './userInfo.css';
 
 const LoginForm = () => {
@@ -24,9 +21,6 @@ const LoginForm = () => {
             navi(location.pathname, { replace: true, state: {} });
         }
     }, [location.state?.socialUser, openSignUpModalWithUser, location.pathname, navi]);
-   
-    const [showFindId, setShowFindId] = useState(false);
-    const [showFindPw, setShowFindPw] = useState(false);
 
     const onLogin = (e) => {
         e.preventDefault()
@@ -79,12 +73,8 @@ const LoginForm = () => {
                 
                 {/* 아이디/비밀번호 찾기 버튼 그룹 */}
                 <div className="find-buttons-group">
-                    <button type='button' className='btn btn-id' onClick={() => setShowFindId(true)}>
-                        아이디 찾기
-                    </button>
-                    <button type='button' className='btn btn-password' onClick={() => setShowFindPw(true)}>
-                        비밀번호 찾기
-                    </button>
+                    <FindIdModal />
+                    <FindPwModal />
                 </div>
                 
                 {/* 소셜 로그인 버튼 그룹 */}
@@ -93,44 +83,6 @@ const LoginForm = () => {
                     <NaverLoginButton />
                 </div>
             </div>
-
-            {/* 아이디 찾기 모달 */}
-            <Modal
-                open={showFindId}
-                onClose={() => setShowFindId(false)}
-                aria-labelledby="find-id-modal-title"
-                aria-describedby="find-id-modal-description"
-            >
-                <Box className="find-id-modal-container">
-                    <Typography id="find-id-modal-title" variant="h6" component="h2">
-                        <div className="infoTextFrame">
-                            <span className="userinfoText">아이디 찾기</span>
-                        </div>
-                    </Typography>
-                    <Typography id="find-id-modal-description" component='div' sx={{ mt: 2 }}>
-                        <FindIdModal onClose={() => setShowFindId(false)} />
-                    </Typography>
-                </Box>
-            </Modal>
-
-            {/* 비밀번호 찾기 모달 */}
-            <Modal
-                open={showFindPw}
-                onClose={() => setShowFindPw(false)}
-                aria-labelledby="find-pw-modal-title"
-                aria-describedby="find-pw-modal-description"
-            >
-                <Box className="find-pw-modal-container">
-                    <Typography id="find-pw-modal-title" variant="h6" component="h2">
-                        <div className="infoTextFrame">
-                            <span className="userinfoText">비밀번호 찾기</span>
-                        </div>
-                    </Typography>
-                    <Typography id="find-pw-modal-description" component='div' sx={{ mt: 2 }}>
-                        <FindPwModal onClose={() => setShowFindPw(false)} />
-                    </Typography>
-                </Box>
-            </Modal>
 
             {/* 회원가입 모달 */}
             <SignupPage />

@@ -160,4 +160,10 @@ public class UserService implements UserServiceInter {
 		userDto.setPassword(encodedPw);
 		userMapper.changePw(userDto);
 	}
+
+	@Override
+	public UserDto getById(UserDto userDto) {
+		// TODO Auto-generated method stub
+		return userMapper.getById(userDto);
+	}
 }
