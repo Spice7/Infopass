@@ -20,4 +20,5 @@ public class WrongAnswerDto {
     private String correctAnswer;  // 추가
     private String category;
     private String explanation;
+    private String explanationImage;
 }
