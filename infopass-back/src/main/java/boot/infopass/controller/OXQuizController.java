@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import boot.infopass.dto.GameResultDto;
 import boot.infopass.dto.LobbyDto;
-import boot.infopass.dto.MultiResultDto;
 import boot.infopass.dto.MultiplayerDto;
 import boot.infopass.dto.OXQuizDto;
 import boot.infopass.dto.OXQuizStatusDto;
@@ -19,8 +19,8 @@ import boot.infopass.dto.OXQuizSubDto;
 import boot.infopass.dto.UserDto;
 import boot.infopass.dto.WrongAnswerDto;
 import boot.infopass.mapper.LobbyMapper;
-import boot.infopass.mapper.MultiResultMapper;
 import boot.infopass.mapper.MultiplayerMapper;
+import boot.infopass.mapper.GameResultMapper;
 import boot.infopass.mapper.OXStatusMapper;
 import boot.infopass.mapper.OXSubMapper;
 import boot.infopass.mapper.OxQuizMapper;
@@ -43,7 +43,7 @@ public class OXQuizController {
 	@Autowired
 	LobbyMapper lobbymapper;
 	@Autowired
-	MultiResultMapper resultmapper;
+	GameResultMapper resultmapper;
 	@Autowired
 	UserMapper usermapper;
 	@Autowired
@@ -139,7 +139,7 @@ public class OXQuizController {
 	}
 	
 	@PostMapping("/multiresult")
-	public void CreateResult(@RequestBody Map<String, Object> map, MultiResultDto dto) {
+	public void CreateResult(@RequestBody Map<String, Object> map, GameResultDto dto) {
 		Integer lobbyId = Integer.parseInt(map.get("lobby_id").toString());
 		Integer userId = Integer.parseInt(map.get("user_id").toString());
 		Integer score = Integer.parseInt(map.get("score").toString());

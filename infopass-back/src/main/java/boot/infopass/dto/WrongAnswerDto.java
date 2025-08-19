@@ -14,8 +14,6 @@ public class WrongAnswerDto {
     private String gameType;
     private Integer questionId;
     private String submittedAnswer;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private Timestamp createdAt;
 
     private String question;       // 추가

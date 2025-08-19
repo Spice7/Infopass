@@ -24,6 +24,7 @@ const CardMain = () => {
   const { userInfo } = useContext(LoginContext);
   const [randomSubject, setRandomSubject] = useState('소프트웨어 설계'); // 기본 과목
   const [showNextButton, setShowNextButton] = useState(false);
+  const [question_id, setQuestionId] = useState(null); // 맞힌 문제 ID
 
   // 과목 리스트 예시
   const subjectList = [
@@ -193,7 +194,7 @@ const CardMain = () => {
       const timeBonus = Math.max(0, Math.floor(remainingTime / 10));
       finalScore += timeBonus;
     } else {
-      finalScore += Math.max(0, 1200 - timer * 10);
+      finalScore += Math.max(0, 180 - timer * 10);
     }
 
     // 타임아웃일 때 오답노트 저장
@@ -315,8 +316,8 @@ const CardMain = () => {
     setHints(3);
     setShowHint(false);
     setGameMode('normal');
-    setTimeLimit(300);
-    setRemainingTime(300);
+    setTimeLimit(180);
+    setRemainingTime(180);
   };
 
   // 시간 포맷팅

@@ -93,7 +93,7 @@ public class UserController {
 			if(purpose.equals("signup")) {
             	return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 가입된 휴대폰 번호입니다.");
 			} else {
-            	return ResponseEntity.status(HttpStatus.CONFLICT).body("핸드폰 인증이 완료되었습니다.");
+            	return ResponseEntity.ok("핸드폰 인증이 완료되었습니다.");
         	}
         } else {
             return ResponseEntity.ok("사용 가능한 휴대폰 번호입니다.");

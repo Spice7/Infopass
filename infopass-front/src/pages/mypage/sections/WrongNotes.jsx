@@ -23,14 +23,14 @@ import LightbulbIcon from '@mui/icons-material/Lightbulb';
 
 import { getWrongAnswers } from '../../../user/auth';
 
-const gameTypes = ['quiz', 'oxquiz', 'block', 'card'];
+const gameTypes = ['all', 'quiz', 'oxquiz', 'block', 'card'];
 
 const WrongNotes = () => {
   const theme = useTheme();
   const [wrongAnswers, setWrongAnswers] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [selectedGameType, setSelectedGameType] = useState('quiz');
+  const [selectedGameType, setSelectedGameType] = useState('all');
 
   useEffect(() => {
     fetchWrongNotes();
@@ -41,17 +41,26 @@ const WrongNotes = () => {
       const response = await getWrongAnswers();
       const data = response.data;
       setWrongAnswers(data);
-
-      if (data && data.length > 0) {
-        const firstValidGameType = data.find(item => item.gameType)?.gameType;
-        if (firstValidGameType) {
-          setSelectedGameType(firstValidGameType.toLowerCase());
-        }
-      }
     } catch (error) {
       console.error('오답노트 요청 에러:', error);
       setWrongAnswers([]);
     }
+  };
+
+  // OX 변환
+  const convertOX = (val) => {
+    if (val === 1 || val === '1') return 'O';
+    if (val === 0 || val === '0') return 'X';
+    return val;
+  };
+
+  // 각 회차 답 포맷팅: null -> ?
+  const formatAnswers = (answers) => {
+    return answers
+      .map((a) => (a == null || a === '' ? '미제출' : convertOX(a)))
+// == null 은 null 과 undefined 둘 다 잡음
+
+      .join(', ');
   };
 
   const processedAnswers = useMemo(() => {
@@ -67,22 +76,25 @@ const WrongNotes = () => {
         if (map.has(key)) {
           const existing = map.get(key);
           existing.count += 1;
+          existing.answers = existing.answers ? [...existing.answers, item.submittedAnswer] : [item.submittedAnswer];
           const existingCreatedAt = existing.createdAt ? new Date(existing.createdAt) : new Date(0);
-
           if (currentCreatedAt > existingCreatedAt) {
-            map.set(key, { ...item, count: existing.count });
+            map.set(key, { ...item, count: existing.count, answers: existing.answers });
           }
         } else {
-          map.set(key, { ...item, count: 1 });
+          map.set(key, { ...item, count: 1, answers: [item.submittedAnswer] });
         }
       }
     });
     return Array.from(map.values());
   }, [wrongAnswers]);
 
-  const filteredWrongAnswers = processedAnswers.filter(
-    (item) => item.gameType && item.gameType.toLowerCase() === selectedGameType.toLowerCase()
-  );
+  const filteredWrongAnswers =
+    selectedGameType === 'all'
+      ? processedAnswers
+      : processedAnswers.filter(
+          (item) => item.gameType && item.gameType.toLowerCase() === selectedGameType.toLowerCase()
+        );
 
   const handleOpenDialog = (item) => {
     setSelectedItem(item);
@@ -119,82 +131,55 @@ const WrongNotes = () => {
     );
   }
 
-  // 숫자 0/1을 O/X로 변환해주는 헬퍼 함수
-  const convertOX = (val) => {
-    if (val === 1 || val === '1') return 'O';
-    if (val === 0 || val === '0') return 'X';
-    return val;
-  };
-
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%', // 부모에서 반드시 높이 지정 필요
-        pt: 1, // 탭을 위로 조금 올림
-        px: 2,
-      }}
-    >
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', pt: 1, px: 2 }}>
       <Tabs
-  value={selectedGameType}
-  onChange={(e, newVal) => setSelectedGameType(newVal)}
-  centered
-  indicatorColor="none"
-  sx={{
-    mb: 3,
-    backgroundColor: '#fff',         // 전체 배경 흰색
-    borderRadius: 12,                // 둥근 테두리
-    boxShadow: '0 0 0 1px #ddd',    // 연한 테두리
-    '.MuiTabs-flexContainer': { gap: 2, flexWrap: 'wrap' },
-    '.MuiTabs-indicator': {
-      display: 'none !important',
-    },
-    '.MuiTab-root': {
-      backgroundColor: '#fff',       // 각 탭 배경도 흰색
-      borderRadius: 8,
-      fontWeight: 700,
-      fontSize: 16,
-      textTransform: 'none',
-      padding: '10px 24px',
-      color: theme.palette.grey[600],
-      boxShadow: 'none',
-      border: 'none',
-      outline: 'none',
-      '&:focus-visible': {
-        outline: 'none',
-      },
-      '&.Mui-selected, &:hover': {
-        // 기존 스타일 유지 (색상 등 변경하지 않음)
-        color: theme.palette.grey[600],
-        backgroundColor: '#fff',
-        boxShadow: 'none',
-        transform: 'none',
-        border: 'none',
-        outline: 'none',
-      },
-    },
-  }}
->
-
+        value={selectedGameType}
+        onChange={(e, newVal) => setSelectedGameType(newVal)}
+        centered
+        indicatorColor="none"
+        sx={{
+          mb: 3,
+          '.MuiTabs-flexContainer': { gap: 2, flexWrap: 'wrap' },
+          '.MuiTabs-indicator': { display: 'none !important' },
+          '.MuiTab-root': {
+            fontWeight: 700,
+            fontSize: 16,
+            textTransform: 'none',
+            borderRadius: 3,
+            padding: '10px 24px',
+            transition: 'all 0.3s',
+            color: theme.palette.grey[600],
+            backgroundColor: theme.palette.grey[200],
+            boxShadow: 'none',
+            border: 'none',
+            outline: 'none',
+            '&:focus-visible': { outline: 'none' },
+            '&:hover': { backgroundColor: theme.palette.grey[400] },
+            '&:active': { backgroundColor: theme.palette.grey[500] },
+            '&.Mui-selected': {
+              backgroundColor: theme.palette.grey[400],
+              color: '#fff',
+              boxShadow: '0 6px 15px rgb(0 0 0 / 0.2)',
+              transform: 'translateY(-2px)',
+            },
+          },
+        }}
+      >
         {gameTypes.map((type) => (
-          <Tab key={type} label={type.toUpperCase()} value={type} />
+          <Tab key={type} label={type === 'all' ? '전체' : type.toUpperCase()} value={type} />
         ))}
       </Tabs>
 
-      <Box
-        sx={{
-          flexGrow: 1,
-          overflowY: 'auto', // 탭 아래 스크롤 처리
-          pr: 1,
-        }}
-      >
+      <Box sx={{ flexGrow: 1, overflowY: 'auto', pr: 1 }}>
         <List>
           {filteredWrongAnswers.length === 0 ? (
             <Box sx={{ textAlign: 'center', mt: 6, p: 3 }}>
               <QuestionAnswerIcon sx={{ fontSize: 80, color: theme.palette.grey[400] }} />
               <Typography variant="h6" color="text.secondary" sx={{ mt: 3 }}>
-                {selectedGameType.toUpperCase()} 타입의 틀린 문제가 없어요.
+                {selectedGameType === 'all'
+                  ? '틀린 문제가 없어요.'
+                  : `${selectedGameType.toUpperCase()} 타입의 틀린 문제가 없어요.`}
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                 다른 탭을 확인하거나 문제를 풀어보세요!
@@ -244,10 +229,10 @@ const WrongNotes = () => {
                 <Typography variant="h6" sx={{ fontWeight: 600, mt: 2 }}>
                   Q. {item.question}
                 </Typography>
-                <Box sx={{ mt: 2, display: 'flex', alignItems: 'center' }}>
-                  <CancelIcon color="error" sx={{ mr: 1, fontSize: '1.2rem' }} />
-                  <Typography variant="body1" color="error.main">
-                    내 답변: <span style={{ fontWeight: 600 }}>{convertOX(item.submittedAnswer)}</span>
+                <Box sx={{ mt: 2 }}>
+                  <CancelIcon color="error" sx={{ mr: 1, verticalAlign: 'middle' }} />
+                  <Typography variant="body1" color="error.main" display="inline">
+                    내 답변: <span style={{ fontWeight: 600 }}>{formatAnswers(item.answers)}</span>
                   </Typography>
                 </Box>
                 <Box
@@ -292,18 +277,14 @@ const WrongNotes = () => {
                 <CancelIcon color="error" sx={{ mr: 1 }} />
                 <Typography variant="body1" color="error.main">
                   내 답변:{' '}
-                  <span style={{ fontWeight: 600 }}>
-                    {convertOX(selectedItem.submittedAnswer)}
-                  </span>
+                  <span style={{ fontWeight: 600 }}>{formatAnswers(selectedItem.answers)}</span>
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <CheckCircleIcon color="success" sx={{ mr: 1 }} />
                 <Typography variant="body1" color="success.main">
                   정답:{' '}
-                  <span style={{ fontWeight: 600 }}>
-                    {convertOX(selectedItem.correctAnswer)}
-                  </span>
+                  <span style={{ fontWeight: 600 }}>{convertOX(selectedItem.correctAnswer)}</span>
                 </Typography>
               </Box>
               <Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>
