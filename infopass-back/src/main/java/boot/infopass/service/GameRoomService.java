@@ -36,13 +36,16 @@ public class GameRoomService {
     }
 
     public void joinRoom(Long roomId, UserDto userDto) {
-        // 이미 참가한 경우 insert하지 않음
-        if (playerMapper.existsByRoomIdAndUserId(roomId, userDto.getId())) {
+        Integer userIdInt = userDto.getId();
+        if (userIdInt == null)
+            return;
+
+        if (playerMapper.existsByRoomIdAndUserId(roomId, userIdInt.longValue())) {
             return;
         }
         GameRoomPlayerDto newPlayer = new GameRoomPlayerDto();
         newPlayer.setRoomId(roomId);
-        newPlayer.setUserId(userDto.getId());
+        newPlayer.setUserId(userIdInt); // Integer 타입으로 전달
         newPlayer.setNickname(userDto.getNickname());
         newPlayer.setReady(false);
         playerMapper.insertPlayer(newPlayer);

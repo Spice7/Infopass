@@ -64,7 +64,10 @@ export default function RoomWaitPage() {
   }, [roomId]);
 
   useEffect(() => {
+    let joined = false;
     const joinRoom = async () => {
+      if (joined) return;
+      joined = true;
       try {
         await axiosInstance.post(`${API_BASE_URL}/api/rooms/${roomId}/join`, {
           userId: userInfo.id,
@@ -79,7 +82,7 @@ export default function RoomWaitPage() {
     if (userInfo.id && userInfo.nickname && roomId) {
       joinRoom();
     }
-    // 의존성 배열을 []로 설정 (최초 마운트 1회만 실행)
+    // 빈 배열로 설정 (최초 마운트 1회만 실행)
   }, []);
 
   useEffect(() => {
