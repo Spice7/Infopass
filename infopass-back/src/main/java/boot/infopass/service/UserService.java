@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import boot.infopass.dto.GameResultDto;
 import boot.infopass.dto.UserDto;
 import boot.infopass.mapper.UserMapper;
 import boot.infopass.security.JwtTokenProvider;
@@ -161,14 +160,6 @@ public class UserService implements UserServiceInter {
 		userDto.setPassword(encodedPw);
 		userMapper.changePw(userDto);
 	}
-
-	@Override
-	public UserDto getById(UserDto userDto) {
-		// TODO Auto-generated method stub
-		return userMapper.getById(userDto);
-	}
-	
-	
 	
 	private static final int EXP_PER_LEVEL = 100;
 

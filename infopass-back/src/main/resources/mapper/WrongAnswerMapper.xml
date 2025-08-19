@@ -45,6 +45,7 @@
          bq.question,
          bq.answer AS correct_answer,
          bq.category,
+         bq.explanation_image,
          bq.explanation_text AS explanation
   FROM wronganswer_log wal
   LEFT JOIN blockgame_question bq ON wal.question_id = bq.id
