@@ -20,6 +20,7 @@ import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
+import ReactMarkdown from 'react-markdown';
 
 import { getWrongAnswers } from '../../../user/auth';
 
@@ -47,19 +48,15 @@ const WrongNotes = () => {
     }
   };
 
-  // OX 변환
   const convertOX = (val) => {
     if (val === 1 || val === '1') return 'O';
     if (val === 0 || val === '0') return 'X';
     return val;
   };
 
-  // 각 회차 답 포맷팅: null -> ?
   const formatAnswers = (answers) => {
     return answers
       .map((a) => (a == null || a === '' ? '미제출' : convertOX(a)))
-// == null 은 null 과 undefined 둘 다 잡음
-
       .join(', ');
   };
 
@@ -76,7 +73,9 @@ const WrongNotes = () => {
         if (map.has(key)) {
           const existing = map.get(key);
           existing.count += 1;
-          existing.answers = existing.answers ? [...existing.answers, item.submittedAnswer] : [item.submittedAnswer];
+          existing.answers = existing.answers
+            ? [...existing.answers, item.submittedAnswer]
+            : [item.submittedAnswer];
           const existingCreatedAt = existing.createdAt ? new Date(existing.createdAt) : new Date(0);
           if (currentCreatedAt > existingCreatedAt) {
             map.set(key, { ...item, count: existing.count, answers: existing.answers });
@@ -93,7 +92,8 @@ const WrongNotes = () => {
     selectedGameType === 'all'
       ? processedAnswers
       : processedAnswers.filter(
-          (item) => item.gameType && item.gameType.toLowerCase() === selectedGameType.toLowerCase()
+          (item) =>
+            item.gameType && item.gameType.toLowerCase() === selectedGameType.toLowerCase()
         );
 
   const handleOpenDialog = (item) => {
@@ -151,12 +151,7 @@ const WrongNotes = () => {
             transition: 'all 0.3s',
             color: theme.palette.grey[600],
             backgroundColor: theme.palette.grey[200],
-            boxShadow: 'none',
-            border: 'none',
-            outline: 'none',
-            '&:focus-visible': { outline: 'none' },
             '&:hover': { backgroundColor: theme.palette.grey[400] },
-            '&:active': { backgroundColor: theme.palette.grey[500] },
             '&.Mui-selected': {
               backgroundColor: theme.palette.grey[400],
               color: '#fff',
@@ -195,7 +190,6 @@ const WrongNotes = () => {
                   p: 3,
                   borderRadius: 4,
                   cursor: 'pointer',
-                  position: 'relative',
                   transition: 'all 0.3s',
                   '&:hover': {
                     boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
@@ -204,10 +198,17 @@ const WrongNotes = () => {
                 }}
                 onClick={() => handleOpenDialog(item)}
               >
-                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  mb={1}
+                >
                   <Typography variant="subtitle2" color="text.secondary">
                     [{item.gameType.toUpperCase()}]{' '}
-                    {item.createdAt ? new Date(item.createdAt).toLocaleString() : '날짜 정보 없음'}
+                    {item.createdAt
+                      ? new Date(item.createdAt).toLocaleString()
+                      : '날짜 정보 없음'}
                   </Typography>
                   <Typography
                     variant="subtitle2"
@@ -219,8 +220,6 @@ const WrongNotes = () => {
                       px: 1.5,
                       py: 0.5,
                       borderRadius: 12,
-                      boxShadow: '0 1px 3px rgba(179, 91, 0, 0.3)',
-                      userSelect: 'none',
                     }}
                   >
                     {item.count}회 오답
@@ -232,7 +231,10 @@ const WrongNotes = () => {
                 <Box sx={{ mt: 2 }}>
                   <CancelIcon color="error" sx={{ mr: 1, verticalAlign: 'middle' }} />
                   <Typography variant="body1" color="error.main" display="inline">
-                    내 답변: <span style={{ fontWeight: 600 }}>{formatAnswers(item.answers)}</span>
+                    내 답변:{' '}
+                    <span style={{ fontWeight: 600 }}>
+                      {formatAnswers(item.answers)}
+                    </span>
                   </Typography>
                 </Box>
                 <Box
@@ -242,7 +244,6 @@ const WrongNotes = () => {
                     justifyContent: 'flex-end',
                     mt: 2,
                     color: theme.palette.primary.main,
-                    userSelect: 'none',
                   }}
                 >
                   <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
@@ -264,11 +265,16 @@ const WrongNotes = () => {
           {selectedItem && (
             <>
               <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-                [{selectedItem.gameType ? selectedItem.gameType.toUpperCase() : ''}]{' '}
-                {selectedItem.createdAt ? new Date(selectedItem.createdAt).toLocaleString() : ''}
+                [{selectedItem.gameType?.toUpperCase()}]{' '}
+                {selectedItem.createdAt
+                  ? new Date(selectedItem.createdAt).toLocaleString()
+                  : ''}
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                카테고리: <span style={{ fontWeight: 'bold' }}>{selectedItem.category || '없음'}</span>
+                카테고리:{' '}
+                <span style={{ fontWeight: 'bold' }}>
+                  {selectedItem.category || '없음'}
+                </span>
               </Typography>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
                 Q. {selectedItem.question}
@@ -277,19 +283,48 @@ const WrongNotes = () => {
                 <CancelIcon color="error" sx={{ mr: 1 }} />
                 <Typography variant="body1" color="error.main">
                   내 답변:{' '}
-                  <span style={{ fontWeight: 600 }}>{formatAnswers(selectedItem.answers)}</span>
+                  <span style={{ fontWeight: 600 }}>
+                    {formatAnswers(selectedItem.answers)}
+                  </span>
                 </Typography>
               </Box>
+
+              {/* 정답 부분: 'block' 게임일 경우 이미지 렌더링 */}
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <CheckCircleIcon color="success" sx={{ mr: 1 }} />
                 <Typography variant="body1" color="success.main">
                   정답:{' '}
-                  <span style={{ fontWeight: 600 }}>{convertOX(selectedItem.correctAnswer)}</span>
                 </Typography>
+                {selectedItem.gameType === 'block' && selectedItem.explanationImage ? ( // `correctAnswer` -> `explanationImage`로 변경
+                  <img
+                    src={selectedItem.explanationImage} // `correctAnswer` -> `explanationImage`로 변경
+                    alt="블록게임 정답 이미지" // alt 텍스트 수정
+                    style={{ maxHeight: '10%', marginLeft: '2%' }}
+                  />
+                ) : (
+                  <Typography variant="body1" color="success.main">
+                    <span style={{ fontWeight: 600, ml: 1 }}>
+                      {convertOX(selectedItem.correctAnswer)}
+                    </span>
+                  </Typography>
+                )}
               </Box>
-              <Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>
-                <strong>해설:</strong> {selectedItem.explanation}
-              </Typography>
+
+              {/* 해설 부분: 'block' 게임일 경우 마크다운 렌더링 */}
+              {selectedItem.gameType === 'block' ? (
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 'bold', mb: 1 }}>
+                    해설:
+                  </Typography>
+                  <Paper sx={{ p: 2, backgroundColor: '#f9f9f9' }}>
+                    <ReactMarkdown>{selectedItem.explanation || ''}</ReactMarkdown>
+                  </Paper>
+                </Box>
+              ) : (
+                <Typography variant="body2" sx={{ whiteSpace: 'pre-line', mt: 2 }}>
+                  <strong>해설:</strong> {selectedItem.explanation}
+                </Typography>
+              )}
             </>
           )}
         </DialogContent>

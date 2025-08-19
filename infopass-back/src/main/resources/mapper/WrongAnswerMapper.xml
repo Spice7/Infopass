@@ -24,7 +24,8 @@
          COALESCE(oxq.question, bq.question) AS question,
          COALESCE(oxq.answer, bq.answer) AS correct_answer,
          COALESCE(oxq.category, bq.category) AS category,
-         COALESCE(oxq.quiz_explanition, bq.explanation_text) AS explanation
+         COALESCE(oxq.quiz_explanition, bq.explanation_text) AS explanation,
+         bq.explanation_image
   FROM wronganswer_log wal
   LEFT JOIN oxquiz_question oxq
     ON wal.question_id = oxq.id AND wal.game_type = 'oxquiz'
@@ -34,7 +35,7 @@
   ORDER BY wal.created_at DESC
   </select>
 
-  <!-- 특정 사용자(Block) 오답만 조회 -->
+ <!--  
   <select id="selectWrongBlockAnswersByUserId" parameterType="int" resultMap="WrongAnswerResultMap">
   SELECT wal.id,
          wal.user_id,
@@ -52,7 +53,7 @@
   WHERE wal.user_id = #{userId}
     AND wal.game_type = 'block'
   ORDER BY wal.created_at DESC
-  </select>
+  </select> -->
 
 <resultMap id="WrongAnswerResultMap" type="boot.infopass.dto.WrongAnswerDto">
   <id property="id" column="id"/>
@@ -65,8 +66,7 @@
   <result property="correctAnswer" column="correct_answer"/>
   <result property="category" column="category"/>
   <result property="explanation" column="explanation"/>
-  
-</resultMap>
+  <result property="explanationImage" column="explanation_image"/> </resultMap>
 
 
 </mapper>
