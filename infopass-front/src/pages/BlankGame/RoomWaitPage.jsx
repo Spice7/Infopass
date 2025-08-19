@@ -4,6 +4,12 @@ import "./BlankGameLobby.css";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { LoginContext } from "../../user/LoginContextProvider";
+import SockJS from "sockjs-client";
+import Stomp from "stompjs";
+
+const socket = new SockJS("http://localhost:9000/ws-game");
+const stompClient = Stomp.over(socket);
+
 
 const API_BASE_URL = "http://localhost:9000";
 
@@ -38,6 +44,21 @@ export default function RoomWaitPage({ onReady }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { roomId } = location.state || {}; // userInfo는 useContext로 가져오므로 필요 없음
+
+
+  useEffect(() => {
+  stompClient.connect({}, () => {
+    stompClient.subscribe(`/topic/room/${roomId}`, (msg) => {
+      const data = JSON.parse(msg.body);
+      if (data.type === "start") {
+        navigate("/blankgame/multi", {
+          state: { roomId, quizList: data.quizeList },
+        });
+      }
+    });
+  });
+}, [roomId,navigate]);
+
 
   // 방 정보가 없을 경우 처리
   if (!roomId || !userInfo) {
@@ -95,6 +116,7 @@ export default function RoomWaitPage({ onReady }) {
   // 준비 버튼 클릭
   const handleReady = async () => {
     setReady(true);
+    stompClient.send("/app/ready",{},JSON.stringify({roomId,playerId}));
     if (playerId) {
       try {
         await axiosInstance.post(

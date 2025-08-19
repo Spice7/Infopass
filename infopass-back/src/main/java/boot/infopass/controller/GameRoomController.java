@@ -23,7 +23,9 @@ import boot.infopass.dto.GameRoomPlayerDto;
 import boot.infopass.dto.UserDto;
 import boot.infopass.security.CustomUser;
 import boot.infopass.service.GameRoomService;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 @RestController
 @RequestMapping("/api/rooms")
@@ -57,18 +59,34 @@ public class GameRoomController {
     }
 
     @PostMapping("/{roomId}/join")
-    public ResponseEntity<Void> joinRoom(@PathVariable Long roomId) {
-        // ✅ SecurityContextHolder에서 현재 로그인된 유저의 정보를 가져옴
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    public ResponseEntity<?> joinRoom(@PathVariable Long roomId) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        // ✅ principal을 CustomUser로 캐스팅하고, 그 안의 UserDto를 가져옴
-        CustomUser customUser = (CustomUser) authentication.getPrincipal();
-        UserDto userDto = customUser.getUserDto();
+            if (authentication == null || !(authentication.getPrincipal() instanceof CustomUser)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("사용자 인증 정보가 유효하지 않습니다.");
+            }
 
-        // GameRoomService로 roomId와 userDto를 넘겨줌
-        service.joinRoom(roomId, userDto);
+            CustomUser customUser = (CustomUser) authentication.getPrincipal();
+            UserDto userDto = customUser.getUserData();
 
-        return ResponseEntity.ok().build();
+            // 닉네임이 null이거나 비어 있는지 확인
+            if (userDto == null || userDto.getNickname() == null || userDto.getNickname().isEmpty()) {
+                log.error("컨트롤러에서 가져온 닉네임이 null이거나 비어 있습니다. userDto: {}", userDto);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("닉네임 정보가 누락되었습니다.");
+            }
+
+            // GameRoomService.joinRoom(Long roomId, UserDto userDto) 메서드 호출
+            service.joinRoom(roomId, userDto);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "방에 성공적으로 참가했습니다.");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("방 참가 중 에러 발생: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("방 참가에 실패했습니다.");
+        }
     }
 
     @PostMapping("/player/{playerId}/ready")
