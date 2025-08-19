@@ -25,4 +25,20 @@
 		update user set exp =
 		exp + #{exp} where id = #{id}
 	</update>
+	
+
+    <select id="getUserById" resultType="boot.infopass.dto.UserDto">
+        SELECT id, name, nickname, phone, address, enabled, exp, level
+        FROM user
+        WHERE id = #{id}
+    </select>
+
+    <update id="updateUserExpAndLevel" parameterType="boot.infopass.dto.UserDto">
+        UPDATE user
+        SET
+        exp = #{exp},
+        level = #{level}
+        WHERE id = #{id}
+    </update>
+
 </mapper>

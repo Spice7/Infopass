@@ -26,12 +26,12 @@
             (#{lobbyId}, #{userId}, #{score}, #{userRank}, #{userRankPoint}, #{gameType}, NOW())
     </insert>
 
-    <!-- 싱글플레이 결과 생성 -->
+    <!-- 싱글플레이 결과 생성 (랭크 관련 제거) -->
     <insert id="CreateSingleplayResult" parameterType="boot.infopass.dto.GameResultDto">
         INSERT INTO singleplay_result 
-            (user_id, score, user_rank, user_rank_point, game_type, created_at)
+            (user_id, score, game_type, created_at)
         VALUES 
-            (#{userId}, #{score}, #{userRank}, #{userRankPoint}, #{gameType}, NOW())
+            (#{userId}, #{score}, #{gameType}, NOW())
     </insert>
 
     <!-- 모든 멀티 결과 조회 -->
@@ -67,15 +67,15 @@
         ORDER BY created_at DESC
     </select>
 
-    <!-- 특정 유저 싱글 결과 -->
+    <!-- 특정 유저 싱글 결과 (랭크 관련 제거) -->
     <select id="getSingleplayResults" parameterType="int" resultMap="GameResultResultMap">
         SELECT 
             id,
             NULL AS lobby_id,
             user_id,
             score,
-            user_rank,
-            user_rank_point,
+            NULL AS user_rank,
+            NULL AS user_rank_point,
             game_type,
             created_at,
             'single' AS result_type
@@ -106,8 +106,8 @@
             NULL AS lobby_id,
             user_id,
             score,
-            user_rank,
-            user_rank_point,
+            NULL AS user_rank,
+            NULL AS user_rank_point,
             game_type,
             created_at,
             'single' AS result_type
@@ -116,10 +116,5 @@
 
         ORDER BY created_at DESC
     </select>
-    
-    
-    
-    
-    
 
 </mapper>

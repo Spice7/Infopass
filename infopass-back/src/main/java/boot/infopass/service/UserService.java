@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import boot.infopass.dto.GameResultDto;
 import boot.infopass.dto.UserDto;
 import boot.infopass.mapper.UserMapper;
 import boot.infopass.security.JwtTokenProvider;
@@ -166,4 +167,34 @@ public class UserService implements UserServiceInter {
 		// TODO Auto-generated method stub
 		return userMapper.getById(userDto);
 	}
+	
+	
+	
+	private static final int EXP_PER_LEVEL = 100;
+
+	public void checkAndProcessLevelUp(int userId) {
+        // 1. 현재 사용자 정보 조회 (최신 exp와 level)
+        UserDto user = userMapper.getUserById(userId);
+        if (user == null) {
+            System.out.println("사용자를 찾을 수 없습니다: " + userId);
+            return;
+        }
+
+        // 2. 레벨업 반복 처리
+        int newExp = user.getExp();
+        int newLevel = user.getLevel();
+
+        while (newExp >= EXP_PER_LEVEL) {
+            newLevel++;
+            newExp -= EXP_PER_LEVEL;
+            System.out.println("축하합니다! 레벨 " + newLevel + "로 레벨업했습니다!");
+        }
+
+        // 3. 변경된 경험치와 레벨을 DB에 업데이트
+        user.setExp(newExp);
+        user.setLevel(newLevel);
+        userMapper.updateUserExpAndLevel(user);
+    }
+	
+    
 }
