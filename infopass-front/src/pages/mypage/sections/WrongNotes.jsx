@@ -23,6 +23,7 @@ import LightbulbIcon from '@mui/icons-material/Lightbulb';
 import ReactMarkdown from 'react-markdown';
 
 import { getWrongAnswers } from '../../../user/auth';
+import BlockXmlPreview from '../../../games/block/components/BlockXmlPreview.jsx';
 
 const gameTypes = ['all', 'quiz', 'oxquiz', 'block', 'card'];
 
@@ -228,15 +229,25 @@ const WrongNotes = () => {
                 <Typography variant="h6" sx={{ fontWeight: 600, mt: 2 }}>
                   Q. {item.question}
                 </Typography>
-                <Box sx={{ mt: 2 }}>
-                  <CancelIcon color="error" sx={{ mr: 1, verticalAlign: 'middle' }} />
-                  <Typography variant="body1" color="error.main" display="inline">
-                    내 답변:{' '}
-                    <span style={{ fontWeight: 600 }}>
-                      {formatAnswers(item.answers)}
-                    </span>
-                  </Typography>
-                </Box>
+                {item.gameType === 'block' ? (
+                  <Box sx={{ mt: 2 }}>
+                    <CancelIcon color="error" sx={{ mr: 1, verticalAlign: 'middle' }} />
+                    <Typography variant="body1" color="error.main" display="inline" sx={{ mr: 2 }}>
+                      내 답변:
+                    </Typography>
+                    <BlockXmlPreview xml={item.submittedAnswer} height={140} />
+                  </Box>
+                ) : (
+                  <Box sx={{ mt: 2 }}>
+                    <CancelIcon color="error" sx={{ mr: 1, verticalAlign: 'middle' }} />
+                    <Typography variant="body1" color="error.main" display="inline">
+                      내 답변:{' '}
+                      <span style={{ fontWeight: 600 }}>
+                        {formatAnswers(item.answers)}
+                      </span>
+                    </Typography>
+                  </Box>
+                )}
                 <Box
                   sx={{
                     display: 'flex',
@@ -279,15 +290,27 @@ const WrongNotes = () => {
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
                 Q. {selectedItem.question}
               </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                <CancelIcon color="error" sx={{ mr: 1 }} />
-                <Typography variant="body1" color="error.main">
-                  내 답변:{' '}
-                  <span style={{ fontWeight: 600 }}>
-                    {formatAnswers(selectedItem.answers)}
-                  </span>
-                </Typography>
-              </Box>
+              {selectedItem.gameType === 'block' ? (
+                <Box sx={{ mb: 2 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <CancelIcon color="error" sx={{ mr: 1 }} />
+                    <Typography variant="body1" color="error.main" sx={{ fontWeight: 600 }}>
+                      내 답변 (제출 블록)
+                    </Typography>
+                  </Box>
+                  <BlockXmlPreview xml={selectedItem.submittedAnswer} height={220} />
+                </Box>
+              ) : (
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <CancelIcon color="error" sx={{ mr: 1 }} />
+                  <Typography variant="body1" color="error.main">
+                    내 답변:{' '}
+                    <span style={{ fontWeight: 600 }}>
+                      {formatAnswers(selectedItem.answers)}
+                    </span>
+                  </Typography>
+                </Box>
+              )}
 
               {/* 정답 부분: 'block' 게임일 경우 이미지 렌더링 */}
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
