@@ -471,3 +471,18 @@ export async function getBlockWrongAnswers() {
     const all = await getWrongAnswers();
     return Array.isArray(all) ? all.filter(item => item.gameType === 'block') : [];
 }
+
+/**
+ * (인증 필요) 특정 사용자 ID의 블록 게임 오답만 서버에서 필터링해 조회
+ * GET /wrong-answers/block/{userId}
+ */
+export async function getWrongBlockAnswersByUserId(userId) {
+    if (!userId) throw new Error('userId가 필요합니다.');
+    try {
+        const response = await securedApi.get(`/wrong-answers/block/${userId}`);
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching block wrong answers for user ${userId}:`, error);
+        throw error;
+    }
+}
