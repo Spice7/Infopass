@@ -21,28 +21,24 @@ import boot.infopass.service.UserService;
 public class GameResultController {
 
 	 private final GameResultService gameResultService;
-	    private final UserService userService; // UserService 주입
+	 private final UserService userService; // UserService 주입
 
-	    public GameResultController(GameResultService gameResultService, UserService userService) {
-	        this.gameResultService = gameResultService;
-	        this.userService = userService;
-	    }
+	 public GameResultController(GameResultService gameResultService, UserService userService) {
+	     this.gameResultService = gameResultService;
+	     this.userService = userService;
+	 }
 
-	    @PostMapping("/save")
-	    public ResponseEntity<String> saveGameResult(
-	        @RequestBody GameResultDto gameResultDto,
-	        @AuthenticationPrincipal CustomUser customUser) {
-	        
-	        // 1. (이미 존재하는) 게임 결과 저장 로직
-	        // 이 부분에서 DB에 점수가 저장되고, 경험치가 업데이트된다고 가정합니다.
-	        // 예시: gameResultService.saveAndAddExp(gameResultDto);
-	        
-	        // 2. 경험치 업데이트 후 레벨업 로직만 호출
-	        int userId = customUser.getUserData().getId();
-	        userService.checkAndProcessLevelUp(userId);
+	 // 요청 본문을 받지 않도록 @RequestBody를 제거했습니다.
+	 @PostMapping("/level")
+	 public ResponseEntity<String> saveGameResult(
+	     @AuthenticationPrincipal CustomUser customUser) {
+	     
+	     // 경험치 업데이트 후 레벨업 로직만 호출
+	     int userId = customUser.getUserData().getId();
+	     userService.checkAndProcessLevelUp(userId);
 
-	        return ResponseEntity.ok("게임 결과 및 경험치 처리가 성공적으로 완료되었습니다.");
-	    }
+	     return ResponseEntity.ok("게임 결과 및 경험치 처리가 성공적으로 완료되었습니다.");
+	 }
 
     // 로그인된 유저 기준으로 결과 조회 (POST)
     @PostMapping
@@ -51,8 +47,4 @@ public class GameResultController {
         System.out.println("getUserResults called with userId: " + userId);
         return gameResultService.getAllResults(userId);
     }
-    
-    
 }
-
-

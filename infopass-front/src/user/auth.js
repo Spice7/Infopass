@@ -46,3 +46,5 @@ export const getWrongAnswers = () => api.post('/wrong-answers');
 // 게임 결과 가져오기
 export const getGameResults = () => api.post('/results');
 
+// 레벨업 검토
+export const checkLevelUp = () => api.post('/results/level');
