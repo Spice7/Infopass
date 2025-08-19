@@ -110,7 +110,7 @@ const WrongNotes = () => {
     return (
       <Box sx={{ textAlign: 'center', mt: 8 }}>
         <CircularProgress color="primary" size={60} />
-        <Typography variant="h6" color="text.secondary" sx={{ mt: 2 }}>
+        <Typography variant="h6" color="#fff" sx={{ mt: 2 }}>
           오답노트를 불러오는 중...
         </Typography>
       </Box>
@@ -121,10 +121,10 @@ const WrongNotes = () => {
     return (
       <Box sx={{ textAlign: 'center', mt: 10, p: 3 }}>
         <QuestionAnswerIcon sx={{ fontSize: 80, color: theme.palette.grey[400] }} />
-        <Typography variant="h5" color="text.secondary" sx={{ mt: 3 }}>
+        <Typography variant="h5" color="#fff" sx={{ mt: 3 }}>
           아직 틀린 문제가 없네요! 🎉
         </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
+        <Typography variant="body1" color="#fff" sx={{ mt: 1 }}>
           문제를 풀고 오답이 생기면 여기에 표시됩니다.
         </Typography>
       </Box>
@@ -133,6 +133,7 @@ const WrongNotes = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', pt: 1, px: 2 }}>
+      
       <Tabs
         value={selectedGameType}
         onChange={(e, newVal) => setSelectedGameType(newVal)}
@@ -143,6 +144,7 @@ const WrongNotes = () => {
           '.MuiTabs-flexContainer': { gap: 2, flexWrap: 'wrap' },
           '.MuiTabs-indicator': { display: 'none !important' },
           '.MuiTab-root': {
+              outline: 'none',   // 선택 시 외곽선 제거
             fontWeight: 700,
             fontSize: 16,
             textTransform: 'none',
@@ -151,12 +153,12 @@ const WrongNotes = () => {
             transition: 'all 0.3s',
             color: theme.palette.grey[600],
             backgroundColor: theme.palette.grey[200],
-            '&:hover': { backgroundColor: theme.palette.grey[400] },
+            '&:hover': { color: '#fff',backgroundColor: 'rgba(46, 46, 78, 0.8)' },
             '&.Mui-selected': {
-              backgroundColor: theme.palette.grey[400],
+              backgroundColor: 'rgba(46, 46, 78, 0.8)',
               color: '#fff',
               boxShadow: '0 6px 15px rgb(0 0 0 / 0.2)',
-              transform: 'translateY(-2px)',
+
             },
           },
         }}
@@ -170,13 +172,13 @@ const WrongNotes = () => {
         <List>
           {filteredWrongAnswers.length === 0 ? (
             <Box sx={{ textAlign: 'center', mt: 6, p: 3 }}>
-              <QuestionAnswerIcon sx={{ fontSize: 80, color: theme.palette.grey[400] }} />
-              <Typography variant="h6" color="text.secondary" sx={{ mt: 3 }}>
+              <QuestionAnswerIcon sx={{ fontSize: 80, color: '#fff' }} />
+              <Typography variant="h6" color="#fff" sx={{ mt: 3 }}>
                 {selectedGameType === 'all'
                   ? '틀린 문제가 없어요.'
                   : `${selectedGameType.toUpperCase()} 타입의 틀린 문제가 없어요.`}
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              <Typography variant="body2" color="#fff" sx={{ mt: 1 }}>
                 다른 탭을 확인하거나 문제를 풀어보세요!
               </Typography>
             </Box>
@@ -193,7 +195,7 @@ const WrongNotes = () => {
                   transition: 'all 0.3s',
                   '&:hover': {
                     boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
-                    transform: 'translateY(-2px)',
+                
                   },
                 }}
                 onClick={() => handleOpenDialog(item)}

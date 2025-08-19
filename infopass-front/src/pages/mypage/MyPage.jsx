@@ -28,7 +28,7 @@ const MyPage = () => {
     <Box
       sx={{
         display: 'flex',
-        bgcolor: '#f9faff',
+        bgcolor: 'transparent',
         height: 'calc(80vh - 60px)', // 헤더 높이만큼 줄이기
         mt: '60px',                   // 헤더 아래로 내리기
       }}
@@ -44,12 +44,12 @@ const MyPage = () => {
           width: 'calc(100vw - 280px)',
           boxSizing: 'border-box',
           p: 2,
-          backgroundColor: '#f5f5f5',
+          backgroundColor: 'transparent',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          height: '100%',
-          overflow: 'hidden',
+            height: 'auto',
+          overflow: 'visible', // 스크롤바 숨기기
         }}
       >
         <Box
