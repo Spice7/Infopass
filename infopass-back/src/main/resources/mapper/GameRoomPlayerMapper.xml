@@ -9,5 +9,6 @@
         game_room_player where room_id=#{roomId} </select>
     <update id="updatePlayerReady"> update game_room_player set ready=#{ready} where id=#{playerId} </update>
     <delete id="deletePlayer"> delete from game_room_player where Id=#{playerId} </delete>
-
+    <select id="existsByRoomIdAndUserId" resultType="boolean"> select count(*) > 0 from
+        game_room_player where room_id = #{roomId} and user_id = #{userId} </select>
 </mapper>

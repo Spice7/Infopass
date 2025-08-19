@@ -11,16 +11,10 @@ const socket = new SockJS("http://localhost:9000/ws-game");
 const stompClient = Stomp.over(socket);
 
 const API_BASE_URL = "http://localhost:9000";
-
-// Axios 인스턴스 설정
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  headers: { "Content-Type": "application/json" },
 });
-
-// 모든 요청에 Authorization 헤더를 자동으로 추가하는 인터셉터
 axiosInstance.interceptors.request.use(
   (config) => {
     const accessToken = Cookies.get("accessToken");
@@ -29,58 +23,46 @@ axiosInstance.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-export default function RoomWaitPage({ onReady }) {
-  const { userInfo } = useContext(LoginContext); // 👈 useContext로 userInfo 가져오기
+export default function RoomWaitPage() {
+  const { userInfo } = useContext(LoginContext);
   const [ready, setReady] = useState(false);
-  const [allReady, setAllReady] = useState(false);
   const [players, setPlayers] = useState([]);
   const [playerId, setPlayerId] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const { roomId } = location.state || {}; // userInfo는 useContext로 가져오므로 필요 없음
+  const { roomId } = location.state || {};
 
   useEffect(() => {
     stompClient.connect({}, () => {
       stompClient.subscribe(`/topic/room/${roomId}`, (msg) => {
         const data = JSON.parse(msg.body);
         if (data.type === "start") {
+          // 소켓으로 게임 시작 신호가 오면 quizList와 함께 이동
           navigate("/blankgame/multi", {
-            state: { roomId, quizList: data.quizeList },
+            state: { roomId, quizList: data.quizList },
           });
         }
       });
     });
   }, [roomId, navigate]);
 
-  // 방 정보가 없을 경우 처리
-  if (!roomId || !userInfo) {
-    return <div>방 정보가 없거나 로그인 정보가 유효하지 않습니다.</div>;
-  }
-
-  // 주기적으로 players 정보 갱신
   useEffect(() => {
     const fetchPlayers = async () => {
       try {
         const res = await axiosInstance.get(`/api/rooms/${roomId}/players`);
         setPlayers(res.data);
-        console.log("플레이어 목록 갱신:", res.data);
       } catch (error) {
         console.error("플레이어 목록 로딩 실패:", error);
       }
     };
-
-    fetchPlayers(); // 컴포넌트 마운트 시 최초 실행
+    fetchPlayers();
     const interval = setInterval(fetchPlayers, 2000);
-
     return () => clearInterval(interval);
   }, [roomId]);
 
-  // 방에 참가 (최초 1회만 실행)
   useEffect(() => {
     const joinRoom = async () => {
       try {
@@ -89,25 +71,20 @@ export default function RoomWaitPage({ onReady }) {
           nickname: userInfo.nickname,
           ready: false,
         });
-        console.log("방 참가 성공");
       } catch (error) {
         console.error("방 참가 실패:", error);
       }
     };
+    // userInfo.id, nickname, roomId가 모두 존재할 때만 1회 실행
+    if (userInfo.id && userInfo.nickname && roomId) {
+      joinRoom();
+    }
+    // 의존성 배열을 []로 설정 (최초 마운트 1회만 실행)
+  }, []);
 
-    joinRoom();
-  }, [roomId]);
-
-  // 방 입장 후 내 playerId 찾기
   useEffect(() => {
-    const findMyPlayerId = () => {
-      const me = players.find((p) => p.userId === userInfo.id);
-      if (me) {
-        setPlayerId(me.id);
-        console.log("내 플레이어 ID:", me.id);
-      }
-    };
-    findMyPlayerId();
+    const me = players.find((p) => p.userId === userInfo.id);
+    if (me) setPlayerId(me.id);
   }, [players, userInfo.id]);
 
   // 준비 버튼 클릭
@@ -119,24 +96,11 @@ export default function RoomWaitPage({ onReady }) {
         await axiosInstance.post(
           `/api/rooms/player/${playerId}/ready?ready=true`
         );
-        console.log("준비 상태 전송 성공");
       } catch (error) {
-        console.error("준비 상태 전송 실패:", error);
-        setReady(false); // 실패 시 상태 복구
+        setReady(false);
       }
     }
-    if (onReady) onReady(userInfo.id);
   };
-
-  // 모든 플레이어가 준비되었는지 확인
-  useEffect(() => {
-    if (players.length > 0 && players.every((p) => p.ready)) {
-      setAllReady(true);
-      setTimeout(() => {
-        navigate("/blankgame/multi", { state: { roomId } });
-      }, 1000);
-    }
-  }, [players, roomId, navigate]);
 
   return (
     <div className="wait-bg">
@@ -162,11 +126,6 @@ export default function RoomWaitPage({ onReady }) {
             ))}
           </ul>
         </div>
-        {allReady && (
-          <div className="all-ready-msg">
-            모든 참여자가 준비 완료! 게임 시작...
-          </div>
-        )}
       </div>
     </div>
   );
