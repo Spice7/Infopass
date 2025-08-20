@@ -73,7 +73,8 @@ export default function BlockXmlPreview({ xml, height = 260 }) {
   return (
     <div
       ref={containerRef}
-      style={{ width: '100%', height, border: '1px solid #e0e0e0', borderRadius: 8, background: '#fafafa', overflow: 'hidden' }}
+      className="block-xml-preview"
+      style={{ width: '100%', height, overflow: 'hidden' }}
     />
   );
 }
