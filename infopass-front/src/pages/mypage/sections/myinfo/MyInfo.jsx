@@ -1,90 +1,123 @@
 import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
-import { Box, CircularProgress, Typography } from '@mui/material';
+import {
+  Box,
+  CircularProgress,
+  Typography,
+  Paper,
+  Button,
+} from '@mui/material';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 
-import UserProfileCard from './UserProfileCard';      // 프로필 카드 컴포넌트 import
-import UserStatsSection from './UserStatsSection';    // 스탯(경험치, 랭킹) 컴포넌트 import
+import UserProfileCard from './UserProfileCard';
+import UserStatsSection from './UserStatsSection';
 
 import * as auth from '../../../../user/auth';
 
 const primaryColor = '#4a90e2';
 
 const MyInfo = () => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const token = Cookies.get('accessToken');
-        if (!token) {
-            setLoading(false);
-            return;
-        }
+  useEffect(() => {
+    const token = Cookies.get('accessToken');
+    if (!token) {
+      setLoading(false);
+      return;
+    }
 
-        const fetchAllData = async () => {
-            try {
-                // 1. 레벨업 검토를 위한 POST 요청
-                // auth.js의 api를 직접 사용하여 'results/level' 경로로 요청을 보냅니다.
-                // 이 요청은 api.js의 baseURL에 따라 http://localhost:9000/results/level로 전송됩니다.
-                await auth.checkLevelUp();
-                
-                // 2. 레벨업 처리 후, 최신 사용자 정보 다시 로드
-                const userRes = await auth.info();
-                setUser(userRes.data);
-
-            } catch (error) {
-                console.error("데이터를 가져오는 중 오류 발생:", error);
-                setUser(null);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchAllData();
-    }, []);
-
-    // **UserProfileCard에서 프로필 수정 후 변경된 데이터를 받는 함수**
-    const handleUserUpdate = (updatedUser) => {
-        setUser(updatedUser);
+    const fetchAllData = async () => {
+      try {
+        await auth.checkLevelUp();
+        const userRes = await auth.info();
+        setUser(userRes.data);
+      } catch (error) {
+        console.error('데이터를 가져오는 중 오류 발생:', error);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    if (loading) {
-        return (
-            <Box sx={{ width: '100%', textAlign: 'center', mt: 10 }}>
-                <CircularProgress sx={{ color: primaryColor }} />
-                <Typography sx={{ mt: 2 }} color="text.secondary">
-                    사용자 정보를 불러오는 중입니다...
-                </Typography>
-            </Box>
-        );
-    }
+    fetchAllData();
+  }, []);
 
-    if (!user) {
-        return (
-            <Box sx={{ width: '100%', textAlign: 'center', mt: 10 }}>
-                <Typography variant="h6" color="error">
-                    사용자 정보를 불러오지 못했습니다.
-                </Typography>
-            </Box>
-        );
-    }
+  const handleUserUpdate = (updatedUser) => {
+    setUser(updatedUser);
+  };
 
+  // 로딩 화면
+  if (loading) {
     return (
-        <Box
-            sx={{
-                width: '100%',
-                maxWidth: 1000,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                px: { xs: 2, md: 4 },
-                boxSizing: 'border-box',
-                py: 6,
-            }}
-        >
-            <UserProfileCard user={user} onUpdate={handleUserUpdate} />
-            <UserStatsSection user={user} />
-        </Box>
+      <Paper
+        elevation={3}
+        sx={{
+          width: '100%',
+          maxWidth: 600,
+          mx: 'auto',
+          mt: 12,
+          p: 4,
+          textAlign: 'center',
+          borderRadius: 3,
+        }}
+      >
+        <HourglassEmptyIcon sx={{ fontSize: 60, color: primaryColor }} />
+        <Typography variant="h6" sx={{ mt: 2, fontWeight: 'bold' }}>
+          사용자 정보를 불러오는 중입니다...
+        </Typography>
+        <CircularProgress sx={{ color: primaryColor, mt: 3 }} />
+      </Paper>
     );
+  }
+
+  // 오류 화면
+  if (!user) {
+    return (
+      <Paper
+        elevation={3}
+        sx={{
+          width: '100%',
+          maxWidth: 600,
+          mx: 'auto',
+          mt: 12,
+          p: 4,
+          textAlign: 'center',
+          borderRadius: 3,
+          bgcolor: '#fff3f3',
+        }}
+      >
+        <ErrorOutlineIcon sx={{ fontSize: 60, color: 'error.main' }} />
+        <Typography variant="h6" color="error" sx={{ mt: 2, fontWeight: 'bold' }}>
+          사용자 정보를 불러오지 못했습니다
+        </Typography>
+        <Typography sx={{ mt: 1, color: 'text.secondary' }}>
+          네트워크 상태를 확인하시고 다시 시도해주세요.
+        </Typography>
+        
+      </Paper>
+    );
+  }
+
+  // 정상 화면
+  return (
+    <Box
+      sx={{
+        width: '100%',
+        maxWidth: 1000,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        px: { xs: 2, md: 4 },
+        boxSizing: 'border-box',
+        py: 6,
+      }}
+    >
+      <UserProfileCard user={user} onUpdate={handleUserUpdate} />
+      <UserStatsSection user={user} />
+    </Box>
+  );
 };
 
 export default MyInfo;

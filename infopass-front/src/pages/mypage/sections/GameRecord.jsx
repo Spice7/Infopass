@@ -96,6 +96,20 @@ const GameResultList = () => {
       </Box>
     );
 
+    if (results.length === 0) {
+    return (
+      <Box sx={{ textAlign: 'center', mt: 10, p: 3 }}>
+        <QuestionAnswerIcon sx={{ fontSize: 80, color: "#fff" }} />
+        <Typography variant="h5" color="#fff" sx={{ mt: 3 }}>
+          아직 게임기록이 없네요! 🎉
+        </Typography>
+        <Typography variant="body1" color="#fff" sx={{ mt: 1 }}>
+          게임을 플레이 해보세요!
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', pt: 1, px: 2 }}>
       {/* 필터 탭 */}
@@ -151,10 +165,10 @@ const GameResultList = () => {
         {filteredResults.length === 0 ? (
           <Box sx={{ textAlign: 'center', mt: 8, p: 3 }}>
             <QuestionAnswerIcon sx={{ fontSize: 80, color: '#fff' }} />
-            <Typography variant="h5" color="'#fff'" sx={{ mt: 3 }}>
+            <Typography variant="h5" color='#fff' sx={{ mt: 3 }}>
               선택한 탭의 게임 기록이 없습니다.
             </Typography>
-            <Typography variant="body1" color="'#fff'" sx={{ mt: 1 }}>
+            <Typography variant="body1" color='#fff' sx={{ mt: 1 }}>
               다른 탭을 확인하거나 게임을 플레이 해보세요!
             </Typography>
           </Box>

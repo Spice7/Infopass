@@ -120,7 +120,7 @@ const WrongNotes = () => {
   if (wrongAnswers.length === 0) {
     return (
       <Box sx={{ textAlign: 'center', mt: 10, p: 3 }}>
-        <QuestionAnswerIcon sx={{ fontSize: 80, color: theme.palette.grey[400] }} />
+        <QuestionAnswerIcon sx={{ fontSize: 80, color: "#fff" }} />
         <Typography variant="h5" color="#fff" sx={{ mt: 3 }}>
           아직 틀린 문제가 없네요! 🎉
         </Typography>
