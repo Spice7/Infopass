@@ -3,38 +3,21 @@
 <mapper namespace="boot.infopass.mapper.CardMapper">
 	<!-- 카드 문제 랜덤 조회 (8문제)/ 아직 풀지않은 문제만 조회 -->
 	<select id="getRandomQuestionsBySubjectExceptSolved" resultType="card" parameterType="map">
-		SELECT cq.id, cq.subject, cq.question, cq.answer
+		SELECT cq.*
 		FROM cardgame_question cq
 		LEFT JOIN cardgame_submission cs
 			ON cq.id = cs.question_id
 			AND cs.user_id = #{user_id}
-			AND cs.is_correct = 1
+			AND cs.session_id = #{session_id}
+			AND cs.is_correct = true
 		WHERE cq.subject = #{subject}
 			AND cs.question_id IS NULL
 		ORDER BY RAND()
 		LIMIT 8
 	</select>
-	<select id="getSingleData" parameterType="Integer" resultType="card">
-		select * from cardgame_question where id=#{id}
-	</select>
-	<insert id="insertCard" parameterType="card">
-		insert into cardgame_question (question, answer, created_at) values (#{question}, #{answer}, now())
-	</insert>
-	<update id="updateCard" parameterType="card">
-		update cardgame_question set question=#{question}, answer=#{answer} where id=#{id}
-	</update>
-	<delete id="deleteCard" parameterType="Integer">
-		delete from cardgame_question where id=#{id}
-	</delete>
 
-	<!-- 오답노트 저장 -->
-	<insert id="insertCardSub" parameterType="cardSub">
-		insert into cardgame_submission (user_id, question_id, submitted_answer, created_at) values (#{user_id}, #{question_id}, #{submitted_answer}, now())
-	</insert>
-	
-	<!-- 게임 결과 저장 -->
-	<insert id="saveGameResult" parameterType="cardStatus">
-		insert into cardgame_status (user_id, card_id, is_correct, created_at) 
-		values (#{user_id}, #{card_id}, #{is_correct}, now())
+	<insert id="saveQuestionAttempt" parameterType="cardSub">
+		insert into cardgame_submission (user_id, question_id, session_id, submitted_answer, is_correct, created_at) 
+		values (#{user_id}, #{question_id}, #{session_id}, #{submitted_answer}, #{is_correct}, now())
 	</insert>
 </mapper>

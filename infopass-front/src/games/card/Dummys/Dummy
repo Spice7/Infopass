@@ -1,4 +1,36 @@
- const [difficulty, setDifficulty] = useState('normal'); // easy, normal, hard
+const [difficulty, setDifficulty] = useState('normal'); // easy, normal, hard
+
+  //힌트 버튼
+
+  const [hints, setHints] = useState(3);
+  const [showHint, setShowHint] = useState(false);
+  ${showHint && !card.isFlipped ? 'hint-active' : ''}
+
+      // 힌트 사용
+    const useHint = () => {
+        if (hints > 0 && !showHint) {
+            setHints(prev => prev - 1);
+            setShowHint(true);
+            setTimeout(() => setShowHint(false), 3000);
+        }
+    };
+
+    {showHint && !card.isFlipped && (
+                  <div className="hint-indicator">
+                    {card.type === 'question' ? '📝 질문' : '💡 답변'}
+                  </div>
+                )}
+  <div className="info-item">
+    <span className="label">힌트:</span>
+    <button
+      className={`hint-button ${hints > 0 ? 'available' : 'disabled'}`}
+      onClick={onUseHint}
+      disabled={hints === 0}
+    >
+      💡 힌트 ({hints})
+    </button>
+  </div>
+  
 
 
 // 난이도에 따른 문제 수 조절

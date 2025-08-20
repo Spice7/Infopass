@@ -405,52 +405,161 @@
 /* 게임 완료 화면 */
 .game-complete {
   text-align: center;
-  background: rgba(76, 175, 80, 0.2);
+  background: rgba(255, 255, 255, 0.1);
   padding: 40px;
   border-radius: 20px;
-  margin-top: 30px;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(76, 175, 80, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin: 20px 0;
 }
 
 .game-complete h2 {
-  color: #4caf50;
+  font-size: 2.5rem;
   margin-bottom: 20px;
-  font-size: 2rem;
+  background: linear-gradient(45deg, #fff, #f0f0f0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .game-complete p {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   margin-bottom: 15px;
+  opacity: 0.9;
 }
 
 .final-stats {
   background: rgba(255, 255, 255, 0.1);
   padding: 20px;
   border-radius: 15px;
-  margin-top: 20px;
+  margin: 20px 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .final-stats p {
   margin: 10px 0;
   font-size: 1.1rem;
+  font-weight: bold;
 }
 
-/* 시간 초과 화면 */
+.game-complete-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 30px;
+}
+
+.game-complete-buttons button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.game-complete-buttons button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.game-complete-buttons button:active {
+  transform: translateY(-1px);
+}
+
+/* 게임 완료 버튼들 개별 스타일 */
+.game-complete-buttons button:first-child {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+}
+
+.game-complete-buttons button:first-child:hover {
+  background: linear-gradient(135deg, #45a049 0%, #4CAF50 100%);
+}
+
+.game-complete-buttons button:last-child {
+  background: linear-gradient(135deg, #FF5722 0%, #E64A19 100%);
+}
+
+.game-complete-buttons button:last-child:hover {
+  background: linear-gradient(135deg, #E64A19 0%, #FF5722 100%);
+}
+
+/* 게임 타임아웃 화면 */
 .game-timeout {
   text-align: center;
-  background: rgba(244, 67, 54, 0.2);
+  background: rgba(255, 255, 255, 0.1);
   padding: 40px;
   border-radius: 20px;
-  margin-top: 30px;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(244, 67, 54, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin: 20px 0;
 }
 
 .game-timeout h2 {
-  color: #f44336;
+  font-size: 2.5rem;
   margin-bottom: 20px;
-  font-size: 2rem;
+  background: linear-gradient(45deg, #FF5722, #E64A19);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.game-timeout p {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  opacity: 0.9;
+}
+
+.game-timeout-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 30px;
+}
+
+.game-timeout-buttons button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.game-timeout-buttons button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.game-timeout-buttons button:active {
+  transform: translateY(-1px);
+}
+
+/* 게임 타임아웃 버튼들 개별 스타일 */
+.game-timeout-buttons button:first-child {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+}
+
+.game-timeout-buttons button:first-child:hover {
+  background: linear-gradient(135deg, #45a049 0%, #4CAF50 100%);
+}
+
+.game-timeout-buttons button:last-child {
+  background: linear-gradient(135deg, #FF5722 0%, #E64A19 100%);
+}
+
+.game-timeout-buttons button:last-child:hover {
+  background: linear-gradient(135deg, #E64A19 0%, #FF5722 100%);
 }
 
 /* 스크롤바 스타일 */
@@ -589,4 +698,104 @@
 
 .card.flipped:not(.matched):hover .card-inner {
   transform: rotateY(180deg) scale(1.02);
+}
+
+/* 게임 컨트롤 버튼들 */
+.game-controls-overlay {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.game-controls {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.restart-button,
+.next-question-btn,
+.game-end-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.restart-button:hover,
+.next-question-btn:hover,
+.game-end-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.restart-button:active,
+.next-question-btn:active,
+.game-end-btn:active {
+  transform: translateY(-1px);
+}
+
+/* 게임 재시작 버튼 특별 스타일 */
+.restart-button {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+}
+
+.restart-button:hover {
+  background: linear-gradient(135deg, #45a049 0%, #4CAF50 100%);
+}
+
+/* 다음 문제 버튼 특별 스타일 */
+.next-question-btn {
+  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+  animation: pulse 2s infinite;
+}
+
+.next-question-btn:hover {
+  background: linear-gradient(135deg, #1976D2 0%, #2196F3 100%);
+  animation: none;
+}
+
+/* 게임종료 버튼 특별 스타일 */
+.game-end-btn {
+  background: linear-gradient(135deg, #FF5722 0%, #E64A19 100%);
+}
+
+.game-end-btn:hover {
+  background: linear-gradient(135deg, #E64A19 0%, #FF5722 100%);
+}
+
+/* 다음 문제 버튼 펄스 애니메이션 */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 25px rgba(33, 150, 243, 0.6);
+  }
+  100% {
+    box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .game-controls {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .restart-button,
+  .next-question-btn,
+  .game-end-btn {
+    width: 200px;
+    margin: 5px 0;
+  }
 }

@@ -69,10 +69,10 @@ public class SecurityConfig {
 
                 // ✅ 2. 인증 없이 접근을 허용할 경로들
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                .requestMatchers("/", "/login", "/user/**", "/wrong-answers/**", "/results/**").permitAll()
+                .requestMatchers("/card/**").permitAll()
+                .requestMatchers("/", "/login", "/user/**", "/admin/**", "/wrong-answers/**", "/results/**").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/ox_image/**").permitAll()
-                .requestMatchers("/lobby/**", "/oxquiz/**", "/rank/**", "/block/**", "/blankgamesingle/**", "/card/**").permitAll() // 게임 관련 API 허용
+                .requestMatchers("/lobby/**", "/oxquiz/**", "/rank/**", "/block/**", "/blankgamesingle/**").permitAll() // 게임 관련 API 허용
 
                 // ✅ 3. 특정 권한이 필요한 경로
                 .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
@@ -100,7 +100,7 @@ public class SecurityConfig {
 
         // 허용할 오리진 설정
         configuration.addAllowedOrigin("http://localhost:5173");
-
+        configuration.addAllowedOrigin("http://192.168.10.141:5173");
         // 허용할 헤더 설정
         configuration.addAllowedHeader("*");
 
