@@ -189,9 +189,9 @@ const GameResultList = () => {
           <List>
             {filteredResults.map(
               // DTO의 카멜 케이스 변수명으로 구조 분해 할당
-              ({ id, score, userRank, userRankPoint, gameType, createdAt }) => {
+              ({ id, score, userRank, userRankPoint, gameType, createdAt,userExp }) => {
                 const rankChangeInfo = getRankChangeInfo(userRankPoint);
-                const isWinLoseGame = ['oxquiz', 'block', 'card'].includes(gameType);
+                const isWinLoseGame = ['oxquiz', 'block'].includes(gameType);
                 const isSingleExpGame = ['block', 'card'].includes(gameType) && !userRank;
 
                 return (
