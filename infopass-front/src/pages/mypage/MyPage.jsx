@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, CircularProgress } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import Sidebar from './Sidebar';
 import MyInfo from './sections/myinfo/MyInfo';
@@ -11,8 +11,9 @@ import Inquiries from './sections/Inquiries';
 const MyPage = () => {
   const [selectedMenu, setSelectedMenu] = useState('내 정보');
   const [openDialog, setOpenDialog] = useState(false);
-  const [loading, setLoading] = useState(true); // 로그인 체크 완료 여부
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const token = Cookies.get('accessToken');
@@ -23,7 +24,8 @@ const MyPage = () => {
   }, []);
 
   const handleConfirm = () => {
-    navigate('/login'); // 로그인 페이지 이동
+    // 로그인 페이지로 이동하면서 돌아올 경로 전달
+    navigate('/login', { state: { from: location.pathname } });
   };
 
   const handleCancel = () => {
@@ -45,7 +47,6 @@ const MyPage = () => {
     }
   };
 
-  // 로그인 체크 중이면 로딩 표시
   if (loading) {
     return (
       <Box sx={{ width: '100%', height: '80vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -54,7 +55,6 @@ const MyPage = () => {
     );
   }
 
-  // 로그인 없으면 다이얼로그만 표시
   if (openDialog) {
     return (
       <Dialog
@@ -114,7 +114,6 @@ const MyPage = () => {
     );
   }
 
-  // 로그인 되어 있으면 원래 페이지 렌더링
   return (
     <Box sx={{ display: 'flex', bgcolor: 'transparent', height: 'calc(80vh - 60px)', mt: '60px' }}>
       <Sidebar selectedMenu={selectedMenu} setSelectedMenu={setSelectedMenu} />
