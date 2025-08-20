@@ -169,7 +169,30 @@ const WrongNotes = () => {
         ))}
       </Tabs>
 
-      <Box sx={{ flexGrow: 1, overflowY: 'auto', pr: 1 }}>
+      <Box
+        sx={{
+          flexGrow: 1,
+          overflowY: 'auto',
+          pr: 1,
+          // 스크롤바 커스텀 (우주/은하 컨셉)
+          '&::-webkit-scrollbar': {
+            width: 10,
+            background: 'rgba(30,34,64,0.7)',
+            borderRadius: 8,
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: 'linear-gradient(135deg, #8e44ad 30%, #232946 100%)',
+            borderRadius: 8,
+            minHeight: 40,
+            border: '2px solid #232946',
+          },
+          '&::-webkit-scrollbar-thumb:hover': {
+            background: 'linear-gradient(135deg, #a55eea 0%, #232946 100%)',
+          },
+          scrollbarColor: '#8e44ad #232946',
+          scrollbarWidth: 'thin',
+        }}
+      >
         <List>
           {filteredWrongAnswers.length === 0 ? (
             <Box sx={{ textAlign: 'center', mt: 6, p: 3 }}>

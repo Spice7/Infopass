@@ -30,7 +30,7 @@ public class GameResultController {
 
 	 // 요청 본문을 받지 않도록 @RequestBody를 제거했습니다.
 	 @PostMapping("/level")
-	 public ResponseEntity<String> saveGameResult(
+	 public ResponseEntity<String> ExpResult(
 	     @AuthenticationPrincipal CustomUser customUser) {
 	     
 	     // 경험치 업데이트 후 레벨업 로직만 호출

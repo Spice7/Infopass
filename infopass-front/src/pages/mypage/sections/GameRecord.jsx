@@ -114,37 +114,34 @@ const GameResultList = () => {
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', pt: 1, px: 2 }}>
       {/* 필터 탭 */}
       <Tabs
-  value={filter}
-  onChange={(e, v) => setFilter(v)}
-  centered
-  indicatorColor="none"
-  sx={{
-    mb: 3,
-    '.MuiTabs-flexContainer': { gap: 2, flexWrap: 'wrap' },
-    '.MuiTabs-indicator': { display: 'none !important' },
-    '.MuiTab-root': {
-      fontWeight: 700,
-      fontSize: 16,
-      textTransform: 'none',
-      borderRadius: 3,
-      padding: '10px 24px',
-      transition: 'all 0.3s',
-      color: theme.palette.grey[600],
-      backgroundColor: theme.palette.grey[200],
-      boxShadow: 'none',
-      border: 'none',
-      outline: 'none',
-      '&:focus-visible': { outline: 'none' },
-      '&:hover': { color: '#fff',backgroundColor: 'rgba(46, 46, 78, 0.8)' },
-      '&:active': { backgroundColor: theme.palette.grey[500] },
-      '&.Mui-selected': {
-        backgroundColor: 'rgba(46, 46, 78, 0.8)', // WrongNotes 스타일
-        color: '#fff',
-        boxShadow: '0 6px 15px rgb(0 0 0 / 0.2)',
-      },
-    },
-  }}
->
+        value={filter}
+        onChange={(e, v) => setFilter(v)}
+        centered
+        indicatorColor="none"
+        sx={{
+          mb: 3,
+          '.MuiTabs-flexContainer': { gap: 2, flexWrap: 'wrap' },
+          '.MuiTabs-indicator': { display: 'none !important' },
+          '.MuiTab-root': {
+            outline: 'none',   // 선택 시 외곽선 제거
+            fontWeight: 700,
+            fontSize: 16,
+            textTransform: 'none',
+            borderRadius: 3,
+            padding: '10px 24px',
+            transition: 'all 0.3s',
+            color: theme.palette.grey[600],
+            backgroundColor: theme.palette.grey[200],
+            '&:focus-visible': { outline: 'none' },
+            '&:hover': { color: '#fff', backgroundColor: 'rgba(46, 46, 78, 0.8)' },
+            '&.Mui-selected': {
+              backgroundColor: 'rgba(46, 46, 78, 0.8)',
+              color: '#fff',
+              boxShadow: '0 6px 15px rgb(0 0 0 / 0.2)',
+            },
+          },
+        }}
+      >
         <Tab value="all" label="전체" />
         <Tab value="quiz" label="QUIZ" />
         <Tab value="oxquiz" label="OXQUIZ" />
@@ -152,7 +149,6 @@ const GameResultList = () => {
         <Tab value="card" label="CARD" />
       </Tabs>
 
-      {/* 결과 목록 */}
       <Box
         sx={{
           flexGrow: 1,
@@ -160,6 +156,23 @@ const GameResultList = () => {
           pr: 1,
           WebkitOverflowScrolling: 'touch',
           maxHeight: { xs: '60vh', md: 'calc(100vh - 240px)' },
+          // 스크롤바 커스텀 (우주/은하 컨셉)
+          '&::-webkit-scrollbar': {
+            width: 10,
+            background: 'rgba(30,34,64,0.7)',
+            borderRadius: 8,
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: 'linear-gradient(135deg, #8e44ad 30%, #232946 100%)',
+            borderRadius: 8,
+            minHeight: 40,
+            border: '2px solid #232946',
+          },
+          '&::-webkit-scrollbar-thumb:hover': {
+            background: 'linear-gradient(135deg, #a55eea 0%, #232946 100%)',
+          },
+          scrollbarColor: '#8e44ad #232946',
+          scrollbarWidth: 'thin',
         }}
       >
         {filteredResults.length === 0 ? (
@@ -179,6 +192,7 @@ const GameResultList = () => {
               ({ id, score, userRank, userRankPoint, gameType, createdAt }) => {
                 const rankChangeInfo = getRankChangeInfo(userRankPoint);
                 const isWinLoseGame = ['oxquiz', 'block', 'card'].includes(gameType);
+                const isSingleExpGame = ['block', 'card'].includes(gameType) && !userRank;
 
                 return (
                   <React.Fragment key={id}>
@@ -224,7 +238,11 @@ const GameResultList = () => {
                           점수: <span style={{ color: '#d32f2f' }}>{score.toLocaleString()}</span>
                         </Typography>
 
-                        {isWinLoseGame ? (
+                        {isSingleExpGame ? (
+                          <Typography variant="subtitle1" sx={{ fontWeight: '600', color: '#f57c00' }}>
+                            경험치: <span style={{ color: '#ff9800' }}>{userExp?.toLocaleString()}</span>
+                          </Typography>
+                        ) : isWinLoseGame ? (
                           <Typography
                             variant="subtitle1"
                             sx={{
