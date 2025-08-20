@@ -100,6 +100,7 @@ public class SecurityConfig {
 
         // 허용할 오리진 설정
         configuration.addAllowedOrigin("http://localhost:5173");
+        configuration.addAllowedOrigin("http://192.168.10.141:5173");
 
         // 허용할 헤더 설정
         configuration.addAllowedHeader("*");

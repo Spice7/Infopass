@@ -16,7 +16,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 // 개발 환경에서 다양한 로컬 호스트/포트 허용 (필요시 도메인으로 제한 가능)
                 .setAllowedOriginPatterns(
                         "http://localhost:*",
-                        "http://127.0.0.1:*"
+                        "http://127.0.0.1:*",
+                        "http://192.168.*.*:*"
                 )
                 .withSockJS();
 	}

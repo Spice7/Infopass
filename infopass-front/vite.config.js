@@ -18,4 +18,8 @@ export default defineConfig({
       plugins: [rollupNodePolyFill()],
     },
   },
+  server: {
+    host: '0.0.0.0',   // 모든 인터페이스 공개
+    port: 5173         // 원하는 포트
+  }
 });
