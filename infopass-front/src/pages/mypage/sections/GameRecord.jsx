@@ -96,42 +96,55 @@ const GameResultList = () => {
       </Box>
     );
 
+    if (results.length === 0) {
+    return (
+      <Box sx={{ textAlign: 'center', mt: 10, p: 3 }}>
+        <QuestionAnswerIcon sx={{ fontSize: 80, color: "#fff" }} />
+        <Typography variant="h5" color="#fff" sx={{ mt: 3 }}>
+          아직 게임기록이 없네요! 🎉
+        </Typography>
+        <Typography variant="body1" color="#fff" sx={{ mt: 1 }}>
+          게임을 플레이 해보세요!
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', pt: 1, px: 2 }}>
       {/* 필터 탭 */}
       <Tabs
-        value={filter}
-        onChange={(e, v) => setFilter(v)}
-        centered
-        indicatorColor="none"
-        sx={{
-          mb: 3,
-          '.MuiTabs-flexContainer': { gap: 2, flexWrap: 'wrap' },
-          '.MuiTabs-indicator': { display: 'none !important' },
-          '.MuiTab-root': {
-            fontWeight: 700,
-            fontSize: 16,
-            textTransform: 'none',
-            borderRadius: 3,
-            padding: '10px 24px',
-            transition: 'all 0.3s',
-            color: theme.palette.grey[600],
-            backgroundColor: theme.palette.grey[200],
-            boxShadow: 'none',
-            border: 'none',
-            outline: 'none',
-            '&:focus-visible': { outline: 'none' },
-            '&:hover': { backgroundColor: theme.palette.grey[400] },
-            '&:active': { backgroundColor: theme.palette.grey[500] },
-            '&.Mui-selected': {
-              backgroundColor: theme.palette.grey[400],
-              color: '#fff',
-              boxShadow: '0 6px 15px rgb(0 0 0 / 0.2)',
-              transform: 'translateY(-2px)',
-            },
-          },
-        }}
-      >
+  value={filter}
+  onChange={(e, v) => setFilter(v)}
+  centered
+  indicatorColor="none"
+  sx={{
+    mb: 3,
+    '.MuiTabs-flexContainer': { gap: 2, flexWrap: 'wrap' },
+    '.MuiTabs-indicator': { display: 'none !important' },
+    '.MuiTab-root': {
+      fontWeight: 700,
+      fontSize: 16,
+      textTransform: 'none',
+      borderRadius: 3,
+      padding: '10px 24px',
+      transition: 'all 0.3s',
+      color: theme.palette.grey[600],
+      backgroundColor: theme.palette.grey[200],
+      boxShadow: 'none',
+      border: 'none',
+      outline: 'none',
+      '&:focus-visible': { outline: 'none' },
+      '&:hover': { color: '#fff',backgroundColor: 'rgba(46, 46, 78, 0.8)' },
+      '&:active': { backgroundColor: theme.palette.grey[500] },
+      '&.Mui-selected': {
+        backgroundColor: 'rgba(46, 46, 78, 0.8)', // WrongNotes 스타일
+        color: '#fff',
+        boxShadow: '0 6px 15px rgb(0 0 0 / 0.2)',
+      },
+    },
+  }}
+>
         <Tab value="all" label="전체" />
         <Tab value="quiz" label="QUIZ" />
         <Tab value="oxquiz" label="OXQUIZ" />
@@ -151,11 +164,11 @@ const GameResultList = () => {
       >
         {filteredResults.length === 0 ? (
           <Box sx={{ textAlign: 'center', mt: 8, p: 3 }}>
-            <QuestionAnswerIcon sx={{ fontSize: 80, color: theme.palette.grey[400] }} />
-            <Typography variant="h5" color="text.secondary" sx={{ mt: 3 }}>
+            <QuestionAnswerIcon sx={{ fontSize: 80, color: '#fff' }} />
+            <Typography variant="h5" color='#fff' sx={{ mt: 3 }}>
               선택한 탭의 게임 기록이 없습니다.
             </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
+            <Typography variant="body1" color='#fff' sx={{ mt: 1 }}>
               다른 탭을 확인하거나 게임을 플레이 해보세요!
             </Typography>
           </Box>
