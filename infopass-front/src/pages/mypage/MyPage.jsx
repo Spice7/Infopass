@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography } from '@mui/material';
+import { Box, Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import Sidebar from './Sidebar';
@@ -11,6 +11,7 @@ import Inquiries from './sections/Inquiries';
 const MyPage = () => {
   const [selectedMenu, setSelectedMenu] = useState('내 정보');
   const [openDialog, setOpenDialog] = useState(false);
+  const [loading, setLoading] = useState(true); // 로그인 체크 완료 여부
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,16 +19,15 @@ const MyPage = () => {
     if (!token) {
       setOpenDialog(true);
     }
+    setLoading(false);
   }, []);
 
   const handleConfirm = () => {
-    setOpenDialog(false);
-    navigate('/login'); // 로그인 페이지로 이동
+    navigate('/login'); // 로그인 페이지 이동
   };
 
   const handleCancel = () => {
-    setOpenDialog(false);
-    navigate('/'); // 메인 페이지로 이동 (혹은 이전 페이지로 돌리기)
+    navigate('/'); // 메인 페이지 이동
   };
 
   const renderMainContent = () => {
@@ -45,18 +45,20 @@ const MyPage = () => {
     }
   };
 
-  return (
-    <Box sx={{ display: 'flex', bgcolor: 'transparent', height: 'calc(80vh - 60px)', mt: '60px' }}>
-      <Sidebar selectedMenu={selectedMenu} setSelectedMenu={setSelectedMenu} />
-      <Box component="main" sx={{ flexGrow: 1, width: 'calc(100vw - 280px)', p: 2 }}>
-        <Box sx={{ width: '100%', maxWidth: 900, height: '100%', display: 'flex', flexDirection: 'column' }}>
-          {renderMainContent()}
-        </Box>
+  // 로그인 체크 중이면 로딩 표시
+  if (loading) {
+    return (
+      <Box sx={{ width: '100%', height: '80vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <CircularProgress />
       </Box>
+    );
+  }
 
-      {/* 로그인 필요 다이얼로그 */}
+  // 로그인 없으면 다이얼로그만 표시
+  if (openDialog) {
+    return (
       <Dialog
-        open={openDialog}
+        open={true}
         onClose={handleCancel}
         PaperProps={{
           sx: {
@@ -77,15 +79,14 @@ const MyPage = () => {
           </Typography>
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'center', gap: 2 }}>
-          
           <Button
             variant="outlined"
             onClick={handleCancel}
             sx={{
               borderRadius: 2,
               px: 3,
-               minWidth: 100,   // 버튼 최소 너비 고정
-                maxWidth: 100,   // 버튼 최소 너비 고정
+              minWidth: 100,
+              maxWidth: 100,
               borderColor: '#fff',
               color: '#fff',
               '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' },
@@ -93,16 +94,14 @@ const MyPage = () => {
           >
             아니오
           </Button>
-
           <Button
             variant="outlined"
             onClick={handleConfirm}
             sx={{
               borderRadius: 2,
               px: 3,
-               minWidth: 100,   // 버튼 최소 너비 고정
-                maxWidth: 100,   // 버튼 최소 너비 고정
-                
+              minWidth: 100,
+              maxWidth: 100,
               borderColor: '#fff',
               color: '#fff',
               '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' },
@@ -112,6 +111,18 @@ const MyPage = () => {
           </Button>
         </DialogActions>
       </Dialog>
+    );
+  }
+
+  // 로그인 되어 있으면 원래 페이지 렌더링
+  return (
+    <Box sx={{ display: 'flex', bgcolor: 'transparent', height: 'calc(80vh - 60px)', mt: '60px' }}>
+      <Sidebar selectedMenu={selectedMenu} setSelectedMenu={setSelectedMenu} />
+      <Box component="main" sx={{ flexGrow: 1, width: 'calc(100vw - 280px)', p: 2 }}>
+        <Box sx={{ width: '100%', maxWidth: 900, height: '100%', display: 'flex', flexDirection: 'column' }}>
+          {renderMainContent()}
+        </Box>
+      </Box>
     </Box>
   );
 };
