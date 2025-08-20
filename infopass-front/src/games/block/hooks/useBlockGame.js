@@ -3,6 +3,7 @@ import * as Blockly from 'blockly';
 import { JavaGenerator } from '../javaGenerator';
 import { registerAllBlocks } from '../blocks';
 import { generateNewSession, getRandomUnsolvedQuestion, submitAnswerToBackend } from '../BlockAPI';
+import * as gameResult from '@/user/gameResult.js'
 
 // 블록 코딩 게임 상태와 로직을 캡슐화한 커스텀 훅
 // 게임 시작, 초기화, 다음 문제 넘어가기 등 주요 기능들이 여기 있다
@@ -112,6 +113,12 @@ export function useBlockGame(userInfo) {
           // 저장은 원본 XML (프리뷰/복원 가능)
           submitted_answer: rawXmlText
         });
+        // 경험치 증가
+        try {
+          await gameResult.applyExp(gameResult.BLOCKGAME_EXP);
+        } catch (expError) {
+          console.error('경험치 증가 실패:', expError);
+        }
         setSolvedQuestions(prev => new Set([...prev, currentQuestion.id]));
         setShowNextButton(true);
       } else {

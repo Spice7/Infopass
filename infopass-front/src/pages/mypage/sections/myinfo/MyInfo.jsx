@@ -14,6 +14,7 @@ import UserProfileCard from './UserProfileCard';
 import UserStatsSection from './UserStatsSection';
 
 import * as auth from '../../../../user/auth';
+import * as gameResult from '@/user/gameResult.js'
 
 const primaryColor = '#4a90e2';
 
@@ -30,7 +31,7 @@ const MyInfo = () => {
 
     const fetchAllData = async () => {
       try {
-        await auth.checkLevelUp();
+        await gameResult.checkLevelUp();
         const userRes = await auth.info();
         setUser(userRes.data);
       } catch (error) {
