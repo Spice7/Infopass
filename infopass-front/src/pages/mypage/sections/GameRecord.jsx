@@ -19,7 +19,7 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 
-import { getGameResults } from '../../../user/auth'; // API 함수
+import { getGameResults } from '../../../user/gameResult.js'; // API 함수
 
 const GameResultList = () => {
   const theme = useTheme();

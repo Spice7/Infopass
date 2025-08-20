@@ -163,27 +163,55 @@ public class UserService implements UserServiceInter {
 	
 	private static final int EXP_PER_LEVEL = 100;
 
+	// 현재 exp/level 값을 기준으로 레벨업을 처리하고 exp를 정규화	// 게임마다 공용으로 사용 가능
+	private UserDto processLeveling(UserDto user) {
+		int currentExp = (user.getExp() == null ? 0 : user.getExp());
+		int currentLevel = (user.getLevel() == null ? 0 : user.getLevel());
+
+		// 음수 경험치 방어		// 우린 레벨다운이 없다
+		if (currentExp < 0) {
+			currentExp = 0;
+		}
+
+		while (currentExp >= EXP_PER_LEVEL) {
+			currentLevel++;
+			currentExp -= EXP_PER_LEVEL;
+		}
+
+		user.setExp(currentExp);
+		user.setLevel(currentLevel);
+		return user;
+	}
+
+	/**
+	 * 사용자 경험치를 증감하고 레벨업(또는 클램프)을 처리한 뒤, 최신 사용자 정보를 반환한다.
+	 * 음수 입력이 들어올 경우, 레벨 다운은 하지 않으며 현재 레벨 내에서 exp는 0 미만으로 내려가지 않도록 0으로 클램프한다.
+	 */
+	public UserDto applyExpAndProcessLevel(int userId, int expDelta) {
+		UserDto user = userMapper.getUserById(userId);
+		if (user == null) {
+			return null;
+		}
+
+		int newExp = (user.getExp() == null ? 0 : user.getExp()) + expDelta;
+		user.setExp(newExp);
+		processLeveling(user);
+		userMapper.updateUserExpAndLevel(user);
+		return userMapper.getUserById(userId);
+	}
+
 	public void checkAndProcessLevelUp(int userId) {
-        // 1. 현재 사용자 정보 조회 (최신 exp와 level)
+        // 현재 사용자 정보 조회 (최신 exp와 level)
         UserDto user = userMapper.getUserById(userId);
         if (user == null) {
             System.out.println("사용자를 찾을 수 없습니다: " + userId);
             return;
         }
 
-        // 2. 레벨업 반복 처리
-        int newExp = user.getExp();
-        int newLevel = user.getLevel();
+        // 공용 레벨 계산 로직
+        processLeveling(user);
 
-        while (newExp >= EXP_PER_LEVEL) {
-            newLevel++;
-            newExp -= EXP_PER_LEVEL;
-            System.out.println("축하합니다! 레벨 " + newLevel + "로 레벨업했습니다!");
-        }
-
-        // 3. 변경된 경험치와 레벨을 DB에 업데이트
-        user.setExp(newExp);
-        user.setLevel(newLevel);
+        // 변경된 경험치와 레벨을 DB에 업데이트
         userMapper.updateUserExpAndLevel(user);
     }
 	

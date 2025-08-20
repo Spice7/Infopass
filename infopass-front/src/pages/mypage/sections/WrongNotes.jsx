@@ -22,7 +22,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
 import ReactMarkdown from 'react-markdown';
 
-import { getWrongAnswers } from '../../../user/auth';
+import { getWrongAnswers } from '@/user/gameResult.js';
 import BlockXmlPreview from '../../../games/block/components/BlockXmlPreview.jsx';
 
 const gameTypes = ['all', 'quiz', 'oxquiz', 'block', 'card'];
