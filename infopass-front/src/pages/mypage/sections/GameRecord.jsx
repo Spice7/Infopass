@@ -191,8 +191,8 @@ const GameResultList = () => {
               // DTO의 카멜 케이스 변수명으로 구조 분해 할당
               ({ id, score, userRank, userRankPoint, gameType, createdAt,userExp }) => {
                 const rankChangeInfo = getRankChangeInfo(userRankPoint);
-                const isWinLoseGame = ['oxquiz', 'block'].includes(gameType);
-                const isSingleExpGame = ['block', 'card'].includes(gameType) && !userRank;
+                const isWinLoseGame = ['oxquiz', 'quiz'].includes(gameType);
+                const isSingleExpGame = ['oxquiz', 'quiz','block', 'card'].includes(gameType) && !userRank;
 
                 return (
                   <React.Fragment key={id}>
