@@ -81,6 +81,7 @@ public class SecurityConfig {
                         "/api/rooms/**", "/api/**")
                 .permitAll() // 게임 관련 API 허용
 
+
                 // ✅ 3. 특정 권한이 필요한 경로
                 .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/admin/**").hasRole("ADMIN")

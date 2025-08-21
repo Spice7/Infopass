@@ -38,6 +38,9 @@ public class WrongAnswerController {
     public List<WrongAnswerDto> getBlockWrongsByUser(@PathVariable int userId) {
         return wrongAnswerService.findBlockWrongsByUserId(userId);
     }
+    
+    
+    
 }
 
 

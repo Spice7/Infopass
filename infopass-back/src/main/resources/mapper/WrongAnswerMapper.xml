@@ -13,6 +13,12 @@
     INSERT INTO wronganswer_log (user_id, game_type, question_id, submitted_answer, created_at)
     VALUES (#{userId}, 'block', #{questionId}, #{submittedAnswer}, NOW())
   </insert>
+  
+  <!-- 카드 게임 전용 오답 기록 -->
+  <insert id="insertCardWrongAnswer" parameterType="boot.infopass.dto.WrongAnswerDto">
+    INSERT INTO wronganswer_log (user_id, game_type, question_id, submitted_answer, created_at)
+    VALUES (#{userId}, 'card', #{questionId}, #{submittedAnswer}, NOW())
+  </insert>
 
   <select id="selectWrongAnswersByUserId" parameterType="int" resultMap="WrongAnswerResultMap">
   SELECT wal.id,

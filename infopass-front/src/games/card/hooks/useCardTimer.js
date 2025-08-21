@@ -15,10 +15,10 @@ export const useCardTimer = (isPlaying, gameStarted, gameMode, onTimeout) => {
   // 게임 모드에 따른 시간 제한 설정
   const setTimeLimitByMode = useCallback((mode) => {
     if (mode === 'timeAttack') {
-      const newTimeLimit = 10; // 3분
+      const newTimeLimit = 10; // 타임어택 모드: 10초 (테스트용)
       setRemainingTime(newTimeLimit);
     } else {
-      // 일반 모드일 때 기본값으로 설정
+      // 일반 모드일 때는 시간 제한 없음
       setRemainingTime(300);
     }
   }, []);
@@ -63,7 +63,7 @@ export const useCardTimer = (isPlaying, gameStarted, gameMode, onTimeout) => {
   const resetTimer = () => {
     setTimer(0);
     if (gameMode === 'timeAttack') {
-      setRemainingTime(180); // 타임어택 모드: 3분
+      setRemainingTime(10); // 타임어택 모드: 10초 (테스트용)
     }
   };
 
@@ -74,9 +74,8 @@ export const useCardTimer = (isPlaying, gameStarted, gameMode, onTimeout) => {
     if (gameMode === 'timeAttack') {
       const timeBonus = Math.max(0, Math.floor(remainingTime / 1));
       finalScore += timeBonus;
-    } else {
-      finalScore += Math.max(0, 180 - timer * 1);
     }
+    // 일반모드에서는 시간 보너스 없이 기본 점수만 반환
 
     return finalScore;
   };

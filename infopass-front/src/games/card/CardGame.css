@@ -489,6 +489,183 @@
   background: linear-gradient(135deg, #E64A19 0%, #FF5722 100%);
 }
 
+/* 경험치 애니메이션 */
+.exp-animation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  padding: 20px;
+  border-radius: 20px;
+  margin: 20px 0;
+  animation: expPulse 2s ease-in-out;
+  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+}
+
+.exp-icon {
+  font-size: 2.5rem;
+  animation: expBounce 0.6s ease-in-out infinite alternate;
+}
+
+.exp-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.exp-label {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.exp-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  animation: expCount 2s ease-out;
+}
+
+.exp-gained {
+  color: #FFD700 !important;
+  font-weight: bold;
+  font-size: 1.3rem !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.practice-mode {
+  color: #87CEEB !important;
+  font-weight: bold;
+  font-size: 1.1rem !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes expPulse {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes expBounce {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-10px); }
+}
+
+@keyframes expCount {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* 사용자 정보 및 경험치 바 */
+.user-info {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 15px;
+  margin: 20px 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: center;
+}
+
+.user-level {
+  margin-bottom: 15px;
+}
+
+.level-label {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #FFD700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.exp-bar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.exp-bar {
+  width: 100%;
+  max-width: 300px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.exp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4CAF50, #8BC34A);
+  border-radius: 8px;
+  transition: width 1s ease-in-out;
+}
+
+.exp-text {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+/* 레벨업 애니메이션 */
+.level-up-animation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  background: linear-gradient(135deg, #9C27B0, #E91E63);
+  padding: 20px;
+  border-radius: 20px;
+  margin: 20px 0;
+  animation: levelUpPulse 2s ease-in-out;
+  box-shadow: 0 8px 25px rgba(156, 39, 176, 0.4);
+}
+
+.level-up-icon {
+  font-size: 2.5rem;
+  animation: levelUpBounce 0.6s ease-in-out infinite alternate;
+}
+
+.level-up-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.level-up-label {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 5px;
+}
+
+.level-up-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #fff;
+  animation: levelUpCount 2s ease-out;
+}
+
+@keyframes levelUpPulse {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes levelUpBounce {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-10px); }
+}
+
+@keyframes levelUpCount {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
 /* 게임 타임아웃 화면 */
 .game-timeout {
   text-align: center;

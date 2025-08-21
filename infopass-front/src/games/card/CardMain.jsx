@@ -25,6 +25,15 @@ const CardMain = () => {
     questionData,
     randomSubject,
     showNextButton,
+    sessionExp,
+    showExpAnimation,
+    expCount,
+    userLevel,
+    userExp,
+    showLevelUp,
+    expBarAnimation,
+    expBarFrom,
+    expBarTo,
     
     // 함수
     startNewGame,
@@ -104,6 +113,7 @@ const CardMain = () => {
             onRestart={handleGameRestart}
             onNextQuestions={handleNextQuestions}
             onGameEnd={handleGameEndWithScore}
+            onExitToMenu={handleExitToMenu}
             showNextButton={showNextButton}
           />
         </>
@@ -116,17 +126,54 @@ const CardMain = () => {
               gameMode={gameMode}
               remainingTime={remainingTime}
               timer={timer}
-              onGameEnd={handleGameEndWithScore}
+              sessionExp={sessionExp}
+              showExpAnimation={showExpAnimation}
+              expCount={expCount}
+              userLevel={userLevel}
+              userExp={userExp}
+              showLevelUp={showLevelUp}
+              expBarAnimation={expBarAnimation}
+              expBarFrom={expBarFrom}
+              expBarTo={expBarTo}
               onRestart={handleGameRestart}
               onExitToMenu={handleExitToMenu}
               formatTime={formatTime}
             />
           )}
-          {!isPlaying && gameMode === 'timeAttack' && remainingTime <= 0 && matchedPairs.length < questionData.length && (
+          {!isPlaying && gameMode === 'timeAttack' && (
+            remainingTime <= 0 || matchedPairs.length < questionData.length
+          ) && (
             <GameTimeout
               score={score}
               moves={moves}
               matchedPairs={matchedPairs}
+              sessionExp={sessionExp}
+              showExpAnimation={showExpAnimation}
+              expCount={expCount}
+              userLevel={userLevel}
+              userExp={userExp}
+              showLevelUp={showLevelUp}
+              expBarAnimation={expBarAnimation}
+              expBarFrom={expBarFrom}
+              expBarTo={expBarTo}
+              onRestart={handleGameRestart}
+              onExitToMenu={handleExitToMenu}
+            />
+          )}
+          {!isPlaying && gameMode === 'normal' && matchedPairs.length < questionData.length && (
+            <GameTimeout
+              score={score}
+              moves={moves}
+              matchedPairs={matchedPairs}
+              sessionExp={sessionExp}
+              showExpAnimation={showExpAnimation}
+              expCount={expCount}
+              userLevel={userLevel}
+              userExp={userExp}
+              showLevelUp={showLevelUp}
+              expBarAnimation={expBarAnimation}
+              expBarFrom={expBarFrom}
+              expBarTo={expBarTo}
               onRestart={handleGameRestart}
               onExitToMenu={handleExitToMenu}
             />
