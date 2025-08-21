@@ -19,8 +19,27 @@ public class WrongAnswerService {
         return wrongAnswerMapper.selectWrongAnswersByUserId(userId);
     }
 
-	public int findUserIdByUsername(String username) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    public int findUserIdByUsername(String username) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    /**
+     * 블록 게임 오답 기록
+     */
+    public void insertBlockWrongAnswer(int userId, int questionId, String submittedAnswer) {
+        WrongAnswerDto dto = new WrongAnswerDto();
+        dto.setUserId(userId);
+        dto.setGameType("block");
+        dto.setQuestionId(questionId);
+        dto.setSubmittedAnswer(submittedAnswer);
+        wrongAnswerMapper.insertBlockWrongAnswer(dto);
+    }
+
+    /**
+     * 블록 게임 오답 조회 (사용자별)
+     */
+    public List<WrongAnswerDto> findBlockWrongsByUserId(int userId) {
+        return wrongAnswerMapper.selectWrongBlockAnswersByUserId(userId);
+    }
 }

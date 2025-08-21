@@ -2,8 +2,13 @@
 import React, { useState } from 'react';
 import * as auth from './auth';
 import './userInfo.css';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Modal from '@mui/material/Modal';
 
-const FindPwModal = ({ onClose }) => {
+const FindPwModal = () => {
+    const [open, setOpen] = useState(false);
+
     const [step, setStep] = useState(1);
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
@@ -56,7 +61,7 @@ const FindPwModal = ({ onClose }) => {
             setResult({ text: '비밀번호가 일치하지 않습니다.', color: 'red' });
             return;
         }
-        
+
 
         try {
             const response = await auth.changePw(email, phone, newPw);
@@ -83,174 +88,194 @@ const FindPwModal = ({ onClose }) => {
         setPasswordValid(passwordRegex.test(value));
     };
 
-      // 문자메세지 인증 이벤트
-      const SendSmsEvent = async () => {        
-    
+    // 문자메세지 인증 이벤트
+    const SendSmsEvent = async () => {
+
         // 전화번호 유효성 검사
         if (!phoneRegex.test(phone)) {
-          setResult({ text: '올바른 휴대폰 번호를 입력하세요', color: "red" });
-          return;
+            setResult({ text: '올바른 휴대폰 번호를 입력하세요', color: "red" });
+            return;
         }
-    
-        if (!phone) {
-          setResult({ text: '핸드폰 번호를 입력하세요', color: "red" });
-          return;
-        }
-    
-        try {
-          const response = await auth.sendSms(phone);
-          const token = response.data.smsToken;
-          if (token) {
-            setSmsToken(token);
-            setIsSent(true);
-            setResult({ text: '인증번호가 발송되었습니다. 6자리 번호를 입력하세요.', color: "yellowgreen" });
-          } else if (response.data.error) {
-            setResult({ text: response.data.error, color: "red" });
-          }
-        } catch (err) {
-          setResult({ text: '문자 발송 중 오류가 발생했습니다.', color: "red" });
-          console.log("문자발송에러: ", err)
-        }
-      };
 
-        // 인증번호 검증 요청 
-        const handleVerifyCode = async () => {
-            const purpose = "findPw";
-          if (!inputCode) {
+        if (!phone) {
+            setResult({ text: '핸드폰 번호를 입력하세요', color: "red" });
+            return;
+        }
+
+        try {
+            const response = await auth.sendSms(phone);
+            const token = response.data.smsToken;
+            if (token) {
+                setSmsToken(token);
+                setIsSent(true);
+                setResult({ text: '인증번호가 발송되었습니다. 6자리 번호를 입력하세요.', color: "yellowgreen" });
+            } else if (response.data.error) {
+                setResult({ text: response.data.error, color: "red" });
+            }
+        } catch (err) {
+            setResult({ text: '문자 발송 중 오류가 발생했습니다.', color: "red" });
+            console.log("문자발송에러: ", err)
+        }
+    };
+
+    // 인증번호 검증 요청 
+    const handleVerifyCode = async () => {
+        const purpose = "findPw";
+        if (!inputCode) {
             setResult({ text: '인증번호를 입력하세요', color: "red" });
             return;
-          }
-          try {
-            await auth.verifyCode(smsToken, inputCode, purpose);
-            setResult({ text: '인증 성공', color: "yellowgreen" });
+        }
+        try {
+            const response = await auth.verifyCode(smsToken, inputCode, purpose);
+            console.log("인증확인 응답: ", response.data);
+            setResult({ text: response.data, color: "yellowgreen" });
             setIsVerified(true);
-          } catch (err) {
+        } catch (err) {
             setResult({ text: err.response ? err.response.data : '인증 중 오류가 발생했습니다.', color: "red" });
             setIsVerified(false);
-          }
-        };
+        }
+    };
 
     return (
         <div>
-            {step === 1 && (
-                <>
-                    <div className="infoTextFrame">
-                        <span className="userinfoText">이메일</span>
-                    </div>
-                    <div className="userInputFrame">
-                        <input
-                            type="email"
-                            className="UserInput"
-                            name="FindPwByEmail"
-                            value={email}
-                            onChange={e => setEmail(e.target.value)}
-                            placeholder="이메일을 입력해주세요"
-                        />
-                    </div>
+            <button type="button" className="btn btn-password" onClick={() => setOpen(true)}>
+                비밀번호 찾기
+            </button>
+            <Modal
+                open={open}
+                onClose={() => setOpen(false)}
+                aria-labelledby="find-pw-modal-title"
+                aria-describedby="find-pw-modal-description"
+            >
+                <Box className="find-pw-modal-container">
+                    <Typography id="find-pw-modal-title" variant="h6" component="h2">
+                        <div className="infoTextFrame">
+                            <span className="userinfoText">비밀번호 찾기</span>
+                        </div>
+                    </Typography>
+                    <Typography id="find-pw-modal-description" component="div" sx={{ mt: 2 }}>
+                        {step === 1 && (
+                            <>
+                                <div className="infoTextFrame">
+                                    <span className="userinfoText">이메일</span>
+                                </div>
+                                <div className="userInputFrame">
+                                    <input
+                                        type="email"
+                                        className="UserInput"
+                                        name="FindPwByEmail"
+                                        value={email}
+                                        onChange={e => setEmail(e.target.value)}
+                                        placeholder="이메일을 입력해주세요"
+                                    />
+                                </div>
 
-                    <div className="infoTextFrame">
-                        <span className="userinfoText">전화번호</span>
-                    </div>
-                    <div className="userInputFrame">                        
-                        <input
-                            type="text"
-                            className="UserInput"
-                            name="FindPwByPhone"
-                            value={phone}
-                            disabled={isSent}
-                            onChange={e => setPhone(e.target.value)}
-                            placeholder="전화번호를 입력해주세요"
-                        />
-                        <button type='button' className='CheckOfId' onClick={SendSmsEvent}>휴대폰 인증</button>
-                    </div>
-                    <div className='auth-input-frame'>
-                        <input type="number"
-                            maxLength='6'
-                            minLength='6'
-                            className='UserInput'
-                            value={inputCode}                            
-                            disabled={isVerified}
-                            onChange={e => setInputCode(e.target.value)} />
-                        <button type='button' className='CheckOfId' onClick={handleVerifyCode}>인증 확인</button>
-                    </div>
-                </>
-            )}
+                                <div className="infoTextFrame">
+                                    <span className="userinfoText">전화번호</span>
+                                </div>
+                                <div className="userInputFrame">
+                                    <input
+                                        type="text"
+                                        className="UserInput"
+                                        name="FindPwByPhone"
+                                        value={phone}
+                                        disabled={isSent}
+                                        onChange={e => setPhone(e.target.value)}
+                                        placeholder="전화번호를 입력해주세요"
+                                    />
+                                    <button type='button' className='CheckOfId' onClick={SendSmsEvent}>휴대폰 인증</button>
+                                </div>
+                                <div className='auth-input-frame'>
+                                    <input type="number"
+                                        maxLength='6'
+                                        minLength='6'
+                                        className='UserInput'
+                                        value={inputCode}
+                                        disabled={isVerified}
+                                        onChange={e => setInputCode(e.target.value)} />
+                                    <button type='button' className='CheckOfId' onClick={handleVerifyCode}>인증 확인</button>
+                                </div>
+                            </>
+                        )}
 
-            {step === 2 && (
-                <>
-                    <div className="infoTextFrame">
-                        <span className="userinfoText">새 비밀번호</span>
-                    </div>
-                    <div className="userInputFrame">
-                        <input
-                            type="password"
-                            className="UserInput"
-                            name="newPw"
-                            value={newPw}
-                            onChange={handlePasswordChange}
-                            placeholder="새 비밀번호를 입력해주세요"
-                        />
-                    </div>
+                        {step === 2 && (
+                            <>
+                                <div className="infoTextFrame">
+                                    <span className="userinfoText">새 비밀번호</span>
+                                </div>
+                                <div className="userInputFrame">
+                                    <input
+                                        type="password"
+                                        className="UserInput"
+                                        name="newPw"
+                                        value={newPw}
+                                        onChange={handlePasswordChange}
+                                        placeholder="새 비밀번호를 입력해주세요"
+                                    />
+                                </div>
 
-                    <div className="infoTextFrame">
-                        <span className="userinfoText">새 비밀번호 확인</span>
-                    </div>
-                    <div className="userInputFrame">
-                        <input
-                            type="password"
-                            className="UserInput"
-                            name="confirmNewPw"
-                            value={confirmPw}
-                            onChange={e => setConfirmPw(e.target.value)}
-                            placeholder="새 비밀번호를 다시 입력해주세요"
-                            onFocus={() => setPasswordConfirmFocused(true)}
-                            onBlur={() => setPasswordConfirmFocused(false)}
-                        />
-                    </div>
-                </>
-            )}
+                                <div className="infoTextFrame">
+                                    <span className="userinfoText">새 비밀번호 확인</span>
+                                </div>
+                                <div className="userInputFrame">
+                                    <input
+                                        type="password"
+                                        className="UserInput"
+                                        name="confirmNewPw"
+                                        value={confirmPw}
+                                        onChange={e => setConfirmPw(e.target.value)}
+                                        placeholder="새 비밀번호를 다시 입력해주세요"
+                                        onFocus={() => setPasswordConfirmFocused(true)}
+                                        onBlur={() => setPasswordConfirmFocused(false)}
+                                    />
+                                </div>
+                            </>
+                        )}
 
-            {/* 결과 메시지를 위한 고정된 공간 */}
-            <div className="result-message-container">
-                {result && (
-                    <span style={{ color: result.color, fontSize: '14px', fontWeight: '500' }}>
-                        {result.text}
-                    </span>
-                )}
-                {!passwordValid && (
-                    <span style={{ color: 'red' }}>비밀번호는 8자 이상, 영문+숫자+특수문자를 포함해야 합니다.(@$!%*#?&)</span>
-                )}
-                {passwordConfirmFocused && newPw !== confirmPw && (
-                    <span style={{ color: "red" }}>비밀번호가 일치하지 않습니다.</span>
-                )}
-            </div>
+                        {/* 결과 메시지를 위한 고정된 공간 */}
+                        <div className="result-message-container">
+                            {result && (
+                                <span style={{ color: result.color, fontSize: '14px', fontWeight: '500' }}>
+                                    {result.text}
+                                </span>
+                            )}
+                            {!passwordValid && (
+                                <span style={{ color: 'red' }}>비밀번호는 8자 이상, 영문+숫자+특수문자를 포함해야 합니다.(@$!%*#?&)</span>
+                            )}
+                            {passwordConfirmFocused && newPw !== confirmPw && (
+                                <span style={{ color: "red" }}>비밀번호가 일치하지 않습니다.</span>
+                            )}
+                        </div>
 
-            <div className="button-container">
-                {step === 1 ? (
-                    <button
-                        type="button"
-                        className="CheckOfId"
-                        onClick={handleCheckUser}
-                    >
-                        사용자 확인
-                    </button>
-                ) : (
-                    <button
-                        type="button"
-                        className="CheckOfId"
-                        onClick={handlePwChange}
-                    >
-                        비밀번호 변경
-                    </button>
-                )}
-                <button
-                    type="button"
-                    className="CheckOfId"
-                    onClick={onClose}
-                >
-                    닫기
-                </button>
-            </div>
+                        <div className="button-container">
+                            {step === 1 ? (
+                                <button
+                                    type="button"
+                                    className="CheckOfId"
+                                    onClick={handleCheckUser}
+                                >
+                                    사용자 확인
+                                </button>
+                            ) : (
+                                <button
+                                    type="button"
+                                    className="CheckOfId"
+                                    onClick={handlePwChange}
+                                >
+                                    비밀번호 변경
+                                </button>
+                            )}
+                            <button
+                                type="button"
+                                className="CheckOfId"
+                                onClick={() => setOpen(false)}
+                            >
+                                닫기
+                            </button>
+                        </div>
+                    </Typography>
+                </Box>
+            </Modal>
         </div>
     );
 };

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import securedApi from '../../user/api';
 
 // API 설정
 const api = axios.create({
@@ -447,3 +448,41 @@ export async function getQuestionAnswers(questionId) {
 }
 
 export default api;
+
+/**
+ * (인증 필요) 사용자 오답 노트 전체 조회
+ * WrongAnswerController: POST /wrong-answers
+ * 공용 엔드포인트이므로 인증 토큰을 자동 포함하는 securedApi를 사용한다.
+ */
+export async function getWrongAnswers() {
+    try {
+        const response = await securedApi.post('/wrong-answers');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching wrong answers:', error);
+        throw error;
+    }
+}
+
+/**
+ * (인증 필요) 블록 게임 오답만 필터링하여 조회
+ */
+export async function getBlockWrongAnswers() {
+    const all = await getWrongAnswers();
+    return Array.isArray(all) ? all.filter(item => item.gameType === 'block') : [];
+}
+
+/**
+ * (인증 필요) 특정 사용자 ID의 블록 게임 오답만 서버에서 필터링해 조회
+ * GET /wrong-answers/block/{userId}
+ */
+export async function getWrongBlockAnswersByUserId(userId) {
+    if (!userId) throw new Error('userId가 필요합니다.');
+    try {
+        const response = await securedApi.get(`/wrong-answers/block/${userId}`);
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching block wrong answers for user ${userId}:`, error);
+        throw error;
+    }
+}

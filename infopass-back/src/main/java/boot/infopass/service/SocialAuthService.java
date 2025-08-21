@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -26,20 +27,19 @@ import java.util.Map;
 @Service
 public class SocialAuthService {
 
-    private final AdminController adminController;
-
     private final UserMapper userMapper;
     private final SocialUserMapper socialUserMapper;
     private final JwtTokenProvider jwtTokenProvider;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     public SocialAuthService(UserMapper userMapper, SocialUserMapper socialUserMapper,
-            JwtTokenProvider jwtTokenProvider, AdminController adminController) {
+            JwtTokenProvider jwtTokenProvider, BCryptPasswordEncoder passwordEncoder) {
 
         this.userMapper = userMapper;
         this.socialUserMapper = socialUserMapper;
         this.jwtTokenProvider = jwtTokenProvider;
-        this.adminController = adminController;
+        this.passwordEncoder = passwordEncoder;
     }
 
     private final RestTemplate restTemplate = new RestTemplate();
@@ -98,14 +98,28 @@ public class SocialAuthService {
             return result;
         } else {
 
-            // 유저 email 중복 체크
+            // 이메일로 기존 로컬 계정 존재 여부 확인
             boolean userCheck = userMapper.findById(userInfo.get("email"));
 
             if (userCheck) {
-                // 이메일이 이미 DB에 있으면 회원가입 불가 안내
-                result.put("login", false);
-                result.put("error", "이미 가입된 이메일입니다.");
-                return result; // 바로 리턴
+                // 1. 기존 로컬 계정과 소셜 계정 연동
+                UserDto user = userMapper.login(userInfo.get("email"));
+                // provider_key 암호화
+                String encryptedProviderKey = passwordEncoder.encode(userInfo.get("id"));
+                SocialUserDto newSocialUser = SocialUserDto.builder()
+                    .user_id(user.getId())
+                    .provider(provider)
+                    .provider_key(encryptedProviderKey)
+                    .build();
+                socialUserMapper.insertSocialUser(newSocialUser);
+                 // 2. 자동 로그인 처리
+                String token = jwtTokenProvider.createToken(user.getId(), user.getEmail(), user.getNickname(),
+                        List.of(user.getUsertype()));
+                result.put("login", true);
+                result.put("token", token);
+                result.put("user", user);
+                result.put("linked", true); // 연동됨 표시
+                return result;
             }
 
             // 회원이 아니고 email 중복이 없으면 회원가입용 정보 반환
@@ -230,9 +244,12 @@ public class SocialAuthService {
         return map;
     }
 
-    public void insertSocialUser(SocialUserDto socialUserDto) {
-
-        // 내일와서 소셜 유저 mapper만들어라!!
+    public void insertSocialUser(UserDto userDto) {    	
+    	SocialUserDto socialUserDto = SocialUserDto.builder()
+			.user_id(userDto.getId())
+			.provider(userDto.getProvider())
+			.provider_key(passwordEncoder.encode(userDto.getProviderKey()))
+			.build();
         socialUserMapper.insertSocialUser(socialUserDto);
     }
 }

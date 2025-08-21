@@ -16,6 +16,7 @@
         <result property="gameType" column="game_type"/>
         <result property="createdAt" column="created_at"/>
         <result property="resultType" column="result_type"/>
+        <result property="userExp" column="user_exp"/>
     </resultMap>
 
     <!-- 멀티플레이 결과 생성 -->
@@ -29,43 +30,10 @@
     <!-- 싱글플레이 결과 생성 -->
     <insert id="CreateSingleplayResult" parameterType="boot.infopass.dto.GameResultDto">
         INSERT INTO singleplay_result 
-            (user_id, score, user_rank, user_rank_point, game_type, created_at)
+            (user_id, score, user_exp, game_type, created_at)
         VALUES 
-            (#{userId}, #{score}, #{userRank}, #{userRankPoint}, #{gameType}, NOW())
+            (#{userId}, #{score}, #{userExp}, #{gameType}, NOW())
     </insert>
-
-    <!-- 모든 멀티 결과 조회 -->
-    <select id="getGameResults" resultMap="GameResultResultMap">
-        SELECT 
-            id,
-            lobby_id,
-            user_id,
-            score,
-            user_rank,
-            user_rank_point,
-            game_type,
-            created_at,
-            'multi' AS result_type
-        FROM multiplayer_result
-        ORDER BY created_at DESC
-    </select>
-
-    <!-- 특정 유저 멀티 결과 -->
-    <select id="getMultiplayerResults" parameterType="int" resultMap="GameResultResultMap">
-        SELECT 
-            id,
-            lobby_id,
-            user_id,
-            score,
-            user_rank,
-            user_rank_point,
-            game_type,
-            created_at,
-            'multi' AS result_type
-        FROM multiplayer_result
-        WHERE user_id = #{userId}
-        ORDER BY created_at DESC
-    </select>
 
     <!-- 특정 유저 싱글 결과 -->
     <select id="getSingleplayResults" parameterType="int" resultMap="GameResultResultMap">
@@ -74,11 +42,12 @@
             NULL AS lobby_id,
             user_id,
             score,
-            user_rank,
-            user_rank_point,
+            NULL AS user_rank,
+            NULL AS user_rank_point,
             game_type,
             created_at,
-            'single' AS result_type
+            'single' AS result_type,
+            user_exp
         FROM singleplay_result
         WHERE user_id = #{userId}
         ORDER BY created_at DESC
@@ -95,7 +64,8 @@
             user_rank_point,
             game_type,
             created_at,
-            'multi' AS result_type
+            'multi' AS result_type,
+            NULL AS user_exp
         FROM multiplayer_result
         WHERE user_id = #{userId}
 
@@ -106,20 +76,16 @@
             NULL AS lobby_id,
             user_id,
             score,
-            user_rank,
-            user_rank_point,
+            NULL AS user_rank,
+            NULL AS user_rank_point,
             game_type,
             created_at,
-            'single' AS result_type
+            'single' AS result_type,
+            user_exp
         FROM singleplay_result
         WHERE user_id = #{userId}
 
         ORDER BY created_at DESC
     </select>
-    
-    
-    
-    
-    
 
 </mapper>

@@ -32,6 +32,12 @@ public class WrongAnswerController {
         System.out.println("getWrongAnswersByToken called with userId: " + userId);
         return wrongAnswerService.findByUserId(userId);
     }
+
+    // 블록 게임 전용: 특정 사용자 오답만 조회
+    @GetMapping("/block/{userId}")
+    public List<WrongAnswerDto> getBlockWrongsByUser(@PathVariable int userId) {
+        return wrongAnswerService.findBlockWrongsByUserId(userId);
+    }
 }
 
 

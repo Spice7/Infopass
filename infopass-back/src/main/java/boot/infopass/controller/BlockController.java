@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import boot.infopass.dto.BlockDTO;
 import boot.infopass.mapper.BlockMapper;
 import boot.infopass.service.BlockGameService;
+import boot.infopass.service.WrongAnswerService;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
@@ -27,6 +28,9 @@ public class BlockController {
 	
 	@Autowired
 	BlockGameService blockGameService;
+
+	@Autowired
+	WrongAnswerService wrongAnswerService;
 	
 	@GetMapping("/data/{id}")
 	public BlockDTO getSingleData(@PathVariable("id") int id) {
@@ -91,6 +95,15 @@ public class BlockController {
 			// 문제 해결 시도 기록
 			boolean saved = blockGameService.saveQuestionAttempt(
 				questionId, request.user_id, request.session_id, request.is_correct, request.submitted_answer);
+
+			// 오답인 경우 wronganswer_log 에 별도 기록 (블록 게임 전용)
+			if (!request.is_correct) {
+				wrongAnswerService.insertBlockWrongAnswer(
+					request.user_id,
+					questionId,
+					request.submitted_answer
+				);
+			}
 			
 			if (saved) {
 				return ResponseEntity.ok(Map.of(

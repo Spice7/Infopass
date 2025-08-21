@@ -92,11 +92,12 @@ public class OXQuizController {
 	}
 	
 	@PostMapping("/InsertUserStatus")
-	public void inertuserstatus(@RequestBody Map<String, Object> map, OXQuizStatusDto dto) {
-	    Integer userId = (Integer) map.get("user_id");
-	    Integer userScore = (Integer) map.get("user_score");
-
-	    Object remainTimeObj = map.get("remain_time");
+	public void inertuserstatus(@RequestBody Map<String, Object> map, GameResultDto dto) {
+	    Integer userId = (Integer) map.get("user_id"); //id
+	    Integer userScore = (Integer) map.get("user_score"); // 점수
+	    Integer userexp = userScore * 5; // 경험치
+	    String gametype = "oxquiz";
+	    Object remainTimeObj = map.get("remain_time"); //남은시간
 	    Float remainTime = 0.0f;
 
 	    if (remainTimeObj instanceof Number) {
@@ -107,15 +108,16 @@ public class OXQuizController {
 //	    System.out.println("user_score : " + userScore);
 //	    System.out.println("remain_time : " + remainTime);
 
-	    dto.setUser_id(userId);
-	    dto.setUser_score(userScore);
-	    dto.setRemain_time(remainTime);
+	    dto.setUserId(userId);
+	    dto.setScore(userScore);
+	    dto.setUserExp(userexp);
+	    dto.setGameType(gametype);
 	    
 	    UserDto udto = new UserDto();
 	    udto.setId(userId);
 	    udto.setExp(userScore*5);
 	    
-	    statusmapper.UserStatus(dto);
+	    resultmapper.CreateSingleplayResult(dto);
 	    usermapper.updateUserExp(udto);
 	}
 	
@@ -163,7 +165,7 @@ public class OXQuizController {
 		mdto.setBest_score(OldBestScore >= score ?  OldBestScore : score);
 		mdto.setUser_id(userId);
 		multimapper.updateMultiRank(mdto);
-		resultmapper.CreateResult(dto);
+		resultmapper.CreateMultiplayerResult(dto);
 		
 	}
 

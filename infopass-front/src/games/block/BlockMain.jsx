@@ -7,6 +7,7 @@ import QuestionSection from './components/QuestionSection';
 import Workspace from './components/Workspace';
 import ActionSection from './components/ActionSection';
 import { CompletionMessage, CorrectMessage, IncorrectMessage } from './components/ResultMessages';
+import './BlockGame.css';
 
 // 블록 게임 관련 컴포넌트 및 모듈을 조합하여 실행하는 컨테이너 컴포넌트
 

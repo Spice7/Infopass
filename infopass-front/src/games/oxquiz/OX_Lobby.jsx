@@ -71,7 +71,7 @@ const OX_Lobby = () => {
     const [isHost, setIsHost] = useState(false);
 
     //url
-    const createoxlobby = 'http://192.168.10.141:9000/lobby/ox';
+    const createoxlobby = 'http://localhost:9000/lobby/ox';
 
     const roomSubRef = useRef(null);
     useEffect(() => { pendingCreateRef.current = pendingCreate; }, [pendingCreate]);
@@ -119,7 +119,7 @@ const OX_Lobby = () => {
 
     // STOMP 연결
     useEffect(() => {
-        const socket = new SockJS('http://192.168.10.141:9000/ws');
+        const socket = new SockJS('http://localhost:9000/ws');
         const client = new Client({
             webSocketFactory: () => socket,
             reconnectDelay: 4000,

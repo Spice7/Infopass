@@ -370,12 +370,15 @@ div.find-pw-modal-container {
   display: flex;
   flex-direction: column;
   align-items: center;
+  border-radius: 20px;
   justify-content: center; 
-  min-height: 100vh;
+  min-height: calc(100vh - 60px);
+  margin-top: 60px;
   background: var(--primary-gradient);
   padding: 20px;
   color: var(--white);
   width: 100%;
+  box-sizing: border-box;
 }
 
 .login-title {
@@ -459,6 +462,10 @@ div.find-pw-modal-container {
   align-items: center;
   justify-content: center;
   text-decoration: none;
+  min-height: 56px;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .btn:hover {
@@ -485,10 +492,15 @@ div.find-pw-modal-container {
   margin-bottom: 30px;
 }
 
-.auth-buttons-group .btn,
-.find-buttons-group .btn {
+.auth-buttons-group .btn {
   flex: 1;
   min-width: 0;
+}
+
+.find-buttons-group .btn {
+  flex: 1;
+  min-width: 140px;
+  justify-content: center;
 }
 
 /* ===== 개별 버튼 스타일 ===== */
@@ -525,6 +537,8 @@ div.find-pw-modal-container {
   border-color: #ff9800;
   color: var(--white);
   font-weight: 700;
+  padding: 16px 20px;
+  min-width: 140px;
 }
 
 .btn-id:hover {
@@ -539,6 +553,8 @@ div.find-pw-modal-container {
   border-color: #9c27b0;
   color: var(--white);
   font-weight: 700;
+  padding: 16px 20px;
+  min-width: 140px;
 }
 
 .btn-password:hover {
@@ -708,6 +724,11 @@ input[type=number] {
   }
   
   /* LoginForm */
+  .login-form-container {
+    min-height: calc(100vh - 56px);
+    margin-top: 56px;
+  }
+  
   .login-title {
     font-size: 36px;
     margin-bottom: 30px;
@@ -735,6 +756,11 @@ input[type=number] {
   .find-buttons-group .btn,
   .social-login-container > * {
     width: 100%;
+    min-width: 100%;
+  }
+  
+  .find-buttons-group .btn {
+    min-width: 100%;
   }
 }
 
@@ -770,6 +796,11 @@ input[type=number] {
   }
   
   /* LoginForm */
+  .login-form-container {
+    min-height: calc(100vh - 56px);
+    margin-top: 56px;
+  }
+  
   .login-title {
     font-size: 28px;
     margin-bottom: 25px;
@@ -789,5 +820,9 @@ input[type=number] {
   .find-buttons-group,
   .social-login-container {
     gap: 10px;
+  }
+  
+  .find-buttons-group .btn {
+    min-width: 100%;
   }
 }

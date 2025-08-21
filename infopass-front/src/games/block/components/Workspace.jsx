@@ -21,7 +21,7 @@ export default function Workspace({ blocklyDivRef, workspaceRef, toolbox, questi
         toolbox,
         trashcan: true,
         scrollbars: true,
-        grid: { spacing: 20, length: 3, colour: '#ccc', snap: true },
+        grid: { spacing: 20, length: 0, colour: '#ccc', snap: true },
         zoom: { controls: true, wheel: true, startScale: 1.0, maxScale: 3, minScale: 0.3, scaleSpeed: 1.2 }
       });
 
@@ -49,13 +49,6 @@ export default function Workspace({ blocklyDivRef, workspaceRef, toolbox, questi
       <div
         ref={blocklyDivRef}
         className="blockly-workspace"
-        style={{
-          width: '100%',
-          height: '500px',
-          border: '2px solid #ccc',
-          backgroundColor: '#f9f9f9',
-          position: 'relative'
-        }}
       />
     </div>
   );

@@ -1,7 +1,6 @@
 package boot.infopass.controller;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +17,6 @@ import boot.infopass.dto.BlankUserStatusDto;
 
 
 import boot.infopass.service.BlankQuizService;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")

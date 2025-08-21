@@ -19,9 +19,11 @@ import Cookies from 'js-cookie';
 
 import { update } from '../../../../user/auth';
 
-const primaryColor = '#4a90e2';
-const gradientColor = 'linear-gradient(135deg, #4a90e2 0%, #81d4fa 100%)';
-const cardBgColor = '#ffffff';
+const primaryColor = '#a55eea';
+const gradientColor = 'linear-gradient(135deg, #a55eea 0%, #dcdde1 100%)';
+const cardBgColor = 'rgba(46, 46, 78, 0.8)';
+const levelChipGradient = 'linear-gradient(135deg, #B958A5 0%, #9F318D 100%)';
+const textColor = '#e8eaf6';
 
 const formatPhoneNumber = (phone) => {
   if (!phone) return '';
@@ -158,7 +160,7 @@ const UserProfileCard = ({ user, onUpdate }) => {
           </Avatar>
           <Tooltip title={`레벨 ${user.level}`} arrow>
             <Chip
-              icon={<Star sx={{ color: '#fff' }} />}
+            
               label={`Lv.${user.level}`}
               size="large"
               sx={{
@@ -166,7 +168,7 @@ const UserProfileCard = ({ user, onUpdate }) => {
                 bottom: -12,
                 left: '50%',
                 transform: 'translateX(-50%)',
-                background: 'linear-gradient(135deg, #FFD700 0%, #FF8C00 100%)',
+                background: levelChipGradient,
                 color: '#fff',
                 fontWeight: 700,
                 fontSize: '1rem',
@@ -179,21 +181,20 @@ const UserProfileCard = ({ user, onUpdate }) => {
         </Box>
 
         <Box sx={{ flexGrow: 1, textAlign: { xs: 'center', md: 'left' } }}>
-          <Typography variant="h2" fontWeight={800} gutterBottom sx={{ color: primaryColor }}>
+          <Typography variant="h2" fontWeight={800} gutterBottom sx={{ color: textColor }}>
             {user.name}
             <Typography
               component="span"
               variant="h5"
-              color="text.secondary"
-              sx={{ ml: 1, fontWeight: 500 }}
+              sx={{ ml: 1, fontWeight: 500, color: '#bdbdbd' }}
             >
               ({user.nickname ?? '닉네임 없음'})
             </Typography>
           </Typography>
-          <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 2, fontWeight: 500 }}>
+          <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 500, color: textColor }}>
             {user.email}
           </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
+          <Typography variant="body1" sx={{ lineHeight: 1.8, color: textColor }}>
             <b>전화번호:</b> {formatPhoneNumber(user.phone)}
             <br />
             <b>주소:</b> {user.address}
@@ -222,6 +223,9 @@ const UserProfileCard = ({ user, onUpdate }) => {
         </Button>
       </Paper>
 
+      {/* -------------------------------------------------------------------------------------------------- */}
+      {/* 롤백된 다이얼로그 코드 시작 */}
+      {/* -------------------------------------------------------------------------------------------------- */}
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
         <DialogTitle
           sx={{
@@ -373,7 +377,9 @@ const UserProfileCard = ({ user, onUpdate }) => {
           </Box>
         </DialogActions>
       </Dialog>
-
+      {/* -------------------------------------------------------------------------------------------------- */}
+      {/* 롤백된 다이얼로그 코드 끝 */}
+      {/* -------------------------------------------------------------------------------------------------- */}
       <Dialog open={deleteOpen} onClose={handleDeleteCancel} maxWidth="xs" fullWidth>
         <DialogContent sx={{ p: 4 }}>
           <Typography
