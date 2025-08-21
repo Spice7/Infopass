@@ -32,7 +32,7 @@
         response_content,
         response_date
     FROM inquiries
-    WHERE user_id
+     WHERE user_id = #{user_id}
     ORDER BY created_at DESC
 </select>
     
