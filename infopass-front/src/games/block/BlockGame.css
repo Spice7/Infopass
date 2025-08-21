@@ -1,5 +1,6 @@
 .block-main {
-  max-width: 1200px;
+  /* 가로 폭 확장: 기존 1200px → 1600px */
+  max-width: 1600px;
   margin: 0 auto;
   padding: 20px 18px 28px;
   color: #e7ecf7;
@@ -116,12 +117,31 @@
 /* 워크스페이스 */
 .blockly-workspace {
   width: 100% !important;
-  height: 60vh !important;
-  min-height: 420px;
+  height: 70vh !important;
+  min-height: 520px;
   border: 1px solid rgba(255,255,255,.08) !important;
   background: #121725 !important;
   border-radius: 12px;
-  overflow: hidden;
+  /* Blockly는 자체 스크롤바를 관리하므로, 컨테이너는 스크롤을 만들지 않도록 유지 */
+  overflow: hidden !important;
+  position: relative;
+}
+
+/* 풀블리드 확장 제거 (이전 상태 복구) */
+
+/* Blockly 루트 SVG가 컨테이너를 벗어나지 않도록 보정 */
+.blockly-workspace .blocklySvg {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* 화면 세로가 매우 낮은 경우엔 과도한 확대를 피하기 위해 높이를 다시 낮춤 */
+@media (max-height: 650px) {
+  .blockly-workspace {
+    height: 60vh !important;
+    min-height: 420px;
+  }
 }
 
 /* XML 미리보기 카드 */
@@ -183,6 +203,11 @@
   .block-main { padding: 16px 14px 24px; }
   .block-main .header { flex-direction: column; align-items: flex-start; gap: 8px; }
   .action-section { flex-direction: column; align-items: center; gap: 10px; }
+}
+
+/* 초광폭 화면에서 여백 최소화 (선택적 가로 확장) */
+@media (min-width: 1800px) {
+  .block-main { max-width: 1720px; }
 }
 
 
