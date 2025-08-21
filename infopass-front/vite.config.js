@@ -4,7 +4,7 @@ import { fileURLToPath, URL } from 'node:url';
 import __dirname from 'path';
 
 // 👇 Rollup polyfill plugin 설치 필요
-import rollupNodePolyFill from 'rollup-plugin-node-polyfills';
+import rollupNodePolyFill from "rollup-plugin-node-polyfills";
 
 export default defineConfig({
   resolve: {
@@ -16,7 +16,7 @@ export default defineConfig({
   optimizeDeps: {
     esbuildOptions: {
       define: {
-        global: 'globalThis', // ✅ 이 줄이 핵심입니다!
+        global: "globalThis", // ✅ 이 줄이 핵심입니다!
       },
     },
   },

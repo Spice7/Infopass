@@ -15,6 +15,10 @@ public class RedisUtil {
         this.redisTemplate = redisTemplate;
     }
 
+    public void addScoreToZSet(String key, String member, double score) {
+        redisTemplate.opsForZSet().add(key, member, score);
+    }
+
     /**
      * Redis Sorted Set에서 상위 랭킹을 가져옵니다.
      * getTopRankings 메소드가 다른 파일에서 getTopRankers로 호출되고 있어 이름을 변경했습니다.

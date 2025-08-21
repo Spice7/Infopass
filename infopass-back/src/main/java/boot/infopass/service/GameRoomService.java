@@ -59,4 +59,9 @@ public class GameRoomService {
         List<GameRoomPlayerDto> players = playerMapper.selectPlayersByRoom(roomId);
         return players.stream().allMatch(GameRoomPlayerDto::getReady);
     }
+
+    public Long getRoomIdByPlayerId(Long playerId) {
+        GameRoomPlayerDto player = playerMapper.selectPlayerById(playerId);
+        return player != null ? player.getRoomId() : null;
+    }
 }

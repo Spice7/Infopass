@@ -15,6 +15,14 @@
     <select id="getTopRealtimeRanks" resultType="boot.infopass.dto.RankedUserDto"> SELECT u.id as
         id, u.nickname as nickname, COALESCE(r.total_score, 0) as totalScore FROM user u LEFT JOIN
         multiplayer_rank r ON u.id = r.user_id ORDER BY r.total_score DESC LIMIT 30 </select>
+    <insert id="upsertUserRankAndPlayerRank" parameterType="map"> INSERT INTO multiplayer_rank
+        (user_id, total_score, player_rank, updated_at) VALUES (#{userId}, #{totalScore},
+        #{playerRank}, NOW()) ON DUPLICATE KEY UPDATE total_score = VALUES(total_score), player_rank
+        = VALUES(player_rank), updated_at = NOW() </insert>
 
-	<select id=""></select>
+    <update id="recalculateAllPlayerRanks"> update multiplayer_rank mr join( select user_id,
+        dense_rank() over (order by total_score desc,updated_at asc)as calculated_rank from
+        multiplayer_rank )rp on mr.user_id=rp.user_id set mr.player_rank=rp.calculated_rank,
+        mr.updated_at=now() </update>
+
 </mapper>
