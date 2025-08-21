@@ -48,8 +48,10 @@ export const useCardGame = () => {
                 text: '로그인이 필요합니다.',
                 icon: 'warning',
                 confirmButtonText: '확인'
-            });
-            triggerLogout();
+            }).then(
+                navigate("/login", { replace: true })
+            );
+            //triggerLogout();
         }
     }, []);
 

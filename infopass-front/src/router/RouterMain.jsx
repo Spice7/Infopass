@@ -8,7 +8,6 @@ import CardRoutes from './CardRoutes'
 import Home from '../pages/Home'
 import MyPageRoutes from './MyPageRoutes'
 import Ranking from "./Ranking";
-import { LoginContext } from '../user/LoginContextProvider.jsx'
 import blankgame from './BlankGame.jsx'
 import Menu from '../pages/menu.jsx'
 import TermsOfUse from '../pages/TermsOfUse.jsx'

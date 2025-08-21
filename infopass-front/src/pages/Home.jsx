@@ -2,7 +2,6 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Home.css';
-import { LoginContext } from '../user/LoginContextProvider';
 
 // 하단 퀵버튼 섹션 제거에 따라 불필요 배열 삭제
 
