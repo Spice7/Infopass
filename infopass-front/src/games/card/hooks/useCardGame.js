@@ -1,7 +1,8 @@
-import { useState, useEffect, useContext, useCallback } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import * as auth from '../CardAuth';
 import { LoginContext } from '../../../user/LoginContextProvider';
 import { useNavigate } from 'react-router-dom';
+import { applyExp } from '../../../user/gameResult';
 
 export const useCardGame = () => {
     const [cards, setCards] = useState([]);
@@ -84,13 +85,9 @@ export const useCardGame = () => {
             }
 
             // 여전히 문제를 하나도 못 가져오면(모든 문제를 다 풀었을 때) 자동 게임종료
-            if (!questions || questions.length === 0) {
-                setIsPlaying(false);
-                setGameStarted(false);
-                setShowNextButton(false);
+            if (!questions || questions.length === 0) {                
                 alert('모든 문제를 다 풀었습니다! 게임이 종료됩니다.');
-                // 점수/경험치 저장
-                saveScoreAndExp(score);
+                handleGameEnd({ finalScore: score });
                 return;
             }
 
@@ -135,7 +132,7 @@ export const useCardGame = () => {
 
             // 상태 초기화
             setQuestionData(questions);
-            setCards(gameCards);
+            setCards(shuffledCards);
             setFlippedCards([]);
             setMatchedPairs([]);
             setShowNextButton(false);
@@ -205,7 +202,7 @@ export const useCardGame = () => {
                         )
                     );
                     setFlippedCards([]);
-                }, 1300);
+                }, 1000);
             }
         }
     };
@@ -268,7 +265,7 @@ export const useCardGame = () => {
                         submitted_answer: q.answer,
                         is_correct: false
                     }))
-                ];
+                ];                
             }
         }
     
@@ -294,12 +291,14 @@ export const useCardGame = () => {
     // 게임 종료 시 경험치/점수 저장
     const saveScoreAndExp = async (finalScore) => {
         try {
-            await auth.saveGameResult({
+            const expDelta = ({
                 userId: userInfo?.id,
                 score: finalScore,
                 user_exp: finalScore / 10,
                 game_type: "card"
             });
+            await applyExp(expDelta);
+            
         } catch (e) {
             console.error('점수/경험치 저장 실패:', e);
         }

@@ -42,4 +42,13 @@ public class WrongAnswerService {
     public List<WrongAnswerDto> findBlockWrongsByUserId(int userId) {
         return wrongAnswerMapper.selectWrongBlockAnswersByUserId(userId);
     }
+    
+    public void insertCardWrongAnswer(int user_id, int question_id, String submitted_answer) {
+    	WrongAnswerDto dto = new WrongAnswerDto();
+    	dto.setUserId(user_id);
+    	dto.setGameType("card");
+    	dto.setQuestionId(question_id);
+    	dto.setSubmittedAnswer(submitted_answer);
+    	wrongAnswerMapper.insertCardWrongAnswer(dto);
+    }
 }
