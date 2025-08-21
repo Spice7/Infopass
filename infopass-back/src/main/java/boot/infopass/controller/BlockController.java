@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import boot.infopass.dto.BlockDTO;
 import boot.infopass.mapper.BlockMapper;
 import boot.infopass.service.BlockGameService;
+import boot.infopass.service.GameResultService;
 import boot.infopass.service.WrongAnswerService;
 
 @RestController
@@ -31,6 +32,9 @@ public class BlockController {
 
 	@Autowired
 	WrongAnswerService wrongAnswerService;
+
+	@Autowired
+	GameResultService gameResultService;
 	
 	@GetMapping("/data/{id}")
 	public BlockDTO getSingleData(@PathVariable("id") int id) {
@@ -121,6 +125,42 @@ public class BlockController {
 			return ResponseEntity.internalServerError().body(Map.of(
 				"success", false,
 				"message", "서버 오류가 발생했습니다."
+			));
+		}
+	}
+
+	/**
+	 * 세션 종료 기록: singleplay_result에 1회 저장 (score=0, user_exp=누적경험치, game_type=block)
+	 */
+	@PostMapping("/session/complete")
+	public ResponseEntity<Object> completeSession(@RequestBody Map<String, Object> body) {
+		try {
+			Object userIdObj = body.get("user_id");
+			Object sessionIdObj = body.get("session_id");
+			Object userExpObj = body.get("user_exp");
+			if (!(userIdObj instanceof Number) || sessionIdObj == null || !(userExpObj instanceof Number)) {
+				return ResponseEntity.badRequest().body(Map.of(
+					"success", false,
+					"message", "user_id, session_id, user_exp가 필요합니다."
+				));
+			}
+			int userId = ((Number) userIdObj).intValue();
+			int userExp = ((Number) userExpObj).intValue();
+			if (userId <= 0) {
+				return ResponseEntity.badRequest().body(Map.of(
+					"success", false,
+					"message", "유효하지 않은 사용자입니다."
+				));
+			}
+			// score는 0으로 고정, game_type은 block
+			gameResultService.createSingleplayResult(userId, 0, userExp, "block");
+			return ResponseEntity.ok(Map.of(
+				"success", true
+			));
+		} catch (Exception e) {
+			return ResponseEntity.internalServerError().body(Map.of(
+				"success", false,
+				"message", "세션 완료 처리 중 오류가 발생했습니다."
 			));
 		}
 	}

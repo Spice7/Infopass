@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as Blockly from 'blockly';
 import { JavaGenerator } from '../javaGenerator';
 import { registerAllBlocks } from '../blocks';
-import { generateNewSession, getRandomUnsolvedQuestion, submitAnswerToBackend } from '../BlockAPI';
+import { generateNewSession, getRandomUnsolvedQuestion, submitAnswerToBackend, completeBlockSession } from '../BlockAPI';
 import { applyExp, BLOCKGAME_EXP } from '@/user/gameResult.js'
 
 // 블록 코딩 게임 상태와 로직을 캡슐화한 커스텀 훅
@@ -20,6 +20,7 @@ export function useBlockGame(userInfo) {
   const [isCorrect, setIsCorrect] = useState(null);
   const [showNextButton, setShowNextButton] = useState(false);
   const [showCompletionMessage, setShowCompletionMessage] = useState(false);
+  const [sessionExp, setSessionExp] = useState(0);    // 싱글게임 기록용으로 추가   // 세션 내 경험치 합
 
   // 블록 등록 (최초 1회)
   useEffect(() => {
@@ -82,6 +83,7 @@ export function useBlockGame(userInfo) {
         setIsCorrect(null);
         setShowNextButton(false);
         setShowCompletionMessage(false);
+        setSessionExp(0);
 
         await loadNextQuestion(newSessionId);
       } catch (err) {
@@ -116,6 +118,7 @@ export function useBlockGame(userInfo) {
         // 경험치 증가
         try {
           await applyExp(BLOCKGAME_EXP);
+          setSessionExp(prev => prev + BLOCKGAME_EXP);
         } catch (expError) {
           console.error('경험치 증가 실패:', expError);
         }
@@ -188,6 +191,7 @@ export function useBlockGame(userInfo) {
       setIsCorrect(null);
       setShowNextButton(false);
       setShowCompletionMessage(false);
+      setSessionExp(0);
 
       if (workspaceRef.current && !workspaceRef.current.isDisposed) {
         try {
@@ -206,6 +210,26 @@ export function useBlockGame(userInfo) {
       setIsLoading(false);
     }
   }, [loadNextQuestion]);
+
+  // 세션 완료: 더 이상 문제 없을 때 singleplay_result에 1회 기록
+  useEffect(() => {
+    const completeIfFinished = async () => {
+      if (showCompletionMessage && userInfo && userInfo.id && sessionId) {
+        try {
+          await completeBlockSession({
+            user_id: userInfo.id,
+            session_id: sessionId,
+            user_exp: sessionExp,
+          });
+        } catch (e) {
+          console.error('블록 세션 완료 기록 실패:', e);
+        }
+      }
+    };
+    completeIfFinished();
+    // showCompletionMessage true로 변할 때 1회 실행
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showCompletionMessage]);
 
   // 블록 초기화
   const resetBlocks = useCallback(() => {

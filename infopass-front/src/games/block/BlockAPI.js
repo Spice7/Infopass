@@ -188,6 +188,24 @@ export async function submitAnswerToBackend(questionId, submissionData) {
 }
 
 /**
+ * 블록 게임 세션 완료 (singleplay_result 1회 기록)
+ * @param {{user_id:number, session_id:string, user_exp:number}} payload
+ */
+export async function completeBlockSession(payload) {
+    try {
+        const { user_id, session_id, user_exp } = payload || {};
+        if (!user_id || !session_id || typeof user_exp !== 'number') {
+            throw new Error('user_id, session_id, user_exp가 필요합니다.');
+        }
+        const response = await api.post('/block/session/complete', payload);
+        return response.data;
+    } catch (error) {
+        console.error('Error completing block session:', error);
+        throw error;
+    }
+}
+
+/**
  * 세션별 문제 해결 여부 확인
  * @param {number} questionId - 문제 ID
  * @param {string} sessionId - 세션 ID
