@@ -13,6 +13,16 @@ const Menu = () => {
         logout();
         navigate('/');
     };
+    const logincheck=(e)=>{
+        if(!isLogin){
+            e.preventDefault();
+            e.stopPropagation();     // 추가 전파 차단 (선택)
+            alert("로그인후 이용가능합니다.");
+            setDrawerOpen(false);
+            return;
+        }
+        setDrawerOpen(false);
+    }
 
     return (
         <div>
@@ -29,7 +39,12 @@ const Menu = () => {
                     </div>
                 </div>
                 <div className="top-right">
-                    <Link to="/mypage" className="nav-btn">마이페이지</Link>
+                    {isLogin && userInfo?.usertype === 'ADMIN' && (
+                        <Link to="/admin" className="nav-btn">관리자 페이지</Link>
+                    )}
+                    {isLogin && userInfo?.usertype === 'USER' && (
+                        <Link to="/mypage" className="nav-btn">마이페이지</Link>
+                    )}
                     <Link to="/rank" className="nav-btn">랭킹</Link>
                     {isLogin ? (
                         <button onClick={handleLogout} className="nav-btn primary">로그아웃</button>
@@ -55,18 +70,17 @@ const Menu = () => {
                     {/* 게임 섹션 */}
                     <div className="drawer-heading">게임</div>
                     <div className="drawer-section games">
-                        <Link to="/ox/single" className="drawer-link" onClick={() => setDrawerOpen(false)}>⭕❌ <span>OX퀴즈</span></Link>
-                        <Link to="/blank" className="drawer-link" onClick={() => setDrawerOpen(false)}>📝 <span>빈칸채우기 퀴즈</span></Link>
-                        <Link to="/block" className="drawer-link" onClick={() => setDrawerOpen(false)}>🧱 <span>블록 코딩</span></Link>
-                        <Link to="/card" className="drawer-link" onClick={() => setDrawerOpen(false)}>🃏 <span>카드 뒤집기</span></Link>
+                        <Link to="/oxquiz/OX_main" className="drawer-link" onClick={() => setDrawerOpen(false)}>❌<span>OX 퀴즈</span></Link>
+                        <Link to="/blankgamemain" className="drawer-link" onClick={() => setDrawerOpen(false)}>📝 <span>스피드 퀴즈</span></Link>
+                        <Link to="/block/main" className="drawer-link" onClick={() => setDrawerOpen(false)}>🧱 <span>블록 코딩</span></Link>
+                        <Link to="/card/main" className="drawer-link" onClick={() => setDrawerOpen(false)}>🃏 <span>카드 뒤집기</span></Link>
                     </div>
                     <div className="drawer-separator" />
                     {/* 커뮤니티/기타 */}
                     <div className="drawer-heading">서비스</div>
                     <div className="drawer-section etc">
                         <Link to="/rank" className="drawer-link" onClick={() => setDrawerOpen(false)}>🏆 <span>랭킹</span></Link>
-                        <Link to="/support" className="drawer-link" onClick={() => setDrawerOpen(false)}>💬 <span>문의하기</span></Link>
-                        <Link to="/notice" className="drawer-link" onClick={() => setDrawerOpen(false)}>📢 <span>공지사항</span></Link>
+                        <Link to="/mypage?tab=inquiries" className="drawer-link" onClick={logincheck}>💬 <span>문의하기</span></Link>
                         <Link to="/coffee" className="drawer-link" onClick={() => setDrawerOpen(false)}>☕ <span>개발자에게 커피쏘기</span></Link>
                     </div>
                     <div className="drawer-separator" />
@@ -76,9 +90,15 @@ const Menu = () => {
                         {isLogin && (
                           <div className="drawer-link user-static" aria-label="로그인 사용자">🙍 <span style={{border:'1px solid white', borderRadius:'20px', padding:'2px 4px', width:'80px', background: 'linear-gradient(90deg,var(--accent2),var(--accent))',color:'black'}}>{userInfo?.nickname}</span></div>
                         )}
-                        <Link to="/mypage" className="drawer-link" onClick={() => setDrawerOpen(false)}>📂 <span>마이페이지</span></Link>
-                        <Link to="/wrongnote" className="drawer-link" onClick={() => setDrawerOpen(false)}>📓 <span>오답노트</span></Link>
-                        <Link to="/records" className="drawer-link" onClick={() => setDrawerOpen(false)}>📊 <span>게임 기록</span></Link>
+                        <Link to="/mypage?tab=info" className="drawer-link" onClick={logincheck}>📂 <span>마이페이지</span></Link>
+                        <Link to="/mypage?tab=wrong" className="drawer-link" onClick={logincheck}>📓 <span>오답노트</span></Link>
+                        <Link to="/mypage?tab=records" className="drawer-link" onClick={logincheck}>📊 <span>게임 기록</span></Link>
+                    </div>
+                    <div className='drawer-separator'/>
+                    <div className="drawer-heading">이용약관</div>
+                    <div className='drawer-section service'>
+                    <Link to="/이용약관" className="drawer-link service" onClick={() => setDrawerOpen(false)}>이용약관</Link>
+                    <Link to="/개인정보처리방침" className="drawer-link service" onClick={() => setDrawerOpen(false)}>개인정보처리방침</Link>
                     </div>
                 </nav>
                 <div className="drawer-footer">
@@ -88,6 +108,7 @@ const Menu = () => {
                       <Link to="/login" onClick={() => setDrawerOpen(false)} className="login-inline">로그인</Link>
                     )}
                     <small>© 2025 INFOPASS</small>
+                   
                 </div>
             </aside>
             {drawerOpen && <div className="overlay" onClick={() => setDrawerOpen(false)} />}

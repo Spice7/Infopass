@@ -13,5 +13,6 @@ public interface GameResultMapper {
 	 List<GameResultDto> getAllResults(@Param("userId") int userId);
 
 	 
-	 public void CreateResult(GameResultDto dto);
+	 public void CreateMultiplayerResult(GameResultDto dto);
+	 public void CreateSingleplayResult(GameResultDto dto);
 }

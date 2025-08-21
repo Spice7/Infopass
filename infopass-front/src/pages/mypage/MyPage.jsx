@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, CircularProgress } from '@mui/material';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import Sidebar from './Sidebar';
 import MyInfo from './sections/myinfo/MyInfo';
@@ -9,6 +9,7 @@ import GameRecord from './sections/GameRecord';
 import Inquiries from './sections/Inquiries';
 
 const MyPage = () => {
+  const [searchParams] = useSearchParams(); // menu에서 선택한 항목에 따라 쿼리 파라미터 설정
   const [selectedMenu, setSelectedMenu] = useState('내 정보');
   const [openDialog, setOpenDialog] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -46,6 +47,28 @@ const MyPage = () => {
         return <MyInfo />;
     }
   };
+  
+  // URL ?tab= 값에 따라 초기 탭 동기화
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (!tab) return;
+    switch (tab) {
+      case 'wrong':
+        setSelectedMenu('오답노트');
+        break;
+      case 'records':
+        setSelectedMenu('게임 기록');
+        break;
+      case 'inquiries':
+        setSelectedMenu('문의 내역');
+        break;
+      case 'info':
+        setSelectedMenu('내 정보');
+        break;
+      default:
+        break;
+    }
+  }, [searchParams]);
 
   if (loading) {
     return (
