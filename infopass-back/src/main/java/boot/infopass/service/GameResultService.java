@@ -16,4 +16,16 @@ public class GameResultService {
     public List<GameResultDto> getAllResults(int userId) {
         return mapper.getAllResults(userId);
     }
+
+    /**
+     * 싱글플레이 결과 저장 (score=0, userExp=세션 누적값, gameType 지정)
+     */
+    public void createSingleplayResult(int userId, int score, int userExp, String gameType) {
+        GameResultDto dto = new GameResultDto();
+        dto.setUserId(userId);
+        dto.setScore(score);
+        dto.setUserExp(userExp);
+        dto.setGameType(gameType);
+        mapper.CreateSingleplayResult(dto);
+    }
 }

@@ -126,7 +126,14 @@ export async function getRandomUnsolvedQuestion(userId, sessionId) {
             throw new Error('세션 ID가 필요합니다.');
         }
 
-        const response = await api.get(`/block/questions/random?userId=${userId}&sessionId=${sessionId}`);
+        // 404를 에러로 던지지 않고 null 처리하기 위해 validateStatus를 사용한다
+        const response = await api.get(`/block/questions/random?userId=${userId}&sessionId=${sessionId}` , {
+            validateStatus: () => true,
+        });
+
+        if (response.status === 404) {
+            return null;
+        }
 
         if (!response.data) {
             throw new Error('서버에서 빈 응답을 받았습니다.');

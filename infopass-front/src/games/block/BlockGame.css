@@ -146,10 +146,26 @@
 .result-message.correct { background: #173b2b; color: #9dffc9; border: 1px solid #256b4a; }
 .result-message.incorrect { background: #3b1b20; color: #ffc7d5; border: 1px solid #6b2b39; }
 
-/* 완료 메시지 */
-.completion-message h2 { margin: 0 0 8px 0; background: linear-gradient(100deg, #b3c9ff, #e2b8ff 55%, #ffd7ef); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.completion-message p { margin: 0 0 12px 0; color: #dbe3f3; }
-.completion-message button { background: linear-gradient(95deg, #ffda5c, #9a7bff 55%, #588dff); color: #1d1d1d; }
+/* 완료 메시지 오버레이 */
+.completion-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 1000;
+}
+
+.completion-message {
+  width: min(560px, 92vw);
+  text-align: center;
+  padding: 24px 22px;
+}
+
+.completion-message h2 { margin: 0 0 12px 0; font-size: 1.6rem; background: linear-gradient(100deg, #b3c9ff, #e2b8ff 55%, #ffd7ef); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.completion-message p { margin: 0 0 16px 0; color: #dbe3f3; font-size: 1rem; }
+.completion-message button { background: linear-gradient(95deg, #ffda5c, #9a7bff 55%, #588dff); color: #1d1d1d; padding: 12px 18px; font-size: 1rem; }
 
 /* 에러 박스 */
 .block-main .error {

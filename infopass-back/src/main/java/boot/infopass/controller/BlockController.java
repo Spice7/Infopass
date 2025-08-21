@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +37,9 @@ public class BlockController {
 
 	@Autowired
 	GameResultService gameResultService;
+
+	// 세션 완료 중복 저장 방지용 (userId#sessionId)
+	private final Set<String> completedSessions = ConcurrentHashMap.newKeySet();
 	
 	@GetMapping("/data/{id}")
 	public BlockDTO getSingleData(@PathVariable("id") int id) {
@@ -152,8 +157,16 @@ public class BlockController {
 					"message", "유효하지 않은 사용자입니다."
 				));
 			}
+			String key = userId + "#" + String.valueOf(sessionIdObj);
+			if (completedSessions.contains(key)) {
+				return ResponseEntity.ok(Map.of(
+					"success", true,
+					"deduped", true
+				));
+			}
 			// score는 0으로 고정, game_type은 block
 			gameResultService.createSingleplayResult(userId, 0, userExp, "block");
+			completedSessions.add(key);
 			return ResponseEntity.ok(Map.of(
 				"success", true
 			));
