@@ -18,7 +18,7 @@ export const useCardTimer = (isPlaying, gameStarted, gameMode, onTimeout) => {
       const newTimeLimit = 180; // 타임어택 모드: 180초 (테스트용)
       setRemainingTime(newTimeLimit);
     } else {
-      // 일반 모드일 때는 시간 제한 없음
+      // 일반 모드일 때는 시간 제한 없음      
       setRemainingTime(300);
     }
   }, []);
@@ -63,7 +63,7 @@ export const useCardTimer = (isPlaying, gameStarted, gameMode, onTimeout) => {
   const resetTimer = () => {
     setTimer(0);
     if (gameMode === 'timeAttack') {
-      setRemainingTime(10); // 타임어택 모드: 10초 (테스트용)
+      setRemainingTime(180); // 타임어택 모드: 10초 (테스트용)
     }
   };
 
