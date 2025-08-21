@@ -3,11 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { LoginContext } from '../user/LoginContextProvider';
 import './menu.css';
 
-const Menu = () => {
+const Menu = ({ checkgamehome }) => {
         const { isLogin, userInfo, logout } = useContext(LoginContext);
         const navigate = useNavigate();
         const [drawerOpen, setDrawerOpen] = useState(false);
-
+        const [checkgame,setcheckgame] = useState(checkgamehome)
+        
 
     const handleLogout = () => {
         logout();
@@ -42,7 +43,7 @@ const Menu = () => {
                     {isLogin && userInfo?.usertype === 'ADMIN' && (
                         <Link to="/admin" className="nav-btn">관리자 페이지</Link>
                     )}
-                    {isLogin && userInfo?.usertype === 'USER' && (
+                    {isLogin && (
                         <Link to="/mypage" className="nav-btn">마이페이지</Link>
                     )}
                     <Link to="/rank" className="nav-btn">랭킹</Link>
@@ -64,16 +65,16 @@ const Menu = () => {
                     {/* 기본 섹션 */}
                     <div className="drawer-section">
                         <Link to="/" className="drawer-link" onClick={() => setDrawerOpen(false)}>🏠 <span>홈</span></Link>
-                        <button className="drawer-link recent" type="button" disabled title="준비 중" style={{opacity:.55}}>🕒 <span>최근 플레이한 게임</span></button>
+                        <Link to ={checkgame} className="drawer-link">🕒 <span>최근 플레이한 게임</span></Link>
                     </div>
                     <div className="drawer-separator" />
                     {/* 게임 섹션 */}
                     <div className="drawer-heading">게임</div>
                     <div className="drawer-section games">
-                        <Link to="/oxquiz/OX_main" className="drawer-link" onClick={() => setDrawerOpen(false)}>❌<span>OX 퀴즈</span></Link>
-                        <Link to="/blankgamemain" className="drawer-link" onClick={() => setDrawerOpen(false)}>📝 <span>스피드 퀴즈</span></Link>
-                        <Link to="/block/main" className="drawer-link" onClick={() => setDrawerOpen(false)}>🧱 <span>블록 코딩</span></Link>
-                        <Link to="/card/main" className="drawer-link" onClick={() => setDrawerOpen(false)}>🃏 <span>카드 뒤집기</span></Link>
+                        <Link to="/oxquiz/OX_main" className="drawer-link" onClick={() => { setDrawerOpen(false); setcheckgame('/oxquiz/OX_main'); }}>❌<span>OX 퀴즈</span></Link>
+                        <Link to="/blankgamemain" className="drawer-link" onClick={() => { setDrawerOpen(false); setcheckgame('/blankgamemain'); } }>📝 <span>스피드 퀴즈</span></Link>
+                        <Link to="/block/main" className="drawer-link" onClick={() => { setDrawerOpen(false); setcheckgame('/block/main'); }}>🧱 <span>블록 코딩</span></Link>
+                        <Link to="/card/main" className="drawer-link" onClick={() => { setDrawerOpen(false); setcheckgame('/card/main'); }}>🃏 <span>카드 뒤집기</span></Link>
                     </div>
                     <div className="drawer-separator" />
                     {/* 커뮤니티/기타 */}
