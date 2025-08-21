@@ -1,16 +1,10 @@
-// src/GameLobby.jsx
-import React, { useEffect, useState } from "react";
-import SockJS from "sockjs-client";
-import Stomp from "stompjs";
-import RoomWaitPage from "./RoomWaitPage";
+import React, { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
 import { LoginContext } from "../../user/LoginContextProvider";
 
 import "./BlankGameLobby.css";
 import Cookies from "js-cookie";
 
-const WS_URL = "http://localhost:9000/ws-game";
 const API = "http://localhost:9000/api/rooms";
 
 export default function BlankGameLobby() {
@@ -20,18 +14,21 @@ export default function BlankGameLobby() {
     roomName: "",
     maxPlayers: 6,
   });
-  const [enterRoomId, setEnterRoomId] = useState(null);
-  const [waitPlayers, setWaitPlayers] = useState([]);
   const navigate = useNavigate();
 
-  // 방 리스트 불러오기 (예시 API)
+  // 방 리스트 불러오기
   useEffect(() => {
+    fetchRooms();
+  }, []);
+
+  const fetchRooms = () => {
     fetch(API)
       .then((res) => res.json())
       .then((data) => {
         setRooms(Array.isArray(data) ? data : data.rooms || []);
-      });
-  }, []);
+      })
+      .catch((error) => console.error("방 리스트 불러오기 실패:", error));
+  };
 
   const token = Cookies.get("accessToken");
 
@@ -43,35 +40,30 @@ export default function BlankGameLobby() {
       alert("로그인이 필요합니다.");
       return;
     }
-    const res = await fetch(API, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ ...form, status: "WAITING" }), // status 추가
-    });
-    if (!res.ok) {
+    try {
+      const res = await fetch(API, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ ...form, status: "WAITING" }),
+      });
+      if (!res.ok) {
+        throw new Error("방 생성 실패");
+      }
+      const data = await res.json();
+      const roomId = data.roomId;
+      joinRoom(roomId);
+      fetchRooms();
+    } catch (error) {
+      console.error("방 생성 실패:", error);
       alert("방 생성에 실패했습니다. 로그인 상태와 권한을 확인하세요.");
-      return;
     }
-    const data = await res.json();
-    const roomId = data.roomId;
-    joinRoom(roomId);
-
-    // 방 리스트 갱신
-    fetch(API)
-      .then((res) => res.json())
-      .then((data) => setRooms(Array.isArray(data) ? data : data.rooms || []));
   };
-
-  useEffect(() => {
-    console.log("userInfo:", userInfo);
-  }, [userInfo]);
 
   // 방 입장 함수
   const joinRoom = async (roomId) => {
-    // userInfo가 유효한지 먼저 확인합니다.
     if (!userInfo || !userInfo.id) {
       alert("로그인이 필요합니다.");
       return;
@@ -80,62 +72,35 @@ export default function BlankGameLobby() {
       alert("방 정보가 올바르지 않습니다.");
       return;
     }
-    await fetch(`${API}/${roomId}/join`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token ? `Bearer ${token}` : "",
-      },
-      body: JSON.stringify({ userId: userInfo.id }),
-    });
-    setEnterRoomId(roomId);
-
-    fetch(`${API}/${roomId}/players`, {
-      headers: {
-        Authorization: token ? `Bearer ${token}` : "",
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        // 1. setWaitPlayers를 호출하여 상태 업데이트
-        setWaitPlayers(data);
-        // 2. navigate를 호출하여 라우팅
-        // 이 때, 최신 데이터를 직접 전달
-        navigate(`/blankgame/wait/${roomId}`, {
-          state: {
-            roomId,
-            userInfo,
-            players: data, // fetch로 받아온 최신 데이터를 직접 전달
-          },
-        });
+    try {
+      await fetch(`${API}/${roomId}/join`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+        body: JSON.stringify({ userId: userInfo.id }),
       });
-  };
 
-  // 준비 완료 처리
-  const handleReady = async (userId) => {
-    // 본인 playerId 찾기
-    const player = waitPlayers.find((p) => p.userId === userId);
-    if (!player) return;
-    await fetch(`${API}/player/${player.id}/ready?ready=true`, {
-      method: "POST",
-    });
-    // 참여자 리스트 갱신
-    fetch(`${API}/${enterRoomId}/players`)
-      .then((res) => res.json())
-      .then((data) => setWaitPlayers(data));
-  };
+      const playersRes = await fetch(`${API}/${roomId}/players`, {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      });
+      const playersData = await playersRes.json();
 
-  // RoomWaitPage로 이동
-  if (enterRoomId) {
-    return (
-      <RoomWaitPage
-        roomId={enterRoomId}
-        userInfo={userInfo}
-        players={waitPlayers}
-        onReady={handleReady}
-      />
-    );
-  }
+      navigate(`/blankgame/wait/${roomId}`, {
+        state: {
+          roomId: roomId,
+          userInfo: userInfo,
+          players: playersData,
+        },
+      });
+    } catch (error) {
+      console.error("방 입장 또는 데이터 가져오기 실패:", error);
+      alert("방 입장에 실패했습니다.");
+    }
+  };
 
   return (
     <div className="lobby-bg">

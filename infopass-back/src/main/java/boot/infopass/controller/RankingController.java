@@ -2,11 +2,6 @@ package boot.infopass.controller;
 
 import java.util.List;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import boot.infopass.dto.RankedUserDto;
 import boot.infopass.service.RankingService;
 import boot.infopass.util.RedisUtil;
@@ -29,6 +24,19 @@ public class RankingController {
     @GetMapping()
     public List<RankedUserDto> getRanking(@RequestParam String type) {
         return rankingService.getRank(type);
+    }
+
+    @PostMapping("/recalculate")
+    public ResponseEntity<String> recalcNow() {
+        rankingService.recalculateRanksFromDb();
+        return ResponseEntity.ok("recalculated");
+    }
+
+    // 관리자/테스트용: Redis -> DB 동기화
+    @PostMapping("/persistRedis")
+    public ResponseEntity<String> persistRedis(@RequestParam(defaultValue = "rank:realtime") String key) {
+        rankingService.persistRedisRanksToDb(key);
+        return ResponseEntity.ok("persisted");
     }
 
 }

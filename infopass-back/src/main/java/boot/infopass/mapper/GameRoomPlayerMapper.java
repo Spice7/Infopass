@@ -17,4 +17,6 @@ public interface GameRoomPlayerMapper {
     int deletePlayer(Long playerId);
 
     boolean existsByRoomIdAndUserId(Long roomId, Long userId);
+
+    GameRoomPlayerDto selectPlayerById(Long playerId);
 }

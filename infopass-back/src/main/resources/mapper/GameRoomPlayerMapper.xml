@@ -11,4 +11,6 @@
     <delete id="deletePlayer"> delete from game_room_player where Id=#{playerId} </delete>
     <select id="existsByRoomIdAndUserId" resultType="boolean"> select count(*) > 0 from
         game_room_player where room_id = #{roomId} and user_id = #{userId} </select>
+    <select id="selectPlayerById" resultType="boot.infopass.dto.GameRoomPlayerDto"> SELECT * FROM
+        game_room_player WHERE id = #{playerId} </select>
 </mapper>
