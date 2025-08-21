@@ -11,6 +11,8 @@ import Ranking from "./Ranking";
 import { LoginContext } from '../user/LoginContextProvider.jsx'
 import blankgame from './BlankGame.jsx'
 import Menu from '../pages/menu.jsx'
+import TermsOfUse from '../pages/TermsOfUse.jsx'
+import PrivacyPolicy from '../pages/PrivacyPolicy.jsx'
 
 const RouterMain = () => {
     return (
@@ -29,6 +31,8 @@ const RouterMain = () => {
                 {CardRoutes}
                 {blankgame}
                 {/* Flip Game placeholder route */}
+                <Route path='/이용약관' element={<TermsOfUse />} />
+                <Route path='/개인정보처리방침' element={<PrivacyPolicy />} />
                 <Route path='/flip' element={<div style={{padding:'40px', textAlign:'center'}}><h2>카드 뒤집기 게임</h2><p>준비 중입니다. 곧 찾아뵐게요!</p></div>} />
 
                 <Route path='*' element={<h1>잘못된 주소입니다</h1>} />

@@ -45,9 +45,10 @@ jwt:
 social:
   kakao:
     client-id: e1a223829a67fa4d5555d824be78d1c7
-    client-secret: TDcon0Mz2DzhNceLsXqRAI1j6gvG8JpV
+    client-secret: TDcon0Mz2DzhNceLsXqRAI1j6gvG8JpV    
     redirect-uri: http://localhost:5173/auth/callback/kakao
+
   naver:
     client-id: kY3Gxh_p4svxg1tae7id
-    client-secret: DTJKEYynxi
+    client-secret: DTJKEYynxi    
     redirect-uri: http://localhost:5173/auth/callback/naver

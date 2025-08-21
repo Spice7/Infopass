@@ -19,7 +19,7 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 
-import { getGameResults } from '../../../user/auth'; // API 함수
+import { getGameResults } from '../../../user/gameResult.js'; // API 함수
 
 const GameResultList = () => {
   const theme = useTheme();
@@ -96,6 +96,20 @@ const GameResultList = () => {
       </Box>
     );
 
+    if (results.length === 0) {
+    return (
+      <Box sx={{ textAlign: 'center', mt: 10, p: 3 }}>
+        <QuestionAnswerIcon sx={{ fontSize: 80, color: "#fff" }} />
+        <Typography variant="h5" color="#fff" sx={{ mt: 3 }}>
+          아직 게임기록이 없네요! 🎉
+        </Typography>
+        <Typography variant="body1" color="#fff" sx={{ mt: 1 }}>
+          게임을 플레이 해보세요!
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', pt: 1, px: 2 }}>
       {/* 필터 탭 */}
@@ -109,6 +123,7 @@ const GameResultList = () => {
           '.MuiTabs-flexContainer': { gap: 2, flexWrap: 'wrap' },
           '.MuiTabs-indicator': { display: 'none !important' },
           '.MuiTab-root': {
+            outline: 'none',   // 선택 시 외곽선 제거
             fontWeight: 700,
             fontSize: 16,
             textTransform: 'none',
@@ -117,17 +132,12 @@ const GameResultList = () => {
             transition: 'all 0.3s',
             color: theme.palette.grey[600],
             backgroundColor: theme.palette.grey[200],
-            boxShadow: 'none',
-            border: 'none',
-            outline: 'none',
             '&:focus-visible': { outline: 'none' },
-            '&:hover': { backgroundColor: theme.palette.grey[400] },
-            '&:active': { backgroundColor: theme.palette.grey[500] },
+            '&:hover': { color: '#fff', backgroundColor: 'rgba(46, 46, 78, 0.8)' },
             '&.Mui-selected': {
-              backgroundColor: theme.palette.grey[400],
+              backgroundColor: 'rgba(46, 46, 78, 0.8)',
               color: '#fff',
               boxShadow: '0 6px 15px rgb(0 0 0 / 0.2)',
-              transform: 'translateY(-2px)',
             },
           },
         }}
@@ -139,7 +149,6 @@ const GameResultList = () => {
         <Tab value="card" label="CARD" />
       </Tabs>
 
-      {/* 결과 목록 */}
       <Box
         sx={{
           flexGrow: 1,
@@ -147,15 +156,32 @@ const GameResultList = () => {
           pr: 1,
           WebkitOverflowScrolling: 'touch',
           maxHeight: { xs: '60vh', md: 'calc(100vh - 240px)' },
+          // 스크롤바 커스텀 (우주/은하 컨셉)
+          '&::-webkit-scrollbar': {
+            width: 10,
+            background: 'rgba(30,34,64,0.7)',
+            borderRadius: 8,
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: 'linear-gradient(135deg, #8e44ad 30%, #232946 100%)',
+            borderRadius: 8,
+            minHeight: 40,
+            border: '2px solid #232946',
+          },
+          '&::-webkit-scrollbar-thumb:hover': {
+            background: 'linear-gradient(135deg, #a55eea 0%, #232946 100%)',
+          },
+          scrollbarColor: '#8e44ad #232946',
+          scrollbarWidth: 'thin',
         }}
       >
         {filteredResults.length === 0 ? (
           <Box sx={{ textAlign: 'center', mt: 8, p: 3 }}>
-            <QuestionAnswerIcon sx={{ fontSize: 80, color: theme.palette.grey[400] }} />
-            <Typography variant="h5" color="text.secondary" sx={{ mt: 3 }}>
+            <QuestionAnswerIcon sx={{ fontSize: 80, color: '#fff' }} />
+            <Typography variant="h5" color='#fff' sx={{ mt: 3 }}>
               선택한 탭의 게임 기록이 없습니다.
             </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
+            <Typography variant="body1" color='#fff' sx={{ mt: 1 }}>
               다른 탭을 확인하거나 게임을 플레이 해보세요!
             </Typography>
           </Box>
@@ -163,9 +189,11 @@ const GameResultList = () => {
           <List>
             {filteredResults.map(
               // DTO의 카멜 케이스 변수명으로 구조 분해 할당
-              ({ id, score, userRank, userRankPoint, gameType, createdAt }) => {
+              ({ id, score, userRank, userRankPoint, gameType, createdAt,userExp }) => {
                 const rankChangeInfo = getRankChangeInfo(userRankPoint);
-                const isWinLoseGame = ['oxquiz', 'block', 'card'].includes(gameType);
+                const isWinLoseGame = ['oxquiz', 'quiz'].includes(gameType);
+                const isSingleExpGame = ['oxquiz', 'quiz','block', 'card'].includes(gameType) && !userRank;
+                const isBlock = gameType === 'block';
 
                 return (
                   <React.Fragment key={id}>
@@ -207,11 +235,17 @@ const GameResultList = () => {
                       <Divider sx={{ my: 1, width: '100%' }} />
 
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap' }}>
-                        <Typography variant="subtitle1" sx={{ fontWeight: '600' }}>
-                          점수: <span style={{ color: '#d32f2f' }}>{score.toLocaleString()}</span>
-                        </Typography>
+                        {!isBlock && (
+                          <Typography variant="subtitle1" sx={{ fontWeight: '600' }}>
+                            점수: <span style={{ color: '#d32f2f' }}>{(score ?? 0).toLocaleString()}</span>
+                          </Typography>
+                        )}
 
-                        {isWinLoseGame ? (
+                        {isSingleExpGame ? (
+                          <Typography variant="subtitle1" sx={{ fontWeight: '600', color: '#f57c00' }}>
+                            경험치: <span style={{ color: '#ff9800' }}>{userExp?.toLocaleString()}</span>
+                          </Typography>
+                        ) : isWinLoseGame ? (
                           <Typography
                             variant="subtitle1"
                             sx={{

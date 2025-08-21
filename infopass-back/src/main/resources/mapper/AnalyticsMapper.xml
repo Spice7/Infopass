@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="boot.infopass.mapper.AnalyticsMapper">
+
+	<!-- 일자별 게임 플레이 수: 각 제출 테이블을 UNION -->
+	<select id="selectDailyPlays" resultType="boot.infopass.dto.PlayCountByDayDto">
+		SELECT date, game_type AS gameType, SUM(cnt) AS count
+		FROM (
+			SELECT DATE(created_at) AS date, 'block' AS game_type, COUNT(*) AS cnt
+			FROM blockgame_submission
+			WHERE created_at BETWEEN #{from} AND #{to}
+			GROUP BY DATE(created_at)
+			UNION ALL
+			SELECT DATE(created_at) AS date, 'oxquiz' AS game_type, COUNT(*) AS cnt
+			FROM oxquiz_submission
+			WHERE created_at BETWEEN #{from} AND #{to}
+			GROUP BY DATE(created_at)
+			UNION ALL
+			SELECT DATE(created_at) AS date, 'card' AS game_type, COUNT(*) AS cnt
+			FROM cardgame_submission
+			WHERE created_at BETWEEN #{from} AND #{to}
+			GROUP BY DATE(created_at)
+			UNION ALL
+			SELECT DATE(created_at) AS date, 'blank' AS game_type, COUNT(*) AS cnt
+			FROM blank_quiz_submission
+			WHERE created_at BETWEEN #{from} AND #{to}
+			GROUP BY DATE(created_at)
+		) t
+		GROUP BY date, game_type
+		ORDER BY date ASC, FIELD(game_type, 'oxquiz','block','card','blank')
+	</select>
+
+	<!-- 오답 상위 N개: wronganswer_log 기준 -->
+	<select id="selectWrongTopQuestions" resultType="map">
+		SELECT game_type, question_id, COUNT(*) AS wrong_count
+		FROM wronganswer_log
+		WHERE created_at BETWEEN #{from} AND #{to}
+		<if test="gameType != null and gameType != ''">
+			AND game_type = #{gameType}
+		</if>
+		GROUP BY game_type, question_id
+		ORDER BY wrong_count DESC
+		LIMIT #{limit}
+	</select>
+
+	<!-- 멀티플레이 결과 분포: 상위 N명/최근 기간 -->
+	<select id="selectMultiplayerRanking" resultType="map">
+		SELECT game_type, user_rank, COUNT(*) AS count
+		FROM multiplayer_result
+		WHERE created_at BETWEEN #{from} AND #{to}
+		<if test="gameType != null and gameType != ''">
+			AND game_type = #{gameType}
+		</if>
+		GROUP BY game_type, user_rank
+		ORDER BY game_type, user_rank
+	</select>
+
+</mapper>
+

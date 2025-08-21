@@ -2,13 +2,13 @@ package boot.infopass.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import boot.infopass.dto.CardDto;
 import boot.infopass.dto.CardSubDto;
-import boot.infopass.dto.CardStatusDto;
 import boot.infopass.mapper.CardMapper;
 
 @Service
@@ -20,16 +20,15 @@ public class CardGameService {
 	public List<CardDto> getRandomQuestionsBySubjectExceptSolved(Map<String, Object> data) {
 		return cardMapper.getRandomQuestionsBySubjectExceptSolved(data);
 	}
-	
-    public CardDto getSingleData(Integer id) {
-    	return cardMapper.getSingleData(id);
-    }
-	public void insertCardSub(CardSubDto cardSub){
-		cardMapper.insertCardSub(cardSub);
-	}
-	
-	public void saveGameResult(CardStatusDto gameResult) {
-		cardMapper.saveGameResult(gameResult);
+
+	public void saveQuestionAttempts(List<CardSubDto> submissions) {
+		for (CardSubDto dto : submissions) {
+			cardMapper.saveQuestionAttempt(dto);
+		}
 	}
 
+	// 새로운 세션 ID 생성
+	public String generateSessionId() {
+		return UUID.randomUUID().toString();
+	}
 }

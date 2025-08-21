@@ -73,8 +73,7 @@ public class SecurityConfig {
 
                 // ✅ 2. 인증 없이 접근을 허용할 경로들
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                .requestMatchers("/", "/login", "/user/**", "/wrong-answers/**", "/results/**", "/rank/**").permitAll()
+                .requestMatchers("/", "/login", "/user/**", "/admin/**", "/wrong-answers/**", "/results/**", "/rank/**").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/ox_image/**",
                         "/api/rooms/player/**", "/api/ranking/**", "/public/**")
                 .permitAll()
@@ -106,7 +105,7 @@ public class SecurityConfig {
 
         // 허용할 오리진 설정
         configuration.addAllowedOrigin("http://localhost:5173");
-
+        configuration.addAllowedOrigin("http://192.168.10.141:5173");
         // 허용할 헤더 설정
         configuration.addAllowedHeader("*");
 
