@@ -132,7 +132,7 @@ export const useCardGame = () => {
 
             // 상태 초기화
             setQuestionData(questions);
-            setCards(shuffledCards);
+            setCards(gameCards);
             setFlippedCards([]);
             setMatchedPairs([]);
             setShowNextButton(false);
@@ -297,8 +297,9 @@ export const useCardGame = () => {
                 user_exp: finalScore / 10,
                 game_type: "card"
             });
-            await applyExp(expDelta);
-            
+            await applyExp(expDelta.user_exp);
+            await auth.saveGameResult(expDelta);
+            console.log('점수/경험치 저장 성공:', expDelta);
         } catch (e) {
             console.error('점수/경험치 저장 실패:', e);
         }

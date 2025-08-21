@@ -16,4 +16,8 @@ public class GameResultService {
     public List<GameResultDto> getAllResults(int userId) {
         return mapper.getAllResults(userId);
     }
+    
+    public void CreateSingleplayResult(GameResultDto dto) {
+    	mapper.CreateSingleplayResult(dto);
+    }
 }

@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import boot.infopass.dto.CardDto;
 import boot.infopass.dto.CardSubDto;
+import boot.infopass.dto.GameResultDto;
 import boot.infopass.service.CardGameService;
+import boot.infopass.service.GameResultService;
 import boot.infopass.service.UserService;
 import boot.infopass.service.WrongAnswerService;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +35,9 @@ public class CardController {
 
 	@Autowired
 	UserService userService;
+	
+	@Autowired
+	GameResultService gameResultService; 
 
 	@PostMapping("/questions")
 	public ResponseEntity<List<CardDto>> getQuestions(@RequestBody Map<String, Object> data) {
@@ -51,14 +56,27 @@ public class CardController {
 			for (int i = 0; i < submissions.size(); i++) {
 				CardSubDto dto = submissions.get(i);
 				if (!dto.getIs_correct()) {
-					wrongAnswerService.insertCardWrongAnswer(dto.getUser_id(), dto.getQuestion_id(),
-							dto.getSubmitted_answer());
+					wrongAnswerService.insertCardWrongAnswer(dto.getUser_id(), dto.getQuestion_id()
+							);
 				}
 			}
 			return ResponseEntity.ok(Map.of("success", true));
 		} catch (Exception e) {
 			return ResponseEntity.internalServerError().body(Map.of("success", false, "message", "서버 오류"));
 		}
+	}
+	
+	// 싱글 유저 경험치,점수 제출
+	@PostMapping("/game/result")
+	public ResponseEntity<?> CreateSingleplayResult(@RequestBody Map<String, Object> data) {
+		try {			
+			
+			gameResultService.CreateSingleplayResult();
+			
+			return ResponseEntity.ok(Map.of("success", true));
+		} catch (Exception e) {
+			return ResponseEntity.internalServerError().body(Map.of("success", false, "message", "서버 오류"));
+		}		
 	}
 	
 	//새로운 세션 ID 생성	 
