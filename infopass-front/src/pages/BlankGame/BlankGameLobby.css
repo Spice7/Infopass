@@ -1,0 +1,104 @@
+.lobby-bg {
+  background: linear-gradient(135deg, #e0e7ff 0%, #f5f7fa 100%);
+  min-height: 100vh;
+  padding: 40px 0;
+}
+.lobby-container {
+  max-width: 480px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  padding: 32px 24px;
+}
+.lobby-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #3b82f6;
+  margin-bottom: 24px;
+  text-align: center;
+}
+.room-create-box {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 28px;
+  justify-content: center;
+}
+.room-input {
+  padding: 10px 14px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 1rem;
+  width: 140px;
+}
+.room-create-btn {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+.room-create-btn:hover {
+  background: #2563eb;
+}
+.room-list-box {
+  margin-top: 10px;
+}
+.room-list-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #374151;
+}
+.room-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.room-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f1f5f9;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.room-info {
+  display: flex;
+  flex-direction: column;
+}
+.room-name {
+  font-size: 1.05rem;
+  font-weight: bold;
+  color: #2563eb;
+}
+.room-players {
+  font-size: 0.95rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+.room-join-btn {
+  background: #10b981;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+.room-join-btn:hover {
+  background: #059669;
+}
+.room-list-empty {
+  text-align: center;
+  color: #94a3b8;
+  padding: 18px 0;
+}

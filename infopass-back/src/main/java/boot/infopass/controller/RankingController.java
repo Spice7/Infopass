@@ -27,7 +27,7 @@ public class RankingController {
     private final RedisUtil redisUtil;
 
     @GetMapping()
-    public List<RankedUserDto> getRanking(@RequestParam String type) {
+    public List<RankedUserDto> getRanking(@RequestParam("type") String type) {
         return rankingService.getRank(type);
     }
 

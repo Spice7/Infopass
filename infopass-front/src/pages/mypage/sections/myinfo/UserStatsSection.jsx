@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Card, CardContent, Typography, LinearProgress } from '@mui/material';
 import { FlashOn, EmojiEvents } from '@mui/icons-material';
-import './UserStatsSection.css';  // CSS 애니메이션 포함 파일 임포트
+import './UserStatsSection.css';
 
-const primaryColor = '#4a90e2';
-const gradientColor = 'linear-gradient(135deg, #4a90e2 0%, #81d4fa 100%)';
-const cardBgColor = '#ffffff';
+// ----------------------------------------------------
+// 🎨 우주 컨셉에 맞게 색상 변경
+// ----------------------------------------------------
+const primaryColor = '#a55eea';
+const gradientColor = 'linear-gradient(135deg, #a55eea 0%, #dcdde1 100%)';
+const cardBgColor = 'rgba(46, 46, 78, 0.8)'; // 어두운 보라색 계열 (투명도 조절)
+const textColor = '#e8eaf6'; // 밝은 글자색
 const MAX_EXP_PER_LEVEL = 100;
 
 const UserStatsSection = ({ user }) => {
@@ -61,15 +65,15 @@ const UserStatsSection = ({ user }) => {
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-          <Typography variant="h5" fontWeight={700} sx={{ color: primaryColor, display: 'flex', alignItems: 'center' }}>
+          <Typography variant="h5" fontWeight={700} sx={{ color: textColor, display: 'flex', alignItems: 'center' }}>
             <FlashOn sx={{ mr: 1, color: '#ffc107' }} />
-            경험치 (XP)
+            경험치 (EXP)
           </Typography>
           <Typography
             variant="body1"
             fontWeight={700}
             sx={{
-              color: primaryColor,
+              color: textColor,
               transition: 'color .25s ease, transform .25s ease',
             }}
           >
@@ -83,7 +87,7 @@ const UserStatsSection = ({ user }) => {
             sx={{
               height: 14,
               borderRadius: 7,
-              background: '#e3f2fd',
+              background: '#4d4d75', // 어두운 배경색
               '& .MuiLinearProgress-bar': {
                 background: gradientColor,
                 transition: 'width 0.15s linear',
@@ -91,8 +95,8 @@ const UserStatsSection = ({ user }) => {
             }}
           />
         </Box>
-        <Typography variant="body2" color="text.secondary" textAlign="right" sx={{ mt: 1 }}>
-          다음 레벨까지 <b style={{ color: primaryColor }}>{expRemaining} XP</b> 남음 🚀
+        <Typography variant="body2" sx={{ mt: 1, color: textColor }} textAlign="right">
+          다음 레벨까지 <b style={{ color: primaryColor }}>{expRemaining} EXP</b> 남음 🚀
         </Typography>
       </Card>
 
@@ -104,7 +108,7 @@ const UserStatsSection = ({ user }) => {
           borderRadius: 4,
           textAlign: 'center',
           p: 2,
-          background: 'linear-gradient(45deg, #fce4ec 0%, #e3f2fd 100%)',
+          background: 'linear-gradient(45deg, #2c2c3c 0%, #3e3e5a 100%)', // 어두운 우주 배경
           boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
           display: 'flex',
           flexDirection: 'column',
@@ -116,8 +120,7 @@ const UserStatsSection = ({ user }) => {
         <CardContent sx={{ p: 0 }}>
           <Typography
             variant="h6"
-            color="text.secondary"
-            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1 }}
+            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1, color: '#dcdde1' }}
           >
             <EmojiEvents sx={{ color: '#ff9800', mr: 1, transition: 'transform .3s ease' }} />
             랭킹 순위
@@ -126,7 +129,7 @@ const UserStatsSection = ({ user }) => {
             variant="h1"
             fontWeight={800}
             sx={{
-              background: 'linear-gradient(45deg, #ff9800 30%, #ff5722 90%)',
+              background: 'linear-gradient(45deg, #c56cf0 30%, #a55eea 90%)', // 보라색 그라데이션
               backgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               fontSize: '4.5rem',

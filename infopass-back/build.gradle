@@ -77,3 +77,8 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+// 파라미터 이름을 런타임에 보존하여 @RequestParam 이름이 누락되어도 스프링이 식별 가능하도록 설정
+tasks.withType(JavaCompile).configureEach {
+	options.compilerArgs += ['-parameters']
+}

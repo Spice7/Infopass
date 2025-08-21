@@ -20,4 +20,6 @@ public class GameResultDto {
     private String gameType;        // quiz, oxquiz, block, card
     private Timestamp createdAt;
     private String resultType;      // "multi" or "single"
+    
+    private Integer userExp; 
 }

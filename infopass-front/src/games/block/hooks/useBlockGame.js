@@ -3,6 +3,7 @@ import * as Blockly from 'blockly';
 import { JavaGenerator } from '../javaGenerator';
 import { registerAllBlocks } from '../blocks';
 import { generateNewSession, getRandomUnsolvedQuestion, submitAnswerToBackend } from '../BlockAPI';
+import * as gameResult from '@/user/gameResult.js'
 
 // 블록 코딩 게임 상태와 로직을 캡슐화한 커스텀 훅
 // 게임 시작, 초기화, 다음 문제 넘어가기 등 주요 기능들이 여기 있다
@@ -97,7 +98,9 @@ export function useBlockGame(userInfo) {
   const checkAnswer = useCallback(async () => {
     if (!currentQuestion || !workspaceRef.current) return;
     try {
-      const userXmlText = normalizeXml(Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspaceRef.current)));
+      // 비교용 정규화 XML과 저장용 원본 XML을 분리
+      const rawXmlText = Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspaceRef.current));
+      const userXmlText = normalizeXml(rawXmlText);
       const answerXmlText = normalizeXml(currentQuestion.answer);
       const isAnswerCorrect = (userXmlText === answerXmlText);
       setIsCorrect(isAnswerCorrect);
@@ -107,8 +110,15 @@ export function useBlockGame(userInfo) {
           user_id: userInfo.id,
           session_id: sessionId,
           is_correct: true,
-          submitted_answer: userXmlText
+          // 저장은 원본 XML (프리뷰/복원 가능)
+          submitted_answer: rawXmlText
         });
+        // 경험치 증가
+        try {
+          await gameResult.applyExp(gameResult.BLOCKGAME_EXP);
+        } catch (expError) {
+          console.error('경험치 증가 실패:', expError);
+        }
         setSolvedQuestions(prev => new Set([...prev, currentQuestion.id]));
         setShowNextButton(true);
       } else {
@@ -116,7 +126,8 @@ export function useBlockGame(userInfo) {
           user_id: userInfo.id,
           session_id: sessionId,
           is_correct: false,
-          submitted_answer: userXmlText
+          // 오답도 원본 XML 저장
+          submitted_answer: rawXmlText
         });
       }
     } catch (err) {
