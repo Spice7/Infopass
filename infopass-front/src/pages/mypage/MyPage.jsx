@@ -42,7 +42,7 @@ const MyPage = () => {
       case '게임 기록':
         return <GameRecord />;
       case '문의 하기':
-        return <InquiryForm />;
+       return <InquiryForm setSelectedMenu={setSelectedMenu} />;
         case '문의 내역':
         return <InquiryList />;
       default:
