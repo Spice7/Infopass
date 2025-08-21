@@ -3,6 +3,8 @@ import * as auth from '../CardAuth';
 import { LoginContext } from '../../../user/LoginContextProvider';
 import { useNavigate } from 'react-router-dom';
 import { applyExp } from '../../../user/gameResult';
+import { registerLogoutCallback, triggerLogout } from '../../../user/authUtils';
+import Swal from 'sweetalert2';
 
 export const useCardGame = () => {
     const [cards, setCards] = useState([]);
@@ -20,7 +22,7 @@ export const useCardGame = () => {
     const [question_id, setQuestion_id] = useState([]);
     const [session_id, setSession_id] = useState('');
     const navigate = useNavigate();
-    const { userInfo } = useContext(LoginContext);
+    const { userInfo, isLogin } = useContext(LoginContext);
     const [sessionExp, setSessionExp] = useState(0);
     const [showExpAnimation, setShowExpAnimation] = useState(false);
     const [expCount, setExpCount] = useState(0);
@@ -39,28 +41,36 @@ export const useCardGame = () => {
         '프로그래밍 언어 활용',
         '정보시스템 구축 관리'
     ];
+      useEffect(() => {
+        if(!isLogin) {
+            Swal.fire({
+                title: '로그인 필요',
+                text: '로그인이 필요합니다.',
+                icon: 'warning',
+                confirmButtonText: '확인'
+            });
+            triggerLogout();
+        }
+    }, []);
 
     // 게임 초기화 시 세션 ID 생성 및 사용자 정보 가져오기
     useEffect(() => {
-        const initializeGame = async () => {
-            try {
-                const newSessionId = await auth.generateNewSession();
-                setSession_id(newSessionId.data);
-                
-                // 사용자 정보 가져오기
-                if (userInfo) {
+        if(userInfo) {
+            const initializeGame = async () => {
+                try {
+                    const newSessionId = await auth.generateNewSession();
+                    setSession_id(newSessionId.data);
+                    
+                    // 사용자 정보 가져오기                
                     setUserLevel(userInfo.level || 0);
                     setUserExp(userInfo.exp || 0);
+                    
+                } catch (error) {
+                    console.error('세션 ID 생성 실패:', error);
                 }
-            } catch (error) {
-                console.error('세션 ID 생성 실패:', error);
-            }
-        };
-        initializeGame();
-        if (!userInfo) {
-            alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
-            navigate('/login');
-        }
+            };
+            initializeGame();
+        };             
     }, [userInfo]);
 
 
@@ -148,7 +158,7 @@ export const useCardGame = () => {
 
             // 상태 초기화
             setQuestionData(questions);
-            setCards(gameCards);
+            setCards(shuffledCards);
             setFlippedCards([]);
             setMatchedPairs([]);
             setShowNextButton(false);
