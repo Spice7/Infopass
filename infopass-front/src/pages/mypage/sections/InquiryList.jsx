@@ -1,8 +1,7 @@
-// sections/Inquiries.jsx
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, List, Paper, CircularProgress } from '@mui/material';
+import { Box, Paper, Typography, CircularProgress, List } from '@mui/material';
 
-const Inquiries = () => {
+const InquiryList = () => {
   const [inquiries, setInquiries] = useState(null);
 
   useEffect(() => {
@@ -14,29 +13,31 @@ const Inquiries = () => {
     }, 500);
   }, []);
 
-  if (!inquiries)
+  if (!inquiries) {
     return (
       <Box sx={{ textAlign: 'center', mt: 8 }}>
         <CircularProgress color="primary" />
       </Box>
     );
+  }
 
-  if (inquiries.length === 0)
+  if (inquiries.length === 0) {
     return (
-      <Typography variant="h6" color="text.secondary" sx={{ mt: 6, textAlign: 'center' }}>
+      <Typography variant="h6" color="text.secondary" textAlign="center" sx={{ mt: 6 }}>
         문의 내역이 없습니다.
       </Typography>
     );
+  }
 
   return (
-    <Box sx={{ maxWidth: 700, width: '100%' }}>
-      <Typography variant="h5" gutterBottom sx={{ mb: 4, textAlign: 'center' }}>
+    <Box sx={{ maxWidth: 700, width: '100%', mx: 'auto', mt: 4 }}>
+      <Typography variant="h5" gutterBottom textAlign="center">
         📩 문의 내역
       </Typography>
-      <List>
+      <List sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         {inquiries.map(({ id, question, status, date }) => (
-          <Paper key={id} elevation={3} sx={{ mb: 2, p: 2, borderRadius: 3 }}>
-            <Typography variant="body1" sx={{ fontWeight: 600 }}>
+          <Paper key={id} elevation={3} sx={{ p: 2, borderRadius: 3 }}>
+            <Typography variant="body1" fontWeight={600}>
               {question}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
@@ -56,4 +57,4 @@ const Inquiries = () => {
   );
 };
 
-export default Inquiries;
+export default InquiryList;
