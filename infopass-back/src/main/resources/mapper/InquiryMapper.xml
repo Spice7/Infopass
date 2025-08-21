@@ -10,11 +10,30 @@
             content,
             created_at
         ) VALUES (
-            #{userId},
+            #{user_id},
             #{title},
             #{category},
             #{content},
             now()
         )
     </insert>
+    
+    
+    <select id="selectInquiriesByUserId" parameterType="int" resultType="boot.infopass.dto.InquiryDto">
+    SELECT 
+        id,
+        user_id,
+        title,
+        category,
+        content,
+        status,
+        created_at,
+        updated_at,
+        response_content,
+        response_date
+    FROM inquiries
+    WHERE user_id
+    ORDER BY created_at DESC
+</select>
+    
 </mapper>

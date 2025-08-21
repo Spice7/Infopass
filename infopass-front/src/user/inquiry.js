@@ -4,4 +4,4 @@ import api from '@/user/api';
 export const submitInquiry = (data) => api.post(`/inquiries`, data);
 
 // 문의 목록 조회 (예시)
-export const getInquiries = (userId) => api.get(`/inquiries/${userId}`);
+export const getMyInquiries = () => api.get(`/inquiries/my`);

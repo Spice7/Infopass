@@ -1,5 +1,8 @@
 package boot.infopass.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
@@ -31,7 +34,7 @@ public class InquiryController {
             int userId = customUser.getUserData().getId();
 
             // InquiryDto에 사용자 ID 설정
-            inquiry.setUserId(userId);
+            inquiry.setUser_id(userId);
 
             // DB에 문의 저장
             inquiryMapper.insertInquiry(inquiry);
@@ -42,4 +45,19 @@ public class InquiryController {
             return "문의 제출 중 오류가 발생했습니다.";
         }
     }
+    
+    @GetMapping("/my") 
+    public List<InquiryDto> getMyInquiries() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !(authentication.getPrincipal() instanceof CustomUser)) {
+            return new ArrayList<>(); // 로그인 안 되어 있으면 빈 리스트 반환
+        }
+
+        CustomUser customUser = (CustomUser) authentication.getPrincipal();
+        int userId = customUser.getUserData().getId();
+
+        return inquiryMapper.selectInquiriesByUserId(userId);
+    }
+
 }
