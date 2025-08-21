@@ -63,11 +63,29 @@ const InquiryForm = ({ setSelectedMenu }) => {
 
       <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
         <TextField
-          select label="문의 유형" value={category} onChange={(e) => setCategory(e.target.value)} required
+          select
+          label="문의 유형"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          required
           InputLabelProps={{ sx: { color: '#ffffff' } }}
           InputProps={{ sx: { fontSize: '1.1rem', height: '3.5rem', color: '#ffffff' } }}
           variant="outlined"
-          sx={{ backgroundColor: '#2c2c3c', borderRadius: 1, '& .MuiOutlinedInput-notchedOutline': { borderColor: '#42a5f5' } }}
+          sx={{
+            backgroundColor: '#2c2c3c',
+            borderRadius: 1,
+            '& .MuiOutlinedInput-notchedOutline': { borderColor: '#42a5f5' }
+          }}
+          SelectProps={{
+            MenuProps: {
+              PaperProps: {
+                sx: {
+                  bgcolor: '#2c2c3c',        // 드롭다운 배경
+                  color: '#ffffff',          // 글씨 색
+                }
+              }
+            }
+          }}
         >
           <MenuItem value="quizerror">퀴즈 오류</MenuItem>
           <MenuItem value="account">계정 문제</MenuItem>
