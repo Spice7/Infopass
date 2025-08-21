@@ -6,6 +6,7 @@ const CardsGrid = ({
   onRestart, 
   onNextQuestions, 
   onGameEnd,
+  onExitToMenu,
   showNextButton 
 }) => {
   return (
@@ -43,7 +44,7 @@ const CardsGrid = ({
             </button>
           )}
           
-          <button className="game-end-btn" onClick={onGameEnd}>
+          <button className="game-end-btn" onClick={onExitToMenu}>
             게임종료
           </button>
         </div>

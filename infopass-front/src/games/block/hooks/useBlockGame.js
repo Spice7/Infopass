@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as Blockly from 'blockly';
 import { JavaGenerator } from '../javaGenerator';
 import { registerAllBlocks } from '../blocks';
-import { generateNewSession, getRandomUnsolvedQuestion, submitAnswerToBackend } from '../BlockAPI';
+import { generateNewSession, getRandomUnsolvedQuestion, submitAnswerToBackend, completeBlockSession } from '../BlockAPI';
 import { applyExp, BLOCKGAME_EXP } from '@/user/gameResult.js'
 
 // 블록 코딩 게임 상태와 로직을 캡슐화한 커스텀 훅
@@ -20,6 +20,8 @@ export function useBlockGame(userInfo) {
   const [isCorrect, setIsCorrect] = useState(null);
   const [showNextButton, setShowNextButton] = useState(false);
   const [showCompletionMessage, setShowCompletionMessage] = useState(false);
+  const [sessionExp, setSessionExp] = useState(0);    // 싱글게임 기록용으로 추가   // 세션 내 경험치 합
+  const hasReportedRef = useRef(false); // 세션 완료 기록 중복 방지
 
   // 블록 등록 (최초 1회)
   useEffect(() => {
@@ -82,6 +84,8 @@ export function useBlockGame(userInfo) {
         setIsCorrect(null);
         setShowNextButton(false);
         setShowCompletionMessage(false);
+        setSessionExp(0);
+        hasReportedRef.current = false;
 
         await loadNextQuestion(newSessionId);
       } catch (err) {
@@ -93,6 +97,27 @@ export function useBlockGame(userInfo) {
     };
     initializeGame();
   }, [userInfo, loadNextQuestion]);
+
+  // 최신 세션/경험치 참조를 ref에 보관
+  const latestRef = useRef({ sessionId: null, userId: null, sessionExp: 0 });
+  useEffect(() => {
+    latestRef.current = {
+      sessionId,
+      userId: userInfo?.id,
+      sessionExp,
+    };
+  }, [sessionId, sessionExp, userInfo]);
+
+  // 언마운트 시점에만 완료 처리 시도 (중복 방지)
+  useEffect(() => {
+    return () => {
+      const { sessionId: sid, userId, sessionExp: exp } = latestRef.current;
+      if (!hasReportedRef.current && sid && userId && exp > 0) {
+        hasReportedRef.current = true;
+        completeBlockSession({ user_id: userId, session_id: sid, user_exp: exp }).catch(() => {});
+      }
+    };
+  }, []);
 
   // 정답 체크
   const checkAnswer = useCallback(async () => {
@@ -116,6 +141,7 @@ export function useBlockGame(userInfo) {
         // 경험치 증가
         try {
           await applyExp(BLOCKGAME_EXP);
+          setSessionExp(prev => prev + BLOCKGAME_EXP);
         } catch (expError) {
           console.error('경험치 증가 실패:', expError);
         }
@@ -182,12 +208,24 @@ export function useBlockGame(userInfo) {
       setIsLoading(true);
       setError(null);
 
+      // 기존 세션이 있고 누적 exp가 있다면 먼저 완료 기록
+      if (!hasReportedRef.current && sessionId && userInfo && userInfo.id && sessionExp > 0) {
+        try {
+          hasReportedRef.current = true;
+          await completeBlockSession({ user_id: userInfo.id, session_id: sessionId, user_exp: sessionExp });
+        } catch (e) {
+          console.warn('이전 세션 완료 기록 실패(무시):', e);
+        }
+      }
+
       const newSessionId = await generateNewSession();
       setSessionId(newSessionId);
       setSolvedQuestions(new Set());
       setIsCorrect(null);
       setShowNextButton(false);
       setShowCompletionMessage(false);
+      setSessionExp(0);
+      hasReportedRef.current = false;
 
       if (workspaceRef.current && !workspaceRef.current.isDisposed) {
         try {
@@ -206,6 +244,29 @@ export function useBlockGame(userInfo) {
       setIsLoading(false);
     }
   }, [loadNextQuestion]);
+
+  // 세션 완료: 더 이상 문제 없을 때 singleplay_result에 1회 기록
+  useEffect(() => {
+    const completeIfFinished = async () => {
+      if (showCompletionMessage && userInfo && userInfo.id && sessionId) {
+        try {
+          if (!hasReportedRef.current) {
+            hasReportedRef.current = true;
+            await completeBlockSession({
+              user_id: userInfo.id,
+              session_id: sessionId,
+              user_exp: sessionExp,
+            });
+          }
+        } catch (e) {
+          console.error('블록 세션 완료 기록 실패:', e);
+        }
+      }
+    };
+    completeIfFinished();
+    // showCompletionMessage true로 변할 때 1회 실행
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showCompletionMessage]);
 
   // 블록 초기화
   const resetBlocks = useCallback(() => {

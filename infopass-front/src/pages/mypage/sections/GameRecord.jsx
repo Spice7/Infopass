@@ -193,6 +193,7 @@ const GameResultList = () => {
                 const rankChangeInfo = getRankChangeInfo(userRankPoint);
                 const isWinLoseGame = ['oxquiz', 'quiz'].includes(gameType);
                 const isSingleExpGame = ['oxquiz', 'quiz','block', 'card'].includes(gameType) && !userRank;
+                const isBlock = gameType === 'block';
 
                 return (
                   <React.Fragment key={id}>
@@ -234,9 +235,11 @@ const GameResultList = () => {
                       <Divider sx={{ my: 1, width: '100%' }} />
 
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap' }}>
-                        <Typography variant="subtitle1" sx={{ fontWeight: '600' }}>
-                          점수: <span style={{ color: '#d32f2f' }}>{score.toLocaleString()}</span>
-                        </Typography>
+                        {!isBlock && (
+                          <Typography variant="subtitle1" sx={{ fontWeight: '600' }}>
+                            점수: <span style={{ color: '#d32f2f' }}>{(score ?? 0).toLocaleString()}</span>
+                          </Typography>
+                        )}
 
                         {isSingleExpGame ? (
                           <Typography variant="subtitle1" sx={{ fontWeight: '600', color: '#f57c00' }}>

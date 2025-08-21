@@ -69,13 +69,38 @@ public class CardController {
 	// 싱글 유저 경험치,점수 제출
 	@PostMapping("/game/result")
 	public ResponseEntity<?> CreateSingleplayResult(@RequestBody Map<String, Object> data) {
+		log.info("경험치,점수 제출 데이터 : "+data);
 		try {			
+			Object userIdObj = data.get("user_id");
+			Object scoreObj = data.get("score");
+			Object userExpObj = data.get("user_exp");
+			Object gameTypeObj = data.get("user_type");
 			
-			gameResultService.CreateSingleplayResult();
+			log.info("userIdObj: {}, scoreObj: {}, userExpObj: {}, gameTypeObj: {}", 
+				userIdObj, scoreObj, userExpObj, gameTypeObj);
+			
+			if (userIdObj == null || scoreObj == null || userExpObj == null || gameTypeObj == null) {
+				log.error("필수 데이터가 누락되었습니다.");
+				return ResponseEntity.badRequest().body(Map.of("success", false, "message", "필수 데이터 누락"));
+			}
+			
+			int userId = Integer.parseInt(userIdObj.toString());
+			int score = Integer.parseInt(scoreObj.toString());
+			int userExp = Integer.parseInt(userExpObj.toString());
+			String gameType = gameTypeObj.toString();
+			
+			log.info("파싱된 데이터 - userId: {}, score: {}, userExp: {}, gameType: {}", 
+				userId, score, userExp, gameType);
+			
+			gameResultService.createSingleplayResult(userId, score, userExp, gameType);
 			
 			return ResponseEntity.ok(Map.of("success", true));
+		} catch (NumberFormatException e) {
+			log.error("숫자 변환 오류: {}", e.getMessage());
+			return ResponseEntity.badRequest().body(Map.of("success", false, "message", "숫자 변환 오류"));
 		} catch (Exception e) {
-			return ResponseEntity.internalServerError().body(Map.of("success", false, "message", "서버 오류"));
+			log.error("서버 오류: {}", e.getMessage(), e);
+			return ResponseEntity.internalServerError().body(Map.of("success", false, "message", "서버 오류: " + e.getMessage()));
 		}		
 	}
 	

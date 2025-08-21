@@ -38,6 +38,7 @@ const LoginForm = () => {
         } catch (err) {
             console.error('로그인 실패', err);
             alert('로그인에 실패했습니다.');
+            
         }
     }
 
