@@ -91,6 +91,8 @@ const OX_SingleGame = () => {
 
   // 중복 종료 방지 ref
   const gameEndedRef = useRef(false);
+  // 중복 퀴즈 로드 방지용
+  const quizLoadedRef = useRef(false);
 
   // ===== 외부 연동 상수 =====
   // =========================
@@ -258,6 +260,9 @@ const OX_SingleGame = () => {
   // useEffect: 퀴즈 데이터 로드(게임 시작 시 1회)
   // =========================
   useEffect(() => {
+    if(!gameStarted) return;
+
+    quizLoadedRef.current = true;
     axios.get(quizurl)
       .then((res) => {
         setquizlist(res.data);
