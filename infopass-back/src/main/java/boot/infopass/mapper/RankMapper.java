@@ -19,4 +19,6 @@ public interface RankMapper {
             @Param("playerRank") int playerRank);
 
     void recalculateAllPlayerRanks();
+  
+    public RankedUserDto selectByUserId(int userId);
 }

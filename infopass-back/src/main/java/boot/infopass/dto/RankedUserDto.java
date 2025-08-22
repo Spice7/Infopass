@@ -12,4 +12,6 @@ public class RankedUserDto {
     private Long id;
     private String nickname;
     private int totalScore;
+    
+    private  int player_rank;
 }

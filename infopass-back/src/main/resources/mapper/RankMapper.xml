@@ -25,4 +25,10 @@
         multiplayer_rank )rp on mr.user_id=rp.user_id set mr.player_rank=rp.calculated_rank,
         mr.updated_at=now() </update>
 
+	<select id="selectByUserId" parameterType="int" resultType="boot.infopass.dto.RankedUserDto">
+        SELECT 
+            player_rank
+        FROM multiplayer_rank
+        WHERE user_id = #{userId}
+    </select>
 </mapper>
