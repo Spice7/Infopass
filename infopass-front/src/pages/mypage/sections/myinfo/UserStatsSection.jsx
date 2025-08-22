@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Card, CardContent, Typography, LinearProgress } from '@mui/material';
 import { FlashOn, EmojiEvents } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom'; // ✅ 추가
 import api from '@/user/api'; // JWT 헤더 포함 axios 객체
 import './UserStatsSection.css';
 
@@ -11,6 +12,7 @@ const textColor = '#e8eaf6';
 const MAX_EXP_PER_LEVEL = 100;
 
 const UserStatsSection = ({ user }) => {
+  const navigate = useNavigate(); // ✅ React Router 이동
   const [progress, setProgress] = useState(0);
   const [userRank, setUserRank] = useState(null);
 
@@ -136,7 +138,9 @@ const UserStatsSection = ({ user }) => {
           justifyContent: 'center',
           transition: 'transform 0.32s cubic-bezier(.2,.8,.2,1), box-shadow 0.32s ease',
           '&:hover': { transform: 'translateY(-5px)', boxShadow: '0 22px 50px rgba(0,0,0,0.12)' },
+          cursor: 'pointer', // ✅ 클릭 가능 표시
         }}
+        onClick={() => navigate('/rank')} // ✅ 클릭 시 랭킹 페이지로 이동
       >
         <CardContent sx={{ p: 0 }}>
           <Typography
@@ -162,7 +166,7 @@ const UserStatsSection = ({ user }) => {
             {userRank !== null ? `${userRank}위` : '0위'}
           </Typography>
           <Typography variant="body2" sx={{ mt: 1, color: 'rgba(255,255,255,0.7)' }}>
-            매일 01시 랭킹 갱신
+            마이페이지는 매일 01시 랭킹 갱신됩니다.
           </Typography>
         </CardContent>
       </Card>
