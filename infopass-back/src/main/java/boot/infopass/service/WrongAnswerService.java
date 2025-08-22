@@ -19,11 +19,6 @@ public class WrongAnswerService {
         return wrongAnswerMapper.selectWrongAnswersByUserId(userId);
     }
 
-    public int findUserIdByUsername(String username) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
     /**
      * 블록 게임 오답 기록
      */

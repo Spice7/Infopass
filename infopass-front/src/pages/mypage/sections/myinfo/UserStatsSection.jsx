@@ -1,26 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Card, CardContent, Typography, LinearProgress } from '@mui/material';
 import { FlashOn, EmojiEvents } from '@mui/icons-material';
+import api from '@/user/api'; // JWT 헤더 포함 axios 객체
 import './UserStatsSection.css';
 
-// ----------------------------------------------------
-// 🎨 우주 컨셉에 맞게 색상 변경
-// ----------------------------------------------------
 const primaryColor = '#a55eea';
 const gradientColor = 'linear-gradient(135deg, #a55eea 0%, #dcdde1 100%)';
-const cardBgColor = 'rgba(46, 46, 78, 0.8)'; // 어두운 보라색 계열 (투명도 조절)
-const textColor = '#e8eaf6'; // 밝은 글자색
+const cardBgColor = 'rgba(46, 46, 78, 0.8)';
+const textColor = '#e8eaf6';
 const MAX_EXP_PER_LEVEL = 100;
 
 const UserStatsSection = ({ user }) => {
   const [progress, setProgress] = useState(0);
+  const [userRank, setUserRank] = useState(null);
 
-  const expProgress = (user.exp / MAX_EXP_PER_LEVEL) * 100;
-  const expRemaining = MAX_EXP_PER_LEVEL - user.exp;
+  const expProgress = (user?.exp / MAX_EXP_PER_LEVEL) * 100 || 0;
+  const expRemaining = MAX_EXP_PER_LEVEL - (user?.exp || 0);
 
+  // 경험치 애니메이션
   useEffect(() => {
     let start = 0;
-    const duration = 1500; // 1.5초
+    const duration = 1500;
     const stepTime = 15;
     const increment = expProgress / (duration / stepTime);
     const timer = setInterval(() => {
@@ -34,6 +34,34 @@ const UserStatsSection = ({ user }) => {
 
     return () => clearInterval(timer);
   }, [expProgress]);
+
+  // 사용자 랭킹 API 호출
+  useEffect(() => {
+    const fetchUserRank = async () => {
+      if (!user?.id) {
+        console.log("유저 ID가 없어서 API 호출을 건너뜁니다.");
+        return;
+      }
+
+      try {
+        const response = await api.get(`/rank/${user.id}`);
+        console.log("API 응답 데이터:", response.data);
+
+        if (response.data && response.data.player_rank !== undefined) {
+          setUserRank(response.data.player_rank);
+          console.log(`랭킹 데이터 설정 완료: ${response.data.player_rank}위`);
+        } else {
+          console.log("응답 데이터에 'player_rank' 필드가 없거나 정의되지 않았습니다.");
+          setUserRank(null);
+        }
+      } catch (error) {
+        console.error("랭킹 데이터를 가져오는 데 실패했습니다:", error);
+        setUserRank(null);
+      }
+    };
+
+    fetchUserRank();
+  }, [user?.id]);
 
   return (
     <Box
@@ -69,15 +97,8 @@ const UserStatsSection = ({ user }) => {
             <FlashOn sx={{ mr: 1, color: '#ffc107' }} />
             경험치 (EXP)
           </Typography>
-          <Typography
-            variant="body1"
-            fontWeight={700}
-            sx={{
-              color: textColor,
-              transition: 'color .25s ease, transform .25s ease',
-            }}
-          >
-            {user.exp} / {MAX_EXP_PER_LEVEL}
+          <Typography variant="body1" fontWeight={700} sx={{ color: textColor }}>
+            {user?.exp || 0} / {MAX_EXP_PER_LEVEL}
           </Typography>
         </Box>
         <Box sx={{ mb: 1 }}>
@@ -87,7 +108,7 @@ const UserStatsSection = ({ user }) => {
             sx={{
               height: 14,
               borderRadius: 7,
-              background: '#4d4d75', // 어두운 배경색
+              background: '#4d4d75',
               '& .MuiLinearProgress-bar': {
                 background: gradientColor,
                 transition: 'width 0.15s linear',
@@ -108,7 +129,7 @@ const UserStatsSection = ({ user }) => {
           borderRadius: 4,
           textAlign: 'center',
           p: 2,
-          background: 'linear-gradient(45deg, #2c2c3c 0%, #3e3e5a 100%)', // 어두운 우주 배경
+          background: 'linear-gradient(45deg, #2c2c3c 0%, #3e3e5a 100%)',
           boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
           display: 'flex',
           flexDirection: 'column',
@@ -129,7 +150,7 @@ const UserStatsSection = ({ user }) => {
             variant="h1"
             fontWeight={800}
             sx={{
-              background: 'linear-gradient(45deg, #c56cf0 30%, #a55eea 90%)', // 보라색 그라데이션
+              background: 'linear-gradient(45deg, #c56cf0 30%, #a55eea 90%)',
               backgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               fontSize: '4.5rem',
@@ -138,7 +159,10 @@ const UserStatsSection = ({ user }) => {
               '&:hover': { transform: 'scale(1.06)' },
             }}
           >
-            {user.rank ?? '0'}위
+            {userRank !== null ? `${userRank}위` : '0위'}
+          </Typography>
+          <Typography variant="body2" sx={{ mt: 1, color: 'rgba(255,255,255,0.7)' }}>
+            매일 01시 랭킹 갱신
           </Typography>
         </CardContent>
       </Card>

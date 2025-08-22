@@ -12,4 +12,7 @@ public interface RankMapper {
     List<RankedUserDto> getUserRankingsByIds(@Param("ids") List<Long> ids);
     List<RankedUserDto> getTopWeeklyRanks();
     List<RankedUserDto> getTopRealtimeRanks();
+    
+    
+    public RankedUserDto selectByUserId(int userId);
 }

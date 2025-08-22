@@ -53,4 +53,8 @@ public class RankingService {
                 redisUtil.addScoreToZSet(key, user.getId().toString(), user.getTotalScore()));
         }
     }
+
+    public RankedUserDto getRankByUserId(int userId) {
+        return rankMapper.selectByUserId(userId);
+    }
 }

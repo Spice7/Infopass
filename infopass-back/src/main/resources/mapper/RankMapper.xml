@@ -17,4 +17,16 @@
         multiplayer_rank r ON u.id = r.user_id ORDER BY r.total_score DESC LIMIT 30 </select>
 
 	<select id=""></select>
+	
+	
+	
+	
+	
+	<select id="selectByUserId" parameterType="int" resultType="boot.infopass.dto.RankedUserDto">
+        SELECT 
+            player_rank
+        FROM multiplayer_rank
+        WHERE user_id = #{userId}
+    </select>
+	
 </mapper>
