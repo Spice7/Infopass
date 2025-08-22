@@ -123,7 +123,7 @@ const AnalyticsDashboard = () => {
 				<h3 className="admin-card-title">일자별 플레이 수</h3>
 				<div className="admin-chart">
 					<ResponsiveContainer>
-						<LineChart data={dailySeries} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+						<LineChart data={dailySeries} margin={{ top: 8, right: 32, left: 8, bottom: 8 }}>
 							<CartesianGrid strokeDasharray="3 3" stroke="#333" />
 							<XAxis dataKey="date" stroke="#aaa" />
 							<YAxis stroke="#aaa" allowDecimals={false} />
@@ -142,7 +142,7 @@ const AnalyticsDashboard = () => {
 				<h3 className="admin-card-title">오답 상위 10개</h3>
 				<div className="admin-chart">
 					<ResponsiveContainer>
-						<BarChart data={wrongTopData} margin={{ top: 8, right: 16, left: 0, bottom: 40 }}>
+						<BarChart data={wrongTopData} margin={{ top: 8, right: 32, left: 8, bottom: 40 }}>
 							<CartesianGrid strokeDasharray="3 3" stroke="#333" />
 							<XAxis dataKey="name" stroke="#aaa" angle={-25} textAnchor="end" interval={0} height={60} />
 							<YAxis stroke="#aaa" allowDecimals={false} />
@@ -157,7 +157,7 @@ const AnalyticsDashboard = () => {
 				<h3 className="admin-card-title">멀티플레이 순위 분포</h3>
 				<div className="admin-chart small">
 					<ResponsiveContainer>
-						<BarChart data={rankData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+						<BarChart data={rankData} margin={{ top: 8, right: 32, left: 8, bottom: 8 }}>
 							<CartesianGrid strokeDasharray="3 3" stroke="#333" />
 							<XAxis dataKey="rank" stroke="#aaa" />
 							<YAxis stroke="#aaa" allowDecimals={false} />
