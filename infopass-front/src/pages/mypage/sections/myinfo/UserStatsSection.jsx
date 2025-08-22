@@ -166,7 +166,7 @@ const UserStatsSection = ({ user }) => {
             {userRank !== null ? `${userRank}위` : '0위'}
           </Typography>
           <Typography variant="body2" sx={{ mt: 1, color: 'rgba(255,255,255,0.7)' }}>
-            마이페이지는 매일 01시 랭킹 갱신됩니다.
+            마이페이지는 <br /> 매일 01시 랭킹 갱신됩니다.
           </Typography>
         </CardContent>
       </Card>
