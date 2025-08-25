@@ -81,7 +81,7 @@ const Menu = ({ checkgamehome }) => {
                     <div className="drawer-heading">서비스</div>
                     <div className="drawer-section etc">
                         <Link to="/rank" className="drawer-link" onClick={() => setDrawerOpen(false)}>🏆 <span>랭킹</span></Link>
-                        <Link to="/mypage?tab=inquiries" className="drawer-link">💬 <span>문의하기</span></Link>
+                        <Link to="/mypage?tab=inquiries" className="drawer-link"onClick={() => setDrawerOpen(false)}>💬 <span>문의하기</span></Link>
                         <Link to="/coffee" className="drawer-link" onClick={() => setDrawerOpen(false)}>☕ <span>개발자에게 커피쏘기</span></Link>
                     </div>
                     <div className="drawer-separator" />
@@ -91,9 +91,9 @@ const Menu = ({ checkgamehome }) => {
                         {isLogin && (
                           <div className="drawer-link user-static" aria-label="로그인 사용자">🙍 <span style={{border:'1px solid white', borderRadius:'20px', padding:'2px 4px', width:'80px', background: 'linear-gradient(90deg,var(--accent2),var(--accent))',color:'black'}}>{userInfo?.nickname}</span></div>
                         )}
-                        <Link to="/mypage?tab=info" className="drawer-link">📂 <span>마이페이지</span></Link>
-                        <Link to="/mypage?tab=wrong" className="drawer-link">📓 <span>오답노트</span></Link>
-                        <Link to="/mypage?tab=records" className="drawer-link">📊 <span>게임 기록</span></Link>
+                        <Link to="/mypage?tab=info" className="drawer-link"onClick={() => setDrawerOpen(false)}>📂 <span>마이페이지</span></Link>
+                        <Link to="/mypage?tab=wrong" className="drawer-link"onClick={() => setDrawerOpen(false)}>📓 <span>오답노트</span></Link>
+                        <Link to="/mypage?tab=records" className="drawer-link"onClick={() => setDrawerOpen(false)}>📊 <span>게임 기록</span></Link>
                     </div>
                     <div className='drawer-separator'/>
                     <div className="drawer-heading">이용약관</div>
