@@ -10,7 +10,7 @@ import Menu from './menu';
 
 const Home = () => {
   const navigate = useNavigate();
-  const {checkgamehome, setcheckgamehome}=useState('/');
+  const [checkgamehome, setcheckgamehome] = useState('/');
   <Menu checkgame={checkgamehome}/>
   const games = useMemo(() => ([
     {
