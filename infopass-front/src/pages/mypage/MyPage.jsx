@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, CircularProgress } from '@mui/material';
-import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import Cookies from 'js-cookie';
+import { Box, CircularProgress } from '@mui/material';
+import { useSearchParams } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import MyInfo from './sections/myinfo/MyInfo';
 import WrongNotes from './sections/WrongNotes/WrongNotes.jsx';
@@ -12,27 +11,9 @@ import InquiryList from './sections/InquiryList.jsx';
 const MyPage = () => {
   const [searchParams] = useSearchParams(); // menu에서 선택한 항목에 따라 쿼리 파라미터 설정
   const [selectedMenu, setSelectedMenu] = useState('내 정보');
-  const [openDialog, setOpenDialog] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [loading] = useState(false);
 
-  useEffect(() => {
-    const token = Cookies.get('accessToken');
-    if (!token) {
-      setOpenDialog(true);
-    }
-    setLoading(false);
-  }, []);
-
-  const handleConfirm = () => {
-    // 로그인 페이지로 이동하면서 돌아올 경로 전달
-    navigate('/login', { state: { from: location.pathname } });
-  };
-
-  const handleCancel = () => {
-    navigate('/'); // 메인 페이지 이동
-  };
+  // 로그인 가드는 라우트에서 처리되므로 이 컴포넌트에서는 별도 체크를 하지 않습니다.
 
   const renderMainContent = () => {
     switch (selectedMenu) {
@@ -81,64 +62,7 @@ const MyPage = () => {
     );
   }
 
-  if (openDialog) {
-    return (
-      <Dialog
-        open={true}
-        onClose={handleCancel}
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            p: 2,
-            bgcolor: '#1e2738',
-            color: '#fff',
-            minWidth: 360,
-          },
-        }}
-      >
-        <DialogTitle sx={{ fontWeight: 'bold', textAlign: 'center', fontSize: '1.25rem' }}>
-          로그인 필요
-        </DialogTitle>
-        <DialogContent>
-          <Typography align="center">
-            로그인이 필요한 서비스입니다. <br /> 로그인하시겠습니까?
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ justifyContent: 'center', gap: 2 }}>         
-          <Button
-            variant="outlined"
-            onClick={handleConfirm}
-            sx={{
-              borderRadius: 2,
-              px: 3,
-              minWidth: 100,
-              maxWidth: 100,
-              borderColor: '#fff',
-              color: '#fff',
-              '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' },
-            }}
-          >
-            확인
-          </Button>
-           <Button
-            variant="outlined"
-            onClick={handleCancel}
-            sx={{
-              borderRadius: 2,
-              px: 3,
-              minWidth: 100,
-              maxWidth: 100,
-              borderColor: '#fff',
-              color: '#fff',
-              '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' },
-            }}
-          >
-            아니오
-          </Button>
-        </DialogActions>
-      </Dialog>
-    );
-  }
+  // 로그인 Dialog는 상위 라우트에서 RequireLogin이 처리
 
   return (
     <Box sx={{ display: 'flex', bgcolor: 'transparent', height: 'calc(80vh - 60px)', mt: '60px' }}>
