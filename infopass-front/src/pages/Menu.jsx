@@ -93,6 +93,7 @@ const Menu = ({ checkgamehome }) => {
                         <Link to="/mypage?tab=info" className="drawer-link" onClick={() => setDrawerOpen(false)}>📂 <span>마이페이지</span></Link>
                         <Link to="/mypage?tab=wrong" className="drawer-link" onClick={() => setDrawerOpen(false)}>📓 <span>오답노트</span></Link>
                         <Link to="/mypage?tab=records" className="drawer-link" onClick={() => setDrawerOpen(false)}>📊 <span>게임 기록</span></Link>
+
                     </div>
                     <div className='drawer-separator'/>
                     <div className="drawer-heading">이용약관</div>
