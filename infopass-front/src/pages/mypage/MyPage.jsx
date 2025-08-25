@@ -4,7 +4,7 @@ import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import Sidebar from './Sidebar';
 import MyInfo from './sections/myinfo/MyInfo';
-import WrongNotes from './sections/WrongNotes';
+import WrongNotes from './sections/WrongNotes/WrongNotes.jsx';
 import GameRecord from './sections/GameRecord';
 import InquiryForm from './sections/InquiryForm.jsx';
 import InquiryList from './sections/InquiryList.jsx';
