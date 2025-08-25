@@ -2,12 +2,16 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Home.css';
+import { LoginContext } from '../user/LoginContextProvider';
+import Menu from './menu';
+
 
 // 하단 퀵버튼 섹션 제거에 따라 불필요 배열 삭제
 
 const Home = () => {
   const navigate = useNavigate();
-
+  const {checkgamehome, setcheckgamehome}=useState('/');
+  <Menu checkgame={checkgamehome}/>
   const games = useMemo(() => ([
     {
       key: 'ox',
@@ -183,7 +187,7 @@ const Home = () => {
                 <button
                   className={"start-btn" + (selected.comingSoon ? ' disabled' : '')}
                   disabled={!!selected.comingSoon}
-                  onClick={() => { if (!selected.comingSoon) { closeModal(); navigate(selected.to); } }}
+                  onClick={() => { if (!selected.comingSoon) { closeModal(); navigate(selected.to); setcheckgamehome(selected.to); } }}
                 >{selected.comingSoon ? '준비중' : '게임 시작'}</button>
               </div>
             </div>
