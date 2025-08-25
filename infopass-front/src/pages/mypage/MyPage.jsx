@@ -104,22 +104,7 @@ const MyPage = () => {
             로그인이 필요한 서비스입니다. <br /> 로그인하시겠습니까?
           </Typography>
         </DialogContent>
-        <DialogActions sx={{ justifyContent: 'center', gap: 2 }}>
-          <Button
-            variant="outlined"
-            onClick={handleCancel}
-            sx={{
-              borderRadius: 2,
-              px: 3,
-              minWidth: 100,
-              maxWidth: 100,
-              borderColor: '#fff',
-              color: '#fff',
-              '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' },
-            }}
-          >
-            아니오
-          </Button>
+        <DialogActions sx={{ justifyContent: 'center', gap: 2 }}>         
           <Button
             variant="outlined"
             onClick={handleConfirm}
@@ -134,6 +119,21 @@ const MyPage = () => {
             }}
           >
             확인
+          </Button>
+           <Button
+            variant="outlined"
+            onClick={handleCancel}
+            sx={{
+              borderRadius: 2,
+              px: 3,
+              minWidth: 100,
+              maxWidth: 100,
+              borderColor: '#fff',
+              color: '#fff',
+              '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' },
+            }}
+          >
+            아니오
           </Button>
         </DialogActions>
       </Dialog>
