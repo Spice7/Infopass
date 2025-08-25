@@ -1,6 +1,6 @@
 import React from 'react';
 
-const GameTimeout = ({ score, moves, matchedPairs, sessionExp, showExpAnimation, expCount, userLevel, userExp, showLevelUp, expBarAnimation, expBarFrom, expBarTo, onRestart, onExitToMenu }) => {
+const GameTimeout = ({ score, moves, matchedPairs, sessionExp, showExpAnimation, expCount, userLevel, userExp, showLevelUp, expBarAnimation, expBarFrom, expBarTo, expBarPercent, expBarTransitionEnabled, onRestart, onExitToMenu }) => {
 
   return (
     <div className="game-timeout">
@@ -17,8 +17,8 @@ const GameTimeout = ({ score, moves, matchedPairs, sessionExp, showExpAnimation,
             <div 
               className="exp-bar-fill"
               style={{
-                width: expBarAnimation ? `${(expBarTo % 100)}%` : `${(userExp % 100)}%`,
-                transition: expBarAnimation ? 'width 1s ease-in-out' : 'none'
+                width: `${expBarPercent}%`,
+                transition: expBarTransitionEnabled ? 'width 1s ease-in-out' : 'none'
               }}
             />
           </div>
@@ -58,7 +58,7 @@ const GameTimeout = ({ score, moves, matchedPairs, sessionExp, showExpAnimation,
           <p className="exp-gained">획득한 경험치: +{sessionExp}</p>
         )}
         {sessionExp === 0 && (
-          <p className="practice-mode">연습모드 - 경험치 없음</p>
+          <p className="practice-mode">타임어택 - 경험치 없음</p>
         )}
       </div>
       <div className="game-timeout-buttons">

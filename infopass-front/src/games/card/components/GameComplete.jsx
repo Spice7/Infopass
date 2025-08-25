@@ -1,6 +1,6 @@
 import React from 'react';
 
-const GameComplete = ({ score, moves, gameMode, remainingTime, timer, sessionExp, showExpAnimation, expCount, userLevel, userExp, showLevelUp, expBarAnimation, expBarFrom, expBarTo, onRestart, onExitToMenu, formatTime }) => {
+const GameComplete = ({ score, moves, gameMode, remainingTime, timer, sessionExp, showExpAnimation, expCount, userLevel, userExp, showLevelUp, expBarAnimation, expBarFrom, expBarTo, expBarPercent, expBarTransitionEnabled, onRestart, onExitToMenu, formatTime }) => {
 
   return (
     <div className="game-complete">
@@ -17,8 +17,8 @@ const GameComplete = ({ score, moves, gameMode, remainingTime, timer, sessionExp
             <div 
               className="exp-bar-fill"
               style={{
-                width: expBarAnimation ? `${(expBarTo % 100)}%` : `${(userExp % 100)}%`,
-                transition: expBarAnimation ? 'width 1s ease-in-out' : 'none'
+                width: `${expBarPercent}%`,
+                transition: expBarTransitionEnabled ? 'width 1s ease-in-out' : 'none'
               }}
             />
           </div>

@@ -410,7 +410,7 @@
   border-radius: 20px;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  margin: 20px 0;
+  margin: 20px 0;  
 }
 
 .game-complete h2 {
@@ -420,6 +420,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  
 }
 
 .game-complete p {
@@ -585,16 +586,22 @@
   flex-direction: column;
   align-items: center;
   gap: 10px;
+  width: 100%; 
+  max-width: 400px;
 }
 
 .exp-bar {
-  width: 100%;
-  max-width: 300px;
+  width: 300px; /* 데스크톱 고정 폭 */
   height: 20px;
   background: rgba(255, 255, 255, 0.2);
   border-radius: 10px;
   overflow: hidden;
   border: 2px solid rgba(255, 255, 255, 0.3);
+}
+@media (max-width: 1024px) {
+  .exp-bar {
+    width: 300px; /* 노트북/작은 데스크톱 */
+  }
 }
 
 .exp-bar-fill {
@@ -668,7 +675,7 @@
 
 /* 게임 타임아웃 화면 */
 .game-timeout {
-  text-align: center;
+  text-align: center;  
   background: rgba(255, 255, 255, 0.1);
   padding: 40px;
   border-radius: 20px;
@@ -797,6 +804,9 @@
     font-size: 0.8rem;
     max-height: 100px;
   }
+  .exp-bar {
+    width: 300px; /* 태블릿 */
+  }
 }
 
 @media (max-width: 480px) {
@@ -834,6 +844,9 @@
   .hint-button {
     padding: 6px 12px;
     font-size: 0.8rem;
+  }
+  .exp-bar {
+    width: 240px; /* 모바일 */
   }
 }
 

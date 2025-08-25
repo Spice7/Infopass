@@ -1,6 +1,7 @@
 package boot.infopass.service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -138,8 +139,9 @@ public class UserService implements UserServiceInter {
 		return map;
 	}
 
-	public UserDto findByPhone(String phone) {
-		return userMapper.findByPhone(phone);
+	public List<UserDto> findByPhone(String phone) {
+		List<UserDto> users = userMapper.findByPhone(phone);
+		return users;
 	}
 
 	@Override

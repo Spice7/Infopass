@@ -8,6 +8,7 @@ import './userInfo.css';
 import Postcode from './Postcode';
 import * as auth from './auth';
 import { LoginContext } from './LoginContextProvider';
+import * as Swal from './alert';
 
 const PHONENUMBER_LIST = ['010', '011', '016', '018', '019'];
 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
@@ -50,6 +51,7 @@ const SignupPage = () => {
   const [message, setMessage] = useState({ text: '', color: '' });
   const [isSent, setIsSent] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
+  const [signupMsg, setSignupMsg] = useState({ text: '', color: '' });
 
   // 모달 열릴 때마다 상태 초기화
   useEffect(() => {
@@ -85,6 +87,7 @@ const SignupPage = () => {
       setIsIdSent(false);
       setPhonePrefix(PHONENUMBER_LIST[0]);
       setDetailAddress('');
+      setSignupMsg({ text: '', color: '' });
     }
   }, [isSignUpModalOpen, existingUser]);
 
@@ -192,6 +195,7 @@ const SignupPage = () => {
       setIsVerified(true);
     } catch (err) {
       setMessage({ text: err.response ? err.response.data : '인증 중 오류가 발생했습니다.', color: "red" });
+      setIsSent(false);
       setIsVerified(false);
     }
   }, [smsToken, inputCode]);
@@ -219,24 +223,24 @@ const SignupPage = () => {
     const address = `${userInfo.addressRoad} ${detailAddress}`.trim();
 
     if (!passwordValid) {
-      alert('비밀번호 형식이 올바르지 않습니다.');
+      setSignupMsg({ text: '비밀번호 형식이 올바르지 않습니다.', color: 'red' });
       return;
     }
     if (userInfo.password !== userInfo.passwordConfirm) {
-      alert('비밀번호가 일치하지 않습니다.');
+      setSignupMsg({ text: '비밀번호가 일치하지 않습니다.', color: 'red' });
       return;
     }
     if (!nickNameCheck) {
-      alert('닉네임 중복체크 해주세요');
+      setSignupMsg({ text: '닉네임 중복체크 해주세요', color: 'red' });
       return;
     }
     if (!socialUser) {
       if (!userCheck) {
-        alert('아이디 중복체크 해주세요');
+        setSignupMsg({ text: '아이디 중복체크 해주세요', color: 'red' });
         return;
       }
       if (!isVerified) {
-        alert('휴대폰 인증을 완료해주세요');
+        setSignupMsg({ text: '휴대폰 인증을 완료해주세요', color: 'red' });
         return;
       }
     }
@@ -252,11 +256,16 @@ const SignupPage = () => {
       providerKey: socialUser?.providerKey || null,
     };
     try {
-      await auth.join(sendInfo);
-      closeSignUpModal();
-      navi("/");
+      await auth.join(sendInfo).then(() => {
+        closeSignUpModal();
+        Swal.alert("회원가입", "회원가입이 완료되었습니다.", "success");
+        navi("/");
+      });
+      
+      
     } catch (error) {
-      alert("회원가입에 실패했습니다.", error);
+      Swal.alert("회원가입","회원가입에 실패했습니다.", "error");
+      console.log(error);
     }
   };
 
@@ -358,6 +367,7 @@ const SignupPage = () => {
                 placeholder='비밀번호'
                 minLength='8'
                 name="password"
+                required
                 value={userInfo.password}
                 onChange={inputChangeEvent}
               />
@@ -371,6 +381,7 @@ const SignupPage = () => {
                 placeholder='비밀번호 확인'
                 minLength='8'
                 name="passwordConfirm"
+                required
                 value={userInfo.passwordConfirm}
                 onChange={inputChangeEvent}
                 onFocus={() => setPasswordConfirmFocused(true)}
@@ -388,6 +399,7 @@ const SignupPage = () => {
                 className='UserInput auth-userInput-input'
                 placeholder='닉네임'
                 name='nickname'
+                required
                 minLength={2}
                 maxLength={8}
                 value={userInfo.nickname}
@@ -404,7 +416,7 @@ const SignupPage = () => {
                   type="text"
                   placeholder="이름을 입력해주세요"
                   value={socialUser.username}
-                  disabled
+                  disabled                  
                 />
               ) : (
                 <input className="UserInput auth-userInput-input"
@@ -449,8 +461,9 @@ const SignupPage = () => {
                     type="number"
                     placeholder="휴대폰 번호를 입력해주세요"
                     name="phone"
+                    required
                     maxLength='8'
-                    minLength='8'
+                    minLength='8'                    
                     disabled={isSent}
                     value={userInfo.phone}
                     onChange={inputChangeEvent}
@@ -501,10 +514,14 @@ const SignupPage = () => {
                 value={detailAddress}
                 onChange={e => setDetailAddress(e.target.value)}
                 placeholder="상세주소"
+                required
                 minLength={2}
                 maxLength={50} />
             </div>
             <Postcode isOpen={isPostcodeModalOpen} onClose={handleClosePostcodeModal} onaddressSelect={handleAddressSelect} />
+            <div className='auth-message'>
+              <span style={{ color: signupMsg.color }}>{signupMsg.text}</span>
+            </div>
             <div className="button-container">
               <Button1 type='submit' variant="outlined" color='success'>회원가입</Button1>
               <Button1 variant="outlined" type='button' onClick={closeSignUpModal}>로그인으로 돌아가기</Button1>

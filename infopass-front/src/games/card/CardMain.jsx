@@ -34,6 +34,8 @@ const CardMain = () => {
     expBarAnimation,
     expBarFrom,
     expBarTo,
+    expBarPercent,
+    expBarTransitionEnabled,
     
     // 함수
     startNewGame,
@@ -135,6 +137,8 @@ const CardMain = () => {
               expBarAnimation={expBarAnimation}
               expBarFrom={expBarFrom}
               expBarTo={expBarTo}
+              expBarPercent={expBarPercent}
+              expBarTransitionEnabled={expBarTransitionEnabled}
               onRestart={handleGameRestart}
               onExitToMenu={handleExitToMenu}
               formatTime={formatTime}
@@ -156,6 +160,8 @@ const CardMain = () => {
               expBarAnimation={expBarAnimation}
               expBarFrom={expBarFrom}
               expBarTo={expBarTo}
+              expBarPercent={expBarPercent}
+              expBarTransitionEnabled={expBarTransitionEnabled}
               onRestart={handleGameRestart}
               onExitToMenu={handleExitToMenu}
             />
@@ -174,6 +180,8 @@ const CardMain = () => {
               expBarAnimation={expBarAnimation}
               expBarFrom={expBarFrom}
               expBarTo={expBarTo}
+              expBarPercent={expBarPercent}
+              expBarTransitionEnabled={expBarTransitionEnabled}
               onRestart={handleGameRestart}
               onExitToMenu={handleExitToMenu}
             />
