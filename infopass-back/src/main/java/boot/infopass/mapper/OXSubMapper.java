@@ -8,4 +8,5 @@ import boot.infopass.dto.OXQuizSubDto;
 public interface OXSubMapper {
 
 	public void insertOxSub(OXQuizSubDto dto);
+	public int deleteSubmissionsByQuestionId(Integer questionId);
 }

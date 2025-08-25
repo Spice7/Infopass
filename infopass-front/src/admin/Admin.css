@@ -613,7 +613,7 @@
 	border-radius: var(--admin-radius);
 	box-shadow: var(--admin-shadow-lg);
 	width: 90%;
-	max-width: 600px;
+	max-width: 550px;
 	max-height: 80vh;
 	overflow: hidden;
 	display: flex;
@@ -689,6 +689,12 @@
 	font-weight: 600;
 	color: var(--admin-text-secondary);
 	font-size: 14px;
+}
+
+.admin-form-row .admin-input,
+.admin-form-row .admin-select {
+	width: 400px;
+	min-width: 300px;
 }
 
 .admin-detail-row {
@@ -917,7 +923,13 @@
 	
 	.admin-modal {
 		width: 95%;
+		max-width: none;
 		margin: 20px;
+	}
+	
+	.admin-form-row .admin-input,
+	.admin-form-row .admin-select {
+		min-width: auto;
 	}
 }
 

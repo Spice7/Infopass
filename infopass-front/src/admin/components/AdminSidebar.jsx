@@ -17,7 +17,7 @@ const AdminSidebar = () => {
 		{
 			id: 'users',
 			path: '/admin/users',
-			icon: '👥',
+			icon: '👨‍👩‍👧‍👦',
 			label: '사용자 관리',
 			description: '회원 정보 조회 및 관리'
 		},
@@ -34,6 +34,13 @@ const AdminSidebar = () => {
 			icon: '🃏',
 			label: '카드 문제 관리',
 			description: '카드 게임 문제 추가/수정/삭제'
+		},
+		{
+			id: 'ox-questions',
+			path: '/admin/ox-questions',
+			icon: '⭕',
+			label: 'OX 퀴즈 관리',
+			description: 'OX 퀴즈 문제 추가/수정/삭제'
 		}
 	]
 
