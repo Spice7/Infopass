@@ -13,16 +13,6 @@ const Menu = ({ checkgamehome }) => {
     const handleLogout = () => {
         logout(); // LoginContextProvider에서 다이얼로그 처리
     };
-    const logincheck=(e)=>{
-        if(!isLogin){
-            e.preventDefault();
-            e.stopPropagation();     // 추가 전파 차단 (선택)
-            alert("로그인후 이용가능합니다.");
-            setDrawerOpen(false);
-            return;
-        }
-        setDrawerOpen(false);
-    }
 
     return (
         <div>
