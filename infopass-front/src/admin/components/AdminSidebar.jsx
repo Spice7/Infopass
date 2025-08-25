@@ -26,8 +26,7 @@ const AdminSidebar = () => {
 			path: '/admin/inquiries',
 			icon: '💬',
 			label: '문의사항 관리',
-			description: '고객 문의 및 답변 관리',
-			disabled: true // 백엔드 준비 전까지 비활성화
+			description: '고객 문의 및 답변 관리'
 		}
 	]
 
