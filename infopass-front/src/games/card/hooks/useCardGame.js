@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { applyExp } from '../../../user/gameResult';
 
 export const useCardGame = () => {
+    
     const [cards, setCards] = useState([]);
     const [flippedCards, setFlippedCards] = useState([]);
     const [matchedPairs, setMatchedPairs] = useState([]);
