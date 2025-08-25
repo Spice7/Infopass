@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import '../Admin.css'
+import { AlertDialog, ConfirmDialog, ErrorDialog, SuccessDialog } from '../../components/CommonDialogs'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:9000'
 
@@ -21,6 +22,50 @@ const InquiryManagement = () => {
     const [order, setOrder] = useState('DESC')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
+    
+    // 다이얼로그 상태 관리
+    const [dialogs, setDialogs] = useState({
+        alert: { open: false, title: '', message: '' },
+        confirm: { open: false, title: '', message: '', onConfirm: null },
+        error: { open: false, message: '' },
+        success: { open: false, message: '' }
+    })
+
+    // 다이얼로그 헬퍼 함수들
+    const showAlert = (title, message) => {
+        setDialogs(prev => ({
+            ...prev,
+            alert: { open: true, title, message }
+        }))
+    }
+
+    const showConfirm = (title, message, onConfirm) => {
+        setDialogs(prev => ({
+            ...prev,
+            confirm: { open: true, title, message, onConfirm }
+        }))
+    }
+
+    const showError = (message) => {
+        setDialogs(prev => ({
+            ...prev,
+            error: { open: true, message }
+        }))
+    }
+
+    const showSuccess = (message) => {
+        setDialogs(prev => ({
+            ...prev,
+            success: { open: true, message }
+        }))
+    }
+
+    const closeDialog = (type) => {
+        setDialogs(prev => ({
+            ...prev,
+            [type]: { open: false, title: '', message: '', onConfirm: null }
+        }))
+    }
 
     const [selected, setSelected] = useState(null)
     const [reply, setReply] = useState('')
@@ -74,9 +119,9 @@ const InquiryManagement = () => {
             if (!res.ok) throw new Error()
             await fetchDetail(selected.id)
             fetchList()
-            alert('답변이 저장되었습니다.')
+            showSuccess('답변이 저장되었습니다.')
         } catch {
-            alert('답변 저장에 실패했습니다.')
+            showError('답변 저장에 실패했습니다.')
         }
     }
 
@@ -90,9 +135,9 @@ const InquiryManagement = () => {
             if (!res.ok) throw new Error()
             await fetchDetail(selected.id)
             fetchList()
-            alert('상태가 변경되었습니다.')
+            showSuccess('상태가 변경되었습니다.')
         } catch {
-            alert('상태 변경에 실패했습니다.')
+            showError('상태 변경에 실패했습니다.')
         }
     }
 
@@ -206,6 +251,45 @@ const InquiryManagement = () => {
                     </div>
                 </div>
             )}
+
+            {/* 다이얼로그들 */}
+            <AlertDialog
+                open={dialogs.alert.open}
+                title={dialogs.alert.title}
+                message={dialogs.alert.message}
+                onConfirm={() => closeDialog('alert')}
+                isAdmin={true}
+            />
+
+            <ConfirmDialog
+                open={dialogs.confirm.open}
+                title={dialogs.confirm.title}
+                message={dialogs.confirm.message}
+                onConfirm={() => {
+                    if (dialogs.confirm.onConfirm) {
+                        dialogs.confirm.onConfirm()
+                    }
+                    closeDialog('confirm')
+                }}
+                onCancel={() => closeDialog('confirm')}
+                confirmText="확인"
+                cancelText="취소"
+                isAdmin={true}
+            />
+
+            <ErrorDialog
+                open={dialogs.error.open}
+                message={dialogs.error.message}
+                onConfirm={() => closeDialog('error')}
+                isAdmin={true}
+            />
+
+            <SuccessDialog
+                open={dialogs.success.open}
+                message={dialogs.success.message}
+                onConfirm={() => closeDialog('success')}
+                isAdmin={true}
+            />
         </div>
     )
 }

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import '../Admin.css'
+import { AlertDialog, ConfirmDialog, ErrorDialog, SuccessDialog } from '../../components/CommonDialogs'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:9000'
 
@@ -15,6 +16,50 @@ const CardQuestionManagement = () => {
 
     const [edit, setEdit] = useState(null)
     const [bulk, setBulk] = useState([{ question: '', answer: '', subject: '', explanation_text: '' }])
+    
+    // 다이얼로그 상태 관리
+    const [dialogs, setDialogs] = useState({
+        alert: { open: false, title: '', message: '' },
+        confirm: { open: false, title: '', message: '', onConfirm: null },
+        error: { open: false, message: '' },
+        success: { open: false, message: '' }
+    })
+
+    // 다이얼로그 헬퍼 함수들
+    const showAlert = (title, message) => {
+        setDialogs(prev => ({
+            ...prev,
+            alert: { open: true, title, message }
+        }))
+    }
+
+    const showConfirm = (title, message, onConfirm) => {
+        setDialogs(prev => ({
+            ...prev,
+            confirm: { open: true, title, message, onConfirm }
+        }))
+    }
+
+    const showError = (message) => {
+        setDialogs(prev => ({
+            ...prev,
+            error: { open: true, message }
+        }))
+    }
+
+    const showSuccess = (message) => {
+        setDialogs(prev => ({
+            ...prev,
+            success: { open: true, message }
+        }))
+    }
+
+    const closeDialog = (type) => {
+        setDialogs(prev => ({
+            ...prev,
+            [type]: { open: false, title: '', message: '', onConfirm: null }
+        }))
+    }
 
     const fetchList = async () => {
         setLoading(true)
@@ -47,7 +92,7 @@ const CardQuestionManagement = () => {
     const saveEdit = async () => {
         try {
             if (!edit.subject || !edit.question || !edit.answer || !edit.explanation_text) {
-                alert('subject / 질문 / 정답 / 해설은 필수입니다.')
+                showAlert('입력 오류', 'subject / 질문 / 정답 / 해설은 필수입니다.')
                 return
             }
             const method = edit.id ? 'PUT' : 'POST'
@@ -56,16 +101,26 @@ const CardQuestionManagement = () => {
             if (!res.ok) throw new Error('save failed')
             setEdit(null)
             fetchList()
-        } catch (e) { setError(e.message) }
+            showSuccess(edit.id ? '문제가 수정되었습니다.' : '문제가 등록되었습니다.')
+        } catch (e) { showError(`저장 중 오류가 발생했습니다: ${e.message}`) }
     }
 
     const remove = async (row) => {
-        if (!confirm(`#${row.id} 삭제하시겠습니까?`)) return
+        showConfirm(
+            '문제 삭제',
+            `#${row.id} 문제를 정말 삭제하시겠습니까?`,
+            () => performDelete(row)
+        )
+    }
+
+    const performDelete = async (row) => {
+        closeDialog('confirm')
         try {
             const res = await fetch(`${API_BASE}/admin/card-questions/${row.id}`, { method: 'DELETE' })
             if (!res.ok) throw new Error('delete failed')
             fetchList()
-        } catch (e) { setError(e.message) }
+            showSuccess('문제가 삭제되었습니다.')
+        } catch (e) { showError(`삭제 중 오류가 발생했습니다: ${e.message}`) }
     }
 
     const addBulkRow = () => setBulk(b => [...b, { question: '', answer: '', subject: b[0]?.subject || '', explanation_text: '' }])
@@ -74,19 +129,29 @@ const CardQuestionManagement = () => {
 
     const submitBulk = async () => {
         if (!bulk || bulk.length < 8) {
-            alert('최소 8쌍(=8행) 이상을 입력해야 합니다.')
+            showAlert('입력 오류', '최소 8쌍(=8행) 이상을 입력해야 합니다.')
             return
         }
         const subj = bulk[0]?.subject || ''
-        if (!subj) { alert('subject는 필수입니다.'); return }
-        if (bulk.some(r => !r.question || !r.answer || !r.subject || !r.explanation_text)) { alert('question/answer/subject/explanation_text는 필수입니다.'); return }
-        if (bulk.some(r => r.subject !== subj)) { alert('모든 행의 subject가 동일해야 합니다.'); return }
+        if (!subj) { 
+            showAlert('입력 오류', 'subject는 필수입니다.')
+            return 
+        }
+        if (bulk.some(r => !r.question || !r.answer || !r.subject || !r.explanation_text)) { 
+            showAlert('입력 오류', 'question/answer/subject/explanation_text는 필수입니다.')
+            return 
+        }
+        if (bulk.some(r => r.subject !== subj)) { 
+            showAlert('입력 오류', '모든 행의 subject가 동일해야 합니다.')
+            return 
+        }
         try {
             const res = await fetch(`${API_BASE}/admin/card-questions/bulk`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bulk) })
             if (!res.ok) throw new Error('bulk failed')
             setBulk([{ question: '', answer: '', subject: subj, explanation_text: '' }])
             fetchList()
-        } catch (e) { setError(e.message) }
+            showSuccess('문제들이 일괄 등록되었습니다.')
+        } catch (e) { showError(`일괄 등록 중 오류가 발생했습니다: ${e.message}`) }
     }
 
     return (
@@ -206,6 +271,45 @@ const CardQuestionManagement = () => {
                     <button className="admin-btn primary" onClick={submitBulk}>일괄 등록</button>
                 </div>
             </div>
+
+            {/* 다이얼로그들 */}
+            <AlertDialog
+                open={dialogs.alert.open}
+                title={dialogs.alert.title}
+                message={dialogs.alert.message}
+                onConfirm={() => closeDialog('alert')}
+                isAdmin={true}
+            />
+
+            <ConfirmDialog
+                open={dialogs.confirm.open}
+                title={dialogs.confirm.title}
+                message={dialogs.confirm.message}
+                onConfirm={() => {
+                    if (dialogs.confirm.onConfirm) {
+                        dialogs.confirm.onConfirm()
+                    }
+                    closeDialog('confirm')
+                }}
+                onCancel={() => closeDialog('confirm')}
+                confirmText="삭제"
+                cancelText="취소"
+                isAdmin={true}
+            />
+
+            <ErrorDialog
+                open={dialogs.error.open}
+                message={dialogs.error.message}
+                onConfirm={() => closeDialog('error')}
+                isAdmin={true}
+            />
+
+            <SuccessDialog
+                open={dialogs.success.open}
+                message={dialogs.success.message}
+                onConfirm={() => closeDialog('success')}
+                isAdmin={true}
+            />
         </div>
     )
 }
