@@ -27,6 +27,13 @@ const AdminSidebar = () => {
 			icon: '💬',
 			label: '문의사항 관리',
 			description: '고객 문의 및 답변 관리'
+		},
+		{
+			id: 'card-questions',
+			path: '/admin/card-questions',
+			icon: '🃏',
+			label: '카드 문제 관리',
+			description: '카드 게임 문제 추가/수정/삭제'
 		}
 	]
 
