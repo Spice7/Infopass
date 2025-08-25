@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, List, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
 import { AccountCircle, NoteAlt, History, HelpOutline } from '@mui/icons-material';
+import SpeakerNotesIcon from '@mui/icons-material/SpeakerNotes';
 
 // ----------------------------------------------------
 // 🎨 우주 컨셉에 맞게 색상 변경
@@ -13,7 +14,8 @@ const menuItems = [
   { label: '내 정보', icon: <AccountCircle /> },
   { label: '오답노트', icon: <NoteAlt /> },
   { label: '게임 기록', icon: <History /> },
-  { label: '문의 내역', icon: <HelpOutline /> },
+  { label: '문의 하기', icon: <HelpOutline /> },
+  { label: '문의 내역', icon: <SpeakerNotesIcon /> },
 ];
 
 const Sidebar = ({ selectedMenu, setSelectedMenu }) => {

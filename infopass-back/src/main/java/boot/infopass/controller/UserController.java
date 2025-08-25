@@ -1,5 +1,6 @@
 package boot.infopass.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,14 +88,16 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("인증번호가 일치하지 않습니다.");
         }
 
-        UserDto user = userService.findByPhone(phoneFromToken);
+         List<UserDto> users = userService.findByPhone(phoneFromToken);
 
-        if (user != null) {
-			if(purpose.equals("signup")) {
-            	return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 가입된 휴대폰 번호입니다.");
-			} else {
-            	return ResponseEntity.ok("핸드폰 인증이 완료되었습니다.");
-        	}
+        if (users != null && users.size() > 0) {	
+			// 1개 이상이면 이미 가입된 번호		
+            if (purpose.equals("signup")) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 가입된 휴대폰 번호입니다.");
+            } else {
+                return ResponseEntity.ok("핸드폰 인증이 완료되었습니다.");
+            }
+        	
         } else {
             return ResponseEntity.ok("사용 가능한 휴대폰 번호입니다.");
         }
@@ -124,8 +127,7 @@ public class UserController {
 		UserDto savedUser = userService.insertUser(userDto);	
 		
 		   // 2. 소셜 사용자라면 socialUser 테이블에도 저장
-	    if (userDto.getProvider() != null && userDto.getProviderKey() != null) {
-	        
+	    if (userDto.getProvider() != null && userDto.getProviderKey() != null) {	        
 	        socialAuthService.insertSocialUser(userDto);
 	    }
 		

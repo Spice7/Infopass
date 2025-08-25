@@ -87,4 +87,7 @@ public class RankingService {
         }
     }
 
+    public RankedUserDto getRankByUserId(int userId) {
+        return rankMapper.selectByUserId(userId);
+    }
 }

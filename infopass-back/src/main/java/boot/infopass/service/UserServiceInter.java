@@ -1,5 +1,6 @@
 package boot.infopass.service;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -14,7 +15,7 @@ public interface UserServiceInter {
 	public boolean findByNickName(String nickname);
 	public Map<String, String> sendSms(String phone);
 	public Map<String, String> verifyCode(String phone, String sendCode, HttpSession session);
-	public UserDto findByPhone(String phone);
+	public List<UserDto> findByPhone(String phone);
 	public String getResearchEmail(UserDto userDto);
 	public boolean findPwCheck(UserDto userDto);
 	public void changePw(UserDto userDto);

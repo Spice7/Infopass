@@ -3,6 +3,7 @@ import * as auth from '../CardAuth';
 import { LoginContext } from '../../../user/LoginContextProvider';
 import { useNavigate } from 'react-router-dom';
 import { applyExp } from '../../../user/gameResult';
+import * as Swal from '../../../user/alert';
 
 export const useCardGame = () => {
     
@@ -45,16 +46,18 @@ export const useCardGame = () => {
     ];
       useEffect(() => {
         if(!isLogin) {
-            alert({
-                title: '로그인 필요',
-                text: '로그인이 필요합니다.',
-                icon: 'warning',
-                confirmButtonText: '확인'
-            }).then(() => {
+            Swal.confirm(
+                '로그인 필요',
+                '로그인이 필요합니다.',
+                'warning',
+            (result) => {
+                if (result.isConfirmed) {
                 // 로그인 페이지로 리다이렉트
                 navigate('/login');
+                } else {
+                    navigate('/');
+                }
             });
-
         }
     }, []);
 

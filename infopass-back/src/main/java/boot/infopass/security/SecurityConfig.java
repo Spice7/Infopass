@@ -78,9 +78,8 @@ public class SecurityConfig {
                         "/api/rooms/player/**", "/api/ranking/**", "/public/**")
                 .permitAll()
                 .requestMatchers("/lobby/**", "/oxquiz/**", "/rank/**", "/block/**", "/blankgamesingle/**", "/card/**",
-                        "/api/rooms/**", "/api/**")
+                        "/api/rooms/**", "/api/**", "/inquiries/**")
                 .permitAll() // 게임 관련 API 허용
-
 
                 // ✅ 3. 특정 권한이 필요한 경로
                 .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
