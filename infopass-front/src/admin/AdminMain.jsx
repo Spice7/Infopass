@@ -1,11 +1,24 @@
 import React from 'react'
+import { Routes, Route } from 'react-router-dom'
+import AdminLayout from './components/AdminLayout'
+import Analytics from './pages/Analytics'
+import UserManagement from './pages/UserManagement'
+import InquiryManagement from './pages/InquiryManagement'
+import CardQuestionManagement from './pages/CardQuestionManagement'
+import OXQuestionManagement from './pages/OXQuestionManagement'
 
 const AdminMain = () => {
-    return (
-        <div>
-            <h1>Admin</h1>
-        </div>
-    )
+	return (
+		<AdminLayout>
+			<Routes>
+				<Route path="/" element={<Analytics />} />
+				<Route path="/users" element={<UserManagement />} />
+				<Route path="/inquiries" element={<InquiryManagement />} />
+				<Route path="/card-questions" element={<CardQuestionManagement />} />
+				<Route path="/ox-questions" element={<OXQuestionManagement />} />
+			</Routes>
+		</AdminLayout>
+	)
 }
 
 export default AdminMain

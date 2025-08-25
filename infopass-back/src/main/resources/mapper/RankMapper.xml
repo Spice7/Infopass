@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="boot.infopass.mapper.RankMapper">
+
+    <select id="getUserRankingsByIds" resultType="boot.infopass.dto.RankedUserDto"> SELECT u.id as
+        id, u.nickname as nickname, COALESCE(r.total_score, 0) as totalScore FROM user u LEFT JOIN
+        multiplayer_rank r ON u.id = r.user_id WHERE u.id IN <foreach item="id" collection="ids"
+            open="(" separator="," close=")"> #{id} </foreach> ORDER BY r.total_score DESC </select>
+
+    <select id="getTopWeeklyRanks" resultType="boot.infopass.dto.RankedUserDto"> SELECT u.id as id,
+        u.nickname as nickname, COALESCE(r.total_score, 0) as totalScore FROM user u LEFT JOIN
+        multiplayer_rank r ON u.id = r.user_id ORDER BY r.total_score DESC LIMIT 30 </select>
+
+    <select id="getTopRealtimeRanks" resultType="boot.infopass.dto.RankedUserDto"> SELECT u.id as
+        id, u.nickname as nickname, COALESCE(r.total_score, 0) as totalScore FROM user u LEFT JOIN
+        multiplayer_rank r ON u.id = r.user_id ORDER BY r.total_score DESC LIMIT 30 </select>
+    <insert id="upsertUserRankAndPlayerRank" parameterType="map"> INSERT INTO multiplayer_rank
+        (user_id, total_score, player_rank, updated_at) VALUES (#{userId}, #{totalScore},
+        #{playerRank}, NOW()) ON DUPLICATE KEY UPDATE total_score = VALUES(total_score), player_rank
+        = VALUES(player_rank), updated_at = NOW() </insert>
+
+    <update id="recalculateAllPlayerRanks"> update multiplayer_rank mr join( select user_id,
+        dense_rank() over (order by total_score desc,updated_at asc)as calculated_rank from
+        multiplayer_rank )rp on mr.user_id=rp.user_id set mr.player_rank=rp.calculated_rank,
+        mr.updated_at=now() </update>
+
+	<select id="selectByUserId" parameterType="int" resultType="boot.infopass.dto.RankedUserDto">
+        SELECT 
+            player_rank
+        FROM multiplayer_rank
+        WHERE user_id = #{userId}
+    </select>
+</mapper>

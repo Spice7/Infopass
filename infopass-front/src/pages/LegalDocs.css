@@ -1,0 +1,69 @@
+/* 공통 약관 / 개인정보처리방침 스타일 */
+.legal-container {max-width:960px;margin:80px auto 60px;padding:0 26px 40px;color:#dfe6ef;background:#141a26;border:1px solid #2c394d;border-radius:18px;box-shadow:0 10px 30px -12px rgba(0,0,0,.55);line-height:1.62;font-size:15px;position:relative;}
+.legal-container h1 {font-size:30px;margin:38px 0 18px;letter-spacing:.5px;font-weight:800;background:linear-gradient(90deg,var(--accent,#7fd8ff),var(--accent2,#ffe066));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.legal-updated {font-size:12px;color:#8aa0bd;margin-top:-6px;margin-bottom:26px;}
+.legal-toc {background:#1b2230;border:1px solid #2e3a50;padding:16px 18px;border-radius:14px;font-size:13px;line-height:1.5;margin:0 0 34px;}
+.legal-toc strong {display:block;font-size:13px;letter-spacing:.5px;margin-bottom:6px;color:#ffe066;}
+.legal-toc a {color:#9fcdfb;text-decoration:none;}
+.legal-toc a:hover {text-decoration:underline;}
+.legal-toc ul {list-style:none;padding:0;margin:0;columns:2;column-gap:28px;}
+.legal-toc li {break-inside:avoid;margin:2px 0;}
+.legal-container h2 {margin:40px 0 14px;font-size:19px;letter-spacing:.3px;font-weight:700;position:relative;padding-left:4px;}
+.legal-container h2:before {content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(#00121a,#ffe066);border-radius:2px;}
+.legal-container h3 {margin:26px 0 10px;font-size:16px;font-weight:700;letter-spacing:.2px;}
+.legal-container p {margin:6px 0 14px;}
+.legal-container ul {margin:6px 0 18px 20px;padding:0;}
+.legal-container ul li {margin:4px 0; list-style-type: none;}
+.legal-container code {background:#232d40;padding:2px 6px;border-radius:6px;font-size:13px;}
+.legal-table-wrapper {overflow-x:auto;margin:10px 0 26px;}
+.legal-table {width:100%;border-collapse:collapse;font-size:13px;}
+.legal-table thead th {background:#232d40;color:#fff;font-weight:600;padding:10px 10px;text-align:left;border-bottom:2px solid #334355;}
+.legal-table tbody td {padding:10px 10px;border-bottom:1px solid #2d3a4f;vertical-align:top;}
+.legal-table tbody tr:last-child td {border-bottom:0;}
+.revision-box {background:#1d2533;border:1px solid #2f3a4c;padding:14px 18px 16px;border-radius:14px;font-size:13px;line-height:1.5;margin-top:40px;}
+.revision-box h3 {margin-top:0;font-size:14px;}
+.legal-alert {background:#2d3a4f;border:1px solid #38506d;padding:12px 16px;border-radius:12px;font-size:13px;color:#d2e4f5;margin:18px 0 28px;}
+.legal-inline-accent {color:#ffe066;font-weight:600;}
+@media (max-width:760px){.legal-toc ul {columns:1;} .legal-container {margin:70px auto 50px;padding:0 18px 34px;} .legal-container h1 {font-size:26px;} .legal-container h2 {font-size:18px;}}
+
+/* =========================================================
+	커피 후원 페이지 스타일 (coffee.jsx)
+	========================================================= */
+.coffee-wrap {max-width:1580px;margin:90px auto 80px;font-family:'Pretendard','Noto Sans KR',sans-serif;color:#dbe6f4;}
+.coffee-head h1 {margin:0 0 10px;font-size:34px;background:linear-gradient(90deg,var(--accent,#7fd8ff),var(--accent2,#ffe066));-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700;letter-spacing:.5px;}
+.coffee-head .sub {margin:0 0 34px;font-size:15px;color:#94a8c2;line-height:1.5;}
+.coffee-grid {display:grid;gap:30px;margin-bottom:54px;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));align-items:stretch;}
+/* 넓은 화면에서는 정확히 5열 고정 */
+@media (min-width:1500px){
+	.coffee-grid {grid-template-columns:repeat(5,1fr);} /* 5열 유지, 카드 너비 증가 */
+}
+/* 중간 화면 3~4열, 작은 화면 2열 이하 자동 */
+@media (max-width:880px){
+	.coffee-grid {gap:26px;}
+}
+@media (max-width:620px){
+	.coffee-grid {grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:22px;}
+}
+.coffee-card {background:linear-gradient(145deg,#101a27,#0b121a);border:1px solid #263244;border-radius:20px;padding:18px 18px 16px;position:relative;display:flex;flex-direction:column;box-shadow:0 6px 18px -8px rgba(0,0,0,.55),0 2px 6px -2px rgba(0,0,0,.4);transition:transform .28s,box-shadow .3s,border-color .3s;min-width:0;}
+.coffee-card:before {content:"";position:absolute;inset:0;border-radius:20px;background:linear-gradient(140deg,rgba(127,216,255,.18),rgba(255,224,102,.18) 50%,rgba(127,216,255,0) 70%);opacity:0;transition:opacity .35s;pointer-events:none;}
+.coffee-card:hover {transform:translateY(-6px);border-color:#34506d;box-shadow:0 10px 26px -6px rgba(0,0,0,.65);}
+.coffee-card:hover:before {opacity:1;}
+.coffee-card .name-role {display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.coffee-card .name {font-size:18px;font-weight:600;letter-spacing:.3px;}
+.coffee-card .role {font-size:11px;font-weight:600;background:linear-gradient(90deg,var(--accent,#7fd8ff),var(--accent2,#ffe066));color:#06131c;padding:4px 8px 3px;border-radius:20px;letter-spacing:.5px;}
+.coffee-card .msg {font-size:12.5px;line-height:1.45;color:#8fa2b8;margin:0 0 10px;min-height:36px;}
+.coffee-card .qr-box {background:#15202c;border:1px solid #263244;border-radius:14px;padding:10px;display:flex;justify-content:center;align-items:center;aspect-ratio:1/1;margin-bottom:12px;overflow:hidden;}
+.coffee-card .qr-box img {width:100%;height:100%;object-fit:cover;border-radius:12px;filter:drop-shadow(0 0 2px rgba(0,0,0,.3));transition:transform .35s;}
+.coffee-card:hover .qr-box img {transform:scale(1.04);}
+.coffee-card .account-line {display:flex;align-items:center;gap:8px;justify-content:space-between;margin-top:auto;}
+.coffee-card .account-line code {font-family:'Fira Code','Consolas',monospace;font-size:11.5px;background:#1d2834;padding:4px 8px;border-radius:6px;border:1px solid #2c3a4a;color:#c2d2e4;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.copy-btn {width:70px;font-size:11.5px;font-weight:600;padding:6px 12px 5px;background:linear-gradient(90deg,var(--accent,#7fd8ff),var(--accent2,#ffe066));color:#052231;border:none;border-radius:8px;cursor:pointer;letter-spacing:.5px;box-shadow:0 2px 5px -2px rgba(0,0,0,.4);transition:filter .25s,transform .2s;}
+.copy-btn:hover {filter:brightness(1.05);} .copy-btn:active {transform:translateY(2px);} .copy-btn:disabled {opacity:.7;cursor:default;}
+.coffee-note {background:#121c27;border:1px solid #2a394c;border-radius:22px;padding:26px 30px 28px;}
+.coffee-note h2 {margin:0 0 14px;font-size:20px;font-weight:700;background:linear-gradient(90deg,var(--accent,#7fd8ff),var(--accent2,#ffe066));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.coffee-note ul {margin:0;padding-left:20px;font-size:13.5px;line-height:1.55;color:#9bb1c7;}
+.coffee-note li {margin:4px 0; list-style-type: none;}
+@media (max-width:720px){.coffee-head h1 {font-size:28px;} .coffee-grid {gap:22px;} .coffee-card {padding:16px 16px 14px;}}
+.coffee-wrap.big {max-width:1600px;}
+.coffee-wrap.big .coffee-card {padding:30px 28px 24px;}
+.coffee-wrap.big .coffee-card .qr-box {padding:18px;}

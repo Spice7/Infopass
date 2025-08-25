@@ -5,40 +5,90 @@ const Rank = () => {
   const [selectedWeek, setSelectedWeek] = useState("2024년 07월 29일 ~ 04일");
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const canvasRef = useRef(null);
+  const [weeklyRanking, setWeeklyRanking] = useState([]);
+  const [realtimeRanking, setRealtimeRanking] = useState([]);
 
-  // 임시 데이터 - 실제로는 API에서 가져올 데이터
-  const rankingData = [
-    { rank: 1, name: "호평물주먹", score: 318, profile: "🦀", medal: "🥇" },
-    { rank: 2, name: "구민이바보", score: 219, profile: "👓", medal: "🥈" },
-    { rank: 3, name: "민우낑", score: 146, profile: "🟡", medal: "🥉" },
-    { rank: 4, name: "백realtest", score: 129, profile: "👤" },
-    { rank: 5, name: "정프로", score: 36, profile: "🎩" },
-    { rank: 6, name: "라이라이차차차", score: 25, profile: "🐼" },
-    { rank: 7, name: "돌팔이", score: 24, profile: "👤" },
-    { rank: 8, name: "동글엄마", score: 10, profile: "🥤" },
-    { rank: 9, name: "테스트유저1", score: 8, profile: "👤" },
-    { rank: 10, name: "테스트유저2", score: 7, profile: "👤" },
-    { rank: 11, name: "테스트유저3", score: 6, profile: "👤" },
-    { rank: 12, name: "테스트유저4", score: 5, profile: "👤" },
-    { rank: 13, name: "테스트유저5", score: 4, profile: "👤" },
-    { rank: 14, name: "테스트유저6", score: 3, profile: "👤" },
-    { rank: 15, name: "테스트유저7", score: 2, profile: "👤" },
-    { rank: 16, name: "테스트유저8", score: 1, profile: "👤" },
-    { rank: 17, name: "테스트유저9", score: 1, profile: "👤" },
-    { rank: 18, name: "테스트유저10", score: 1, profile: "👤" },
-    { rank: 19, name: "테스트유저11", score: 1, profile: "👤" },
-    { rank: 20, name: "테스트유저12", score: 1, profile: "👤" },
-    { rank: 21, name: "테스트유저13", score: 1, profile: "👤" },
-    { rank: 22, name: "테스트유저14", score: 1, profile: "��" },
-    { rank: 23, name: "테스트유저15", score: 1, profile: "👤" },
-    { rank: 24, name: "테스트유저16", score: 1, profile: "👤" },
-    { rank: 25, name: "테스트유저17", score: 1, profile: "👤" },
-    { rank: 26, name: "테스트유저18", score: 1, profile: "👤" },
-    { rank: 27, name: "테스트유저19", score: 1, profile: "👤" },
-    { rank: 28, name: "테스트유저20", score: 1, profile: "👤" },
-    { rank: 29, name: "테스트유저21", score: 1, profile: "👤" },
-    { rank: 30, name: "테스트유저22", score: 1, profile: "👤" },
-  ];
+  // 주간 랭킹 데이터 가져오기
+  useEffect(() => {
+    fetch("http://localhost:9000/rank?type=weekly", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      // credentials: "include", // ✅ .then()에서도 옵션 지정 가능
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        console.log("Weekly ranking:", data);
+        if (Array.isArray(data)) {
+          const formattedData = data.map((user, index) => ({
+            rank: index + 1,
+            name: user.nickname || user.username || "Unknown",
+            score: user.totalScore || 0,
+            profile: user.profileImage || "👤",
+            medal: index < 3 ? ["🥇", "🥈", "🥉"][index] : null,
+          }));
+          setWeeklyRanking(formattedData);
+        } else {
+          console.error("Weekly ranking data is not an array:", data);
+          setWeeklyRanking([]);
+        }
+      })
+      .catch((err) => {
+        console.error("Weekly ranking fetch error:", err);
+        setWeeklyRanking([]);
+      });
+  }, [selectedWeek]); // 선택된 주가 변경될 때마다 데이터 새로 가져오기
+
+  // 실시간 랭킹 데이터 가져오기
+  useEffect(() => {
+    const fetchRealtimeRanking = () => {
+      fetch("http://localhost:9000/rank?type=realtime", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        cache: "no-store", // 캐시 사용하지 않음
+        // credentials: "include", // ✅ .then()에서도 옵션 지정 가능
+      })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          return res.json();
+        })
+        .then((data) => {
+          console.log("Realtime ranking:", data);
+          if (Array.isArray(data)) {
+            const formattedData = data.map((user, index) => ({
+              rank: index + 1,
+              name: user.nickname || user.username || "Unknown",
+              score: user.totalScore || 0,
+              profile: user.profileImage || "👤",
+              medal: index < 3 ? ["🥇", "🥈", "🥉"][index] : null,
+            }));
+            setRealtimeRanking(formattedData);
+          } else {
+            console.error("Realtime ranking data is not an array:", data);
+            setRealtimeRanking([]);
+          }
+        })
+        .catch((err) => {
+          console.error("Realtime ranking fetch error:", err);
+          setRealtimeRanking([]);
+        });
+    };
+
+    fetchRealtimeRanking(); // 초기 데이터 가져오기
+    const interval = setInterval(fetchRealtimeRanking, 30000); // 10초마다 실시간 데이터 업데이트
+
+    return () => clearInterval(interval); // 컴포넌트 언마운트 시 인터벌 정리
+  }, []);
 
   const handleWeekChange = (week) => {
     setSelectedWeek(week);
@@ -50,6 +100,8 @@ const Rank = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
+    let lastTime = 0;
+
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -96,22 +148,30 @@ const Rank = () => {
     }
     let stars = [];
     let animationId;
+
     function init() {
       stars = [];
-      for (let i = 0; i < 200; i++) {
+      for (let i = 0; i < 100; i++) {
+        // 별 개수를 200개에서 100개로 줄임
         stars.push(spawnStars());
       }
     }
-    function animate() {
+
+    function animate(now) {
+      if (!lastTime || now - lastTime > 33) {
+        // 30fps로 제한
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        stars.forEach((star) => {
+          star.update();
+        });
+        lastTime = now;
+      }
       animationId = requestAnimationFrame(animate);
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      stars.forEach((star) => {
-        star.update();
-      });
     }
+
     init();
-    animate();
-    // 클린업 함수
+    animate(performance.now());
+
     return () => {
       if (animationId) {
         cancelAnimationFrame(animationId);
@@ -123,6 +183,7 @@ const Rank = () => {
   return (
     <div className="ranking-wrapper">
       <canvas ref={canvasRef} id="starCanvas" className="star-canvas"></canvas>
+
       {/* 주간 랭킹 */}
       <div className="ranking-container">
         <div className="ranking-header">
@@ -161,30 +222,30 @@ const Rank = () => {
         </div>
 
         {/* 1위 유저 (특별 스타일) */}
-        {rankingData.length > 0 && (
+        {weeklyRanking.length > 0 && (
           <div className="first-place">
             <div className="first-place-content">
               <div className="first-place-profile">
                 <div className="profile-image large">
-                  {rankingData[0].profile}
+                  {weeklyRanking[0].profile}
                 </div>
               </div>
               <div className="first-place-info">
-                <div className="first-place-name">{rankingData[0].name}</div>
+                <div className="first-place-name">{weeklyRanking[0].name}</div>
                 <div className="first-place-score">
-                  {rankingData[0].score}px
+                  {weeklyRanking[0].score}px
                 </div>
               </div>
-              <div className="first-place-medal">{rankingData[0].medal}</div>
+              <div className="first-place-medal">{weeklyRanking[0].medal}</div>
             </div>
           </div>
         )}
 
         {/* 랭킹 리스트 */}
         <div className="ranking-list">
-          {rankingData.map((user, index) => (
+          {weeklyRanking.map((user, index) => (
             <div
-              key={user.rank}
+              key={`weekly-${user.rank}`}
               className={`ranking-item ${index < 3 ? "top-three" : ""}`}
             >
               <div className="rank-number">
@@ -218,28 +279,32 @@ const Rank = () => {
         </div>
 
         {/* 1위 유저 (특별 스타일) */}
-        {rankingData.length > 0 && (
+        {realtimeRanking.length > 0 && (
           <div className="first-place">
             <div className="first-place-content">
               <div className="first-place-profile">
                 <div className="profile-image large">
-                  {rankingData[0].profile}
+                  {realtimeRanking[0].profile}
                 </div>
               </div>
               <div className="first-place-info">
-                <div className="first-place-name">{rankingData[0].name}</div>
+                <div className="first-place-name">
+                  {realtimeRanking[0].name}
+                </div>
                 <div className="first-place-score">
-                  {rankingData[0].score}px
+                  {realtimeRanking[0].score}px
                 </div>
               </div>
-              <div className="first-place-medal">{rankingData[0].medal}</div>
+              <div className="first-place-medal">
+                {realtimeRanking[0].medal}
+              </div>
             </div>
           </div>
         )}
 
         {/* 랭킹 리스트 */}
         <div className="ranking-list">
-          {rankingData.map((user, index) => (
+          {realtimeRanking.map((user, index) => (
             <div
               key={`realtime-${user.rank}`}
               className={`ranking-item ${index < 3 ? "top-three" : ""}`}

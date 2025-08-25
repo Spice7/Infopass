@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="boot.infopass.mapper.WrongAnswerMapper">
+
+  <insert id="insertWrongAnswer" parameterType="boot.infopass.dto.WrongAnswerDto">
+    INSERT INTO wronganswer_log (user_id, game_type, question_id, submitted_answer, created_at)
+    VALUES (#{userId}, 'oxquiz', #{questionId}, #{submittedAnswer}, NOW())
+  </insert>
+  
+  <delete id="deleteWrongAnswersByQuestionId" parameterType="int">
+    DELETE FROM wronganswer_log WHERE question_id = #{questionId}
+  </delete>
+
+  <!-- 블록 게임 전용 오답 기록 -->
+  <insert id="insertBlockWrongAnswer" parameterType="boot.infopass.dto.WrongAnswerDto">
+    INSERT INTO wronganswer_log (user_id, game_type, question_id, submitted_answer, created_at)
+    VALUES (#{userId}, 'block', #{questionId}, #{submittedAnswer}, NOW())
+  </insert>
+  
+  <!-- 카드 게임 전용 오답 기록 -->
+  <insert id="insertCardWrongAnswer" parameterType="boot.infopass.dto.WrongAnswerDto">
+    INSERT INTO wronganswer_log (user_id, game_type, question_id, submitted_answer, created_at)
+    VALUES (#{userId}, 'card', #{questionId}, #{submittedAnswer}, NOW())
+  </insert>
+
+  <select id="selectWrongAnswersByUserId" parameterType="int" resultMap="WrongAnswerResultMap">
+  SELECT wal.id,
+         wal.user_id,
+         wal.game_type,
+         wal.question_id,
+         wal.submitted_answer,
+         wal.created_at,
+         COALESCE(oxq.question, bq.question, cq.question) AS question,
+         COALESCE(oxq.answer, bq.answer, cq.answer) AS correct_answer,
+         COALESCE(oxq.category, bq.category, cq.subject) AS category,
+         COALESCE(oxq.quiz_explanition, bq.explanation_text, cq.explanation_text) AS explanation,
+         bq.explanation_image
+  FROM wronganswer_log wal
+  LEFT JOIN oxquiz_question oxq
+    ON wal.question_id = oxq.id AND wal.game_type = 'oxquiz'
+  LEFT JOIN blockgame_question bq
+    ON wal.question_id = bq.id AND wal.game_type = 'block'
+  LEFT JOIN cardgame_question cq
+    ON wal.question_id = cq.id AND wal.game_type = 'card'
+  WHERE wal.user_id = #{userId}
+  ORDER BY wal.created_at DESC
+</select>
+
+ <!--  
+  <select id="selectWrongBlockAnswersByUserId" parameterType="int" resultMap="WrongAnswerResultMap">
+  SELECT wal.id,
+         wal.user_id,
+         wal.game_type,
+         wal.question_id,
+         wal.submitted_answer,
+         wal.created_at,
+         bq.question,
+         bq.answer AS correct_answer,
+         bq.category,
+         bq.explanation_image,
+         bq.explanation_text AS explanation
+  FROM wronganswer_log wal
+  LEFT JOIN blockgame_question bq ON wal.question_id = bq.id
+  WHERE wal.user_id = #{userId}
+    AND wal.game_type = 'block'
+  ORDER BY wal.created_at DESC
+  </select> -->
+
+<resultMap id="WrongAnswerResultMap" type="boot.infopass.dto.WrongAnswerDto">
+  <id property="id" column="id"/>
+  <result property="userId" column="user_id"/>
+  <result property="gameType" column="game_type"/>
+  <result property="questionId" column="question_id"/>
+  <result property="submittedAnswer" column="submitted_answer"/>
+  <result property="createdAt" column="created_at"/>
+  <result property="question" column="question"/>
+  <result property="correctAnswer" column="correct_answer"/>
+  <result property="category" column="category"/>
+  <result property="explanation" column="explanation"/>
+  <!-- 블록게임 전용 이미지 컬럼, 다른 게임은 null -->
+  <result property="explanationImage" column="explanation_image"/>
+</resultMap>
+
+
+
+</mapper>

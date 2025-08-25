@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="boot.infopass.mapper.CardMapper">
+	<!-- 카드 문제 랜덤 조회 (8문제)/ 아직 풀지않은 문제만 조회 -->
+	<select id="getRandomQuestionsBySubjectExceptSolved" resultType="card" parameterType="map">
+		SELECT cq.*
+		FROM cardgame_question cq
+		LEFT JOIN cardgame_submission cs
+			ON cq.id = cs.question_id
+			AND cs.user_id = #{user_id}
+			AND cs.session_id = #{session_id}
+			AND cs.is_correct = true
+		WHERE cq.subject = #{subject}
+			AND cs.question_id IS NULL
+		ORDER BY RAND()
+		LIMIT 8
+	</select>
+
+	<insert id="saveQuestionAttempt" parameterType="cardSub">
+		insert into cardgame_submission (user_id, question_id, session_id, submitted_answer, is_correct, created_at) 
+		values (#{user_id}, #{question_id}, #{session_id}, #{submitted_answer}, #{is_correct}, now())
+	</insert>
+
+	<!-- ============ Admin CRUD ============ -->
+	<select id="listCardQuestions" resultType="card" parameterType="map">
+		SELECT id, question, answer, subject, explanation_text, created_at
+		FROM cardgame_question
+		<where>
+			<if test="q != null and q != ''">
+				AND (question LIKE CONCAT('%', #{q}, '%') OR answer LIKE CONCAT('%', #{q}, '%'))
+			</if>
+			<if test="subject != null and subject != ''">
+				AND subject = #{subject}
+			</if>
+		</where>
+		ORDER BY id DESC
+		<if test="size != null and size &gt; 0">
+			LIMIT #{size}
+			<if test="offset != null and offset &gt;= 0">
+				OFFSET #{offset}
+			</if>
+		</if>
+	</select>
+
+	<select id="countCardQuestions" resultType="int" parameterType="map">
+		SELECT COUNT(*)
+		FROM cardgame_question
+		<where>
+			<if test="q != null and q != ''">
+				AND (question LIKE CONCAT('%', #{q}, '%') OR answer LIKE CONCAT('%', #{q}, '%'))
+			</if>
+			<if test="subject != null and subject != ''">
+				AND subject = #{subject}
+			</if>
+		</where>
+	</select>
+
+	<select id="findCardQuestionById" resultType="card" parameterType="int">
+		SELECT id, question, answer, subject, explanation_text, created_at
+		FROM cardgame_question
+		WHERE id = #{id}
+	</select>
+
+	<insert id="insertCardQuestion" parameterType="card" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO cardgame_question (question, answer, subject, explanation_text, created_at)
+		VALUES (#{question}, #{answer}, #{subject}, #{explanation_text}, NOW())
+	</insert>
+
+	<update id="updateCardQuestion" parameterType="card">
+		UPDATE cardgame_question
+		SET question = #{question},
+			answer = #{answer},
+			subject = #{subject},
+			explanation_text = #{explanation_text}
+		WHERE id = #{id}
+	</update>
+
+	<delete id="deleteCardQuestion" parameterType="int">
+		DELETE FROM cardgame_question WHERE id = #{id}
+	</delete>
+
+	<select id="countBySubject" resultType="int" parameterType="string">
+		SELECT COUNT(*) FROM cardgame_question WHERE subject = #{subject}
+	</select>
+</mapper>

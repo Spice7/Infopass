@@ -1,0 +1,183 @@
+.card-loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 0;
+  margin: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-background-scroll {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  animation: cardBackgroundMove 8s linear infinite;
+  display: flex;
+}
+
+.card-background-image {
+  width: 50%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.3;
+  flex-shrink: 0;
+}
+
+.card-loading-content {
+  text-align: center;
+  color: white;
+  position: relative;
+  z-index: 10;
+}
+
+.card-loading-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.card-character-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+  height: 120px;
+}
+
+.card-character {
+  position: relative;
+  animation: cardCharacterFloat 2s ease-in-out infinite;
+  transform: rotate(5deg);
+}
+
+.card-character-image {
+  width: 80px;
+  height: 80px;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.card-item {
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.card-item .cardGame {
+  width: 24px;
+  height: 16px;
+  background: linear-gradient(45deg, #4285f4, #34a853);
+  border-radius: 3px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border: 2px solid #fff;
+  position: relative;
+}
+
+.card-item .cardGame::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 4px;
+  background: #4285f4;
+  border-radius: 2px 2px 0 0;
+  border: 2px solid #fff;
+  border-bottom: none;
+}
+
+.card-loading-text {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  opacity: 0.9;
+}
+
+.card-loading-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.card-dot {
+  width: 12px;
+  height: 12px;
+  background-color: white;
+  border-radius: 50%;
+  animation: cardDotPulse 1.4s ease-in-out infinite both;
+}
+
+.card-dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.card-dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+.card-dot:nth-child(3) {
+  animation-delay: 0s;
+}
+
+@keyframes cardBackgroundMove {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes cardCharacterFloat {
+  0%, 100% {
+    transform: rotate(5deg) translateY(0px);
+  }
+  50% {
+    transform: rotate(5deg) translateY(-8px);
+  }
+}
+
+@keyframes cardDotPulse {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .card-loading-container {
+    min-height: 100vh;
+    margin: 0;
+  }
+  
+  .card-loading-title {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .card-character-image {
+    width: 60px;
+    height: 60px;
+  }
+
+  .card-item .cardGame {
+    width: 20px;
+    height: 14px;
+  }
+  
+  .card-loading-text {
+    font-size: 1rem;
+  }
+}

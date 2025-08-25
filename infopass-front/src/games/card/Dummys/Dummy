@@ -1,0 +1,139 @@
+const [difficulty, setDifficulty] = useState('normal'); // easy, normal, hard
+
+  //힌트 버튼
+
+  const [hints, setHints] = useState(3);
+  const [showHint, setShowHint] = useState(false);
+  ${showHint && !card.isFlipped ? 'hint-active' : ''}
+
+      // 힌트 사용
+    const useHint = () => {
+        if (hints > 0 && !showHint) {
+            setHints(prev => prev - 1);
+            setShowHint(true);
+            setTimeout(() => setShowHint(false), 3000);
+        }
+    };
+
+    {showHint && !card.isFlipped && (
+                  <div className="hint-indicator">
+                    {card.type === 'question' ? '📝 질문' : '💡 답변'}
+                  </div>
+                )}
+  <div className="info-item">
+    <span className="label">힌트:</span>
+    <button
+      className={`hint-button ${hints > 0 ? 'available' : 'disabled'}`}
+      onClick={onUseHint}
+      disabled={hints === 0}
+    >
+      💡 힌트 ({hints})
+    </button>
+  </div>
+  
+
+
+// 난이도에 따른 문제 수 조절
+let selectedQuestions = questions;
+if (difficultyLevel === 'easy') {
+    selectedQuestions = questions.slice(0, 8); // 8문제
+} else if (difficultyLevel === 'hard') {
+    selectedQuestions = questions.slice(0, 20); // 20문제
+} else {
+    selectedQuestions = questions.slice(0, 12); // 12문제 (기본)
+}
+
+
+// 타임어택 모드일 때 시간 제한 설정
+let gameTimeLimit = timeLimit;
+if (mode === 'timeAttack') {
+    if (difficultyLevel === 'easy') {
+        gameTimeLimit = 180; // 3분
+    } else if (difficultyLevel === 'hard') {
+        gameTimeLimit = 600; // 10분
+    } else {
+        gameTimeLimit = 300; // 5분
+    }
+    setTimeLimit(gameTimeLimit);
+    setRemainingTime(gameTimeLimit);
+}
+
+  // 게임 모드 변경
+  const changeGameMode = (mode) => {
+    setGameMode(mode);
+    if (mode === 'timeAttack') {
+      // 타임어택 모드일 때 난이도별 시간 제한 설정
+      if (difficulty === 'easy') {
+        setTimeLimit(180);
+        setRemainingTime(180);
+      } else if (difficulty === 'hard') {
+        setTimeLimit(600);
+        setRemainingTime(600);
+      } else {
+        setTimeLimit(300);
+        setRemainingTime(300);
+      }
+    }
+  };
+
+
+// 난이도 변경
+const changeDifficulty = (newDifficulty) => {
+    setDifficulty(newDifficulty);
+};
+
+// 최초 마운트 시 문제 데이터만 미리 로드
+  useEffect(() => {
+    if (userInfo) {
+      const loadInitialData = async () => {
+        try {
+          const response = await auth.getCardQuestions();
+          if (response && response.data) {
+            setQuestionData(response.data.Cards);
+          }
+        } catch (error) {
+          console.error('초기 데이터 로드 실패:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      loadInitialData();
+    } else {
+      setIsLoading(false);
+    }    
+  }, [userInfo]);
+
+//return
+
+{
+    gameMode === 'timeAttack' && (
+        <div className="time-limit-info">
+            <p>⏱️ 제한 시간:</p>
+            <p>🟢 쉬움: 3분 | 🟡 보통: 5분 | 🔴 어려움: 10분</p>
+        </div>
+    )
+}
+
+<div className="difficulty-selector">
+    <h3>난이도를 선택하세요</h3>
+    <div className="difficulty-buttons">
+        <button
+            className={`difficulty-btn ${difficulty === 'easy' ? 'active' : ''}`}
+            onClick={() => changeDifficulty('easy')}
+        >
+            🟢 쉬움 (8문제)
+        </button>
+        <button
+            className={`difficulty-btn ${difficulty === 'normal' ? 'active' : ''}`}
+            onClick={() => changeDifficulty('normal')}
+        >
+            🟡 보통 (12문제)
+        </button>
+        <button
+            className={`difficulty-btn ${difficulty === 'hard' ? 'active' : ''}`}
+            onClick={() => changeDifficulty('hard')}
+        >
+            🔴 어려움 (20문제)
+        </button>
+    </div>
+</div>

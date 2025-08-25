@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="boot.infopass.mapper.MultiplayerMapper">
+	<insert id="insertMultiplayer" parameterType="Multiplayer">
+		insert into multiplayer_rank (user_id, updated_at) values(#{user_id},now())
+	</insert>
+	<select id="GetBestScore" resultType="Integer" parameterType="Integer">
+		select best_score from multiplayer_rank where user_id = #{user_id}
+	</select>
+	<update id="updateMultiRank" parameterType="Multiplayer">
+		update  multiplayer_rank set game_count=game_count+1 , total_score = total_score+ #{score}, best_score=#{best_score} , average_score=total_score/game_count, updated_at = now() where user_id = #{user_id} 
+	</update>
+</mapper>

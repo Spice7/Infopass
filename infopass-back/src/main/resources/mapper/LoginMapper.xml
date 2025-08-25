@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="boot.infopass.mapper.UserMapper">
+    <!-- UserDto 매핑-->
+
+    <resultMap type="user" id="userMap">
+        <id property="id" column="id" jdbcType="INTEGER" />        
+        
+        <result property="password" column="password" jdbcType="VARCHAR" />
+        <result property="name" column="name" jdbcType="VARCHAR" />
+        <result property="nickname" column="nickname" jdbcType="VARCHAR" />
+        <result property="email" column="email" jdbcType="VARCHAR" />
+        <result property="phone" column="phone" jdbcType="VARCHAR" />
+        <result property="address" column="address" jdbcType="VARCHAR" />
+        <result property="usertype" column="usertype" jdbcType="VARCHAR" />
+        <result property="enabled" column="enabled" jdbcType="INTEGER" />
+        <result property="exp" column="exp" jdbcType="INTEGER" />
+        <result property="level" column="level" jdbcType="INTEGER" />
+        <result property="rank_updated_at" column="rank_updated_at" jdbcType="TIMESTAMP" />
+        <result property="created_at" column="created_at" jdbcType="TIMESTAMP" />
+        
+    </resultMap>
+	<insert id="insertUser" parameterType="user" useGeneratedKeys="true" keyProperty="id">
+		insert into user(password, name, nickname, email, phone, address, usertype, enabled, rank_updated_at, created_at) values(#{password}, #{name}, #{nickname}, #{email}, #{phone}, #{address}, #{usertype}, 1, now(), now())
+	</insert>
+	<!-- 회원조회 -->
+	<select id="getUserData" parameterType="Integer" resultType="user">
+		select * from user where id=#{id}
+	</select>
+	<select id="findByEmail" parameterType="Integer" resultType="user">
+		select * from user where id=#{id}
+	</select>
+	<!-- 회원조회-아이디 -->
+	<select id="login" parameterType="String" resultMap="userMap">
+		select
+		    id,
+		    password,
+		    name,
+		    nickname,
+		    email,
+		    phone,
+		    address,
+		    usertype,
+		    enabled,
+		    exp,
+		    level,
+		    rank_updated_at,
+		    created_at
+		from
+		    user
+		where
+		    email = #{email}
+	</select>
+	<select id="getById" parameterType="user">
+		select * from user where email = #{email}
+	</select>
+	<select id="findById" parameterType="user" resultType="boolean">
+		select count(*) from user where email = #{email}
+	</select>
+	<select id="findByNickName" parameterType="user" resultType="boolean">
+		select count(*) from user where nickname = #{nickname}
+	</select>
+	<select id="findByPhone" parameterType="String" resultType="user">
+		select * from user where phone = #{phone}
+	</select>
+	<select id="getResearchEmail" parameterType="user" resultType="string">
+		select email from user where name = #{name} and phone = #{phone}
+	</select>
+	<select id="findPwCheck" parameterType="user" resultType="boolean">
+		select count(*) from user where email = #{email} and phone = #{phone}
+	</select>
+	<update id="changePw" parameterType="user">
+		update user set password = #{password} where email = #{email} and phone = #{phone}
+	</update>
+	</mapper>

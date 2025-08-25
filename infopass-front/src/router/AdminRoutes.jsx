@@ -3,9 +3,7 @@ import { Route } from 'react-router-dom'
 import AdminMain from '../admin/AdminMain'
 
 const AdminRoutes = [
-    <Route key="admin-main" path='/admin/main' element={<AdminMain />} />,
-    // <Route key="admin-user" path='/admin/user' element={<AdminUser/>}/>
-    // ...
+    <Route key="admin" path='/admin/*' element={<AdminMain />} />
 ]
 
 export default AdminRoutes

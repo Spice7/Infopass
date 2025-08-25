@@ -1,0 +1,36 @@
+
+package boot.infopass.dto;
+
+import java.sql.Timestamp;
+
+
+import org.apache.ibatis.type.Alias;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import lombok.Data;
+
+@Data
+@Alias("user")
+public class UserDto {
+	private Integer id;
+	private String password;
+	private String name;
+	private String nickname;
+	private String email;
+	private String phone;
+	private String address;
+	private String usertype;
+	private Integer exp;
+	private Integer level;
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
+	private Timestamp rank_updated_at;
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
+	private Timestamp created_at;
+	private Integer enabled;
+	
+    // 소셜 로그인 관련
+    private String provider;
+    private String providerKey;
+
+}

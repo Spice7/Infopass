@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="boot.infopass.mapper.SocialUserMapper">
+    <select id="findByProviderAndKey" resultType="socialUser" parameterType="map">
+        select id, user_id, provider, provider_key
+        from social_user
+        where provider = #{provider} and provider_key = #{providerKey}
+    </select>
+
+    <insert id="insertSocialUser" keyProperty="id" parameterType="socialUser">
+        insert into social_user (user_id, provider, provider_key)
+        values (#{user_id}, #{provider}, #{provider_key})
+    </insert>
+
+</mapper>

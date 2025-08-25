@@ -1,0 +1,17 @@
+package boot.infopass.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+
+public class RankedUserDto {
+    private Long id;
+    private String nickname;
+    private int totalScore;
+    
+    private  int player_rank;
+}
