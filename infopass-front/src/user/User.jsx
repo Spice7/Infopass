@@ -3,15 +3,21 @@ import { useNavigate } from 'react-router-dom'
 import * as auth from './auth'
 import UserForm from './UserForm'
 import { LoginContext } from './LoginContextProvider'
-import * as Swal from './alert';
 import OX_SingleGame from '../games/oxquiz/OX_SingleGame'
 import OX_main from '../games/oxquiz/OX_main'
+import { AlertDialog, ConfirmDialog } from './RequireLogin'
 
 const User = () => {
 
   const { isLogin, roles, logout } = useContext(LoginContext)
   const [ userInfo, setUserInfo ] = useState()
   const navigate = useNavigate()
+  
+  // 다이얼로그 상태
+  const [alertOpen, setAlertOpen] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [alertData, setAlertData] = useState({ title: '', message: '' })
+  const [confirmData, setConfirmData] = useState({ title: '', message: '', onConfirm: null })
   
   // 회원 정보 조회 - /user/info
   const getUserInfo = async () => {
@@ -56,12 +62,21 @@ const User = () => {
       console.log(`회원정보 수정 성공!`);
       // alert(`회원정보 수정 성공!`)
       // logout()
-      Swal.alert("회원수정 성공", "로그아웃 후, 다시 로그인해주세요.", "success", () => { logout(true) })
+      setConfirmData({
+        title: "회원수정 성공",
+        message: "로그아웃 후, 다시 로그인해주세요.",
+        onConfirm: () => { logout(true) }
+      });
+      setConfirmOpen(true);
     }
     else {
       console.log(`회원정보 수정 실패!`);
       // alert(`회원정보 수정 실패!`)
-      Swal.alert("회원수정 실패", "회원수정에 실패하였습니다.", "error" )
+      setAlertData({
+        title: "회원수정 실패",
+        message: "회원수정에 실패하였습니다."
+      });
+      setAlertOpen(true);
     }
   }
 
@@ -88,12 +103,21 @@ const User = () => {
       console.log(`회원삭제 성공!`);
       // alert(`회원삭제 성공!`)
       // logout()
-      Swal.alert("회원탈퇴 성공", "그동안 감사했습니다:)", "success", () => { logout(true) })
+      setConfirmData({
+        title: "회원탈퇴 성공",
+        message: "그동안 감사했습니다:)",
+        onConfirm: () => { logout(true) }
+      });
+      setConfirmOpen(true);
     }
     else {
       console.log(`회원삭제 실패!`);
       // alert(`회원삭제 실패!`)
-      Swal.alert("회원탈퇴 실패", "회원탈퇴에 실패하였습니다.", "error" )
+      setAlertData({
+        title: "회원탈퇴 실패",
+        message: "회원탈퇴에 실패하였습니다."
+      });
+      setAlertOpen(true);
     }
 
   }
@@ -112,6 +136,26 @@ const User = () => {
         <div className="container">
             <UserForm userInfo={userInfo} updateUser={updateUser} deleteUser={deleteUser} />
         </div>
+        
+        {/* 알림 다이얼로그 */}
+        <AlertDialog
+          open={alertOpen}
+          title={alertData.title}
+          message={alertData.message}
+          onConfirm={() => setAlertOpen(false)}
+        />
+        
+        {/* 확인 다이얼로그 */}
+        <ConfirmDialog
+          open={confirmOpen}
+          title={confirmData.title}
+          message={confirmData.message}
+          onConfirm={() => {
+            confirmData.onConfirm();
+            setConfirmOpen(false);
+          }}
+          onCancel={() => setConfirmOpen(false)}
+        />
     </>
   )
 }

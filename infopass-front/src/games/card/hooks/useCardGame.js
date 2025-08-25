@@ -1,9 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import * as auth from '../CardAuth';
 import { LoginContext } from '../../../user/LoginContextProvider';
-import { useNavigate } from 'react-router-dom';
 import { applyExp } from '../../../user/gameResult';
-import * as Swal from '../../../user/alert';
 
 export const useCardGame = () => {
     
@@ -21,7 +19,7 @@ export const useCardGame = () => {
     const [showNextButton, setShowNextButton] = useState(false);
     const [question_id, setQuestion_id] = useState([]);
     const [session_id, setSession_id] = useState('');
-    const { userInfo, isLogin } = useContext(LoginContext);
+    const { userInfo } = useContext(LoginContext);
     const [sessionExp, setSessionExp] = useState(0);
     const [showExpAnimation, setShowExpAnimation] = useState(false);
     const [expCount, setExpCount] = useState(0);
@@ -31,10 +29,8 @@ export const useCardGame = () => {
     const [expBarAnimation, setExpBarAnimation] = useState(false);
     const [expBarFrom, setExpBarFrom] = useState(0);
     const [expBarTo, setExpBarTo] = useState(0);
-    const navigate = useNavigate();
-    // 부드러운 EXP 바 애니메이션용 상태
-    const [expBarPercent, setExpBarPercent] = useState(0); // 0~100
-    const [expBarTransitionEnabled, setExpBarTransitionEnabled] = useState(true);
+    const [animatedExp, setAnimatedExp] = useState(0);
+    const [animatedLevel, setAnimatedLevel] = useState(0);
 
     // 과목 리스트
     const subjectList = [
@@ -44,22 +40,6 @@ export const useCardGame = () => {
         '프로그래밍 언어 활용',
         '정보시스템 구축 관리'
     ];
-      useEffect(() => {
-        if(!isLogin) {
-            Swal.confirm(
-                '로그인 필요',
-                '로그인이 필요합니다.',
-                'warning',
-            (result) => {
-                if (result.isConfirmed) {
-                // 로그인 페이지로 리다이렉트
-                navigate('/login');
-                } else {
-                    navigate('/');
-                }
-            });
-        }
-    }, []);
 
     // 게임 초기화 시 세션 ID 생성 및 사용자 정보 가져오기
     useEffect(() => {
@@ -72,7 +52,8 @@ export const useCardGame = () => {
                     // 사용자 정보 가져오기                
                     setUserLevel(userInfo.level || 0);
                     setUserExp(userInfo.exp || 0);
-                    setExpBarPercent(((userInfo.exp || 0) % 100));
+                    setAnimatedLevel(userInfo.level || 0);
+                    setAnimatedExp((userInfo.exp || 0) % 100);
                     
                 } catch (error) {
                     console.error('세션 ID 생성 실패:', error);
@@ -427,71 +408,75 @@ export const useCardGame = () => {
 
     // 경험치 바 애니메이션 시작
     const startExpBarAnimation = (fromExp, toExp, currentLevel, newLevel) => {
-        // 기존 단순 상태는 유지(후방 호환)
+        console.log('경험치 바 애니메이션 시작:', { fromExp, toExp, currentLevel, newLevel });
+        
+        // 애니메이션 상태 설정
         setExpBarFrom(fromExp);
         setExpBarTo(toExp);
         setExpBarAnimation(true);
 
-        const TRANSITION_MS = 1000; // CardGame.css: .exp-bar-fill transition: width 1s ease-in-out;
         const fromPct = (fromExp % 100 + 100) % 100;
         const toPctRaw = (toExp % 100 + 100) % 100;
         const didLevelUp = newLevel > currentLevel;
 
-        // 1) 시작값 설정 및 전환 활성화
-        setExpBarTransitionEnabled(true);
-        setExpBarPercent(fromPct);
+        console.log('애니메이션 설정:', { fromPct, toPctRaw, didLevelUp });
 
         if (!didLevelUp) {
             // 단일 구간 애니메이션: from -> to
-            // 다음 프레임에 목표치로 이동
-            requestAnimationFrame(() => {
-                setExpBarPercent(toPctRaw);
-            });
-            // 애니메이션 종료 처리
-            setTimeout(() => {
+            console.log('단일 구간 애니메이션:', fromPct, '->', toPctRaw);
+            
+            // 레벨업이 없어도 현재 사용자 레벨 설정
+            setAnimatedLevel(currentLevel);
+            
+            animateExp(fromPct, toPctRaw, () => {
                 setExpBarAnimation(false);
-            }, TRANSITION_MS);
+                console.log('애니메이션 완료');
+            });
             return;
         }
 
-        // 2) 레벨업: from -> 100, 그 다음 0(전환 끔) -> to(전환 켬)
-        requestAnimationFrame(() => {
-            setExpBarPercent(100);
-        });
-
-        // 2-1) 첫 구간 완료 후
-        setTimeout(() => {
-            // 전환 잠시 끄고 0으로 리셋
-            setExpBarTransitionEnabled(false);
-            setExpBarPercent(0);
-
-            // 2-2) 다음 프레임에 전환 켜고 목표치로 이동
-            requestAnimationFrame(() => {
-                setExpBarTransitionEnabled(true);
-                setExpBarPercent(toPctRaw);
-            });
-
-            // 2-3) 레벨업 연출
-            setShowLevelUp(true);
-            setTimeout(() => setShowLevelUp(false), 3000);
-
-            // 전체 애니메이션 종료 표시
+        // 2) 레벨업: from -> 100, 그 다음 0 -> to
+        console.log('레벨업 애니메이션 1단계: 현재 경험치 -> 100');
+        
+        // 1단계: 현재 경험치 → 100
+        animateExp(fromPct, 100, () => {
+            console.log('1단계 완료, 레벨업 처리 및 2단계 시작');
+            
+            // 레벨업 처리
+            setUserLevel(newLevel);
+            setAnimatedLevel(newLevel);
+            
+            // 2단계 애니메이션 시작: 0 -> 새로운 경험치
             setTimeout(() => {
-                setExpBarAnimation(false);
-            }, TRANSITION_MS);
-        }, TRANSITION_MS);
+                console.log('레벨업 애니메이션 2단계 시작: 0 ->', toPctRaw);
+                animateExp(0, toPctRaw, () => {
+                    console.log('2단계 완료');
+                    setExpBarAnimation(false);
+                });
+                
+                // 레벨업 연출
+                setShowLevelUp(true);
+                setTimeout(() => setShowLevelUp(false), 3000);
+            }, 200);
+        });
     };
 
-    // 애니메이션 종료 후 바가 줄어드는 현상 방지: userExp 기준으로 expBarPercent 동기화
-    useEffect(() => {
-        if (!expBarAnimation) {
-            const pct = ((userExp % 100) + 100) % 100;
-            // 전환 깜빡임 방지 위해 한 프레임 전환 off 후 on
-            setExpBarTransitionEnabled(false);
-            setExpBarPercent(pct);
-            requestAnimationFrame(() => setExpBarTransitionEnabled(true));
-        }
-    }, [userExp, expBarAnimation]);
+    // 경험치 애니메이션 실행 함수
+    const animateExp = (startExp, endExp, onComplete) => {
+        let currentExp = startExp;
+        const increment = (endExp - startExp) / 30; // 30단계로 나누기
+        const timer = setInterval(() => {
+            currentExp += increment;
+            if (currentExp >= endExp) {
+                currentExp = endExp;
+                clearInterval(timer);
+                onComplete?.();
+            }
+            setAnimatedExp(currentExp);
+        }, 50);
+    };
+
+
 
     // 게임 설정화면으로 이동 (저장하지 않음)
     const handleExitToMenu = () => {
@@ -595,8 +580,8 @@ export const useCardGame = () => {
         expBarAnimation,
         expBarFrom,
         expBarTo,
-        expBarPercent,
-        expBarTransitionEnabled,
+        animatedExp,
+        animatedLevel,
 
         // 함수
         startNewGame,

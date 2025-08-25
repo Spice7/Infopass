@@ -8,7 +8,7 @@ import './userInfo.css';
 import Postcode from './Postcode';
 import * as auth from './auth';
 import { LoginContext } from './LoginContextProvider';
-import * as Swal from './alert';
+import { AlertDialog } from './RequireLogin';
 
 const PHONENUMBER_LIST = ['010', '011', '016', '018', '019'];
 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
@@ -52,6 +52,10 @@ const SignupPage = () => {
   const [isSent, setIsSent] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const [signupMsg, setSignupMsg] = useState({ text: '', color: '' });
+  
+  // 다이얼로그 상태
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertData, setAlertData] = useState({ title: '', message: '' });
 
   // 모달 열릴 때마다 상태 초기화
   useEffect(() => {
@@ -88,6 +92,7 @@ const SignupPage = () => {
       setPhonePrefix(PHONENUMBER_LIST[0]);
       setDetailAddress('');
       setSignupMsg({ text: '', color: '' });
+      setAlertOpen(false);
     }
   }, [isSignUpModalOpen, existingUser]);
 
@@ -258,13 +263,21 @@ const SignupPage = () => {
     try {
       await auth.join(sendInfo).then(() => {
         closeSignUpModal();
-        Swal.alert("회원가입", "회원가입이 완료되었습니다.", "success");
+        setAlertData({
+          title: "회원가입",
+          message: "회원가입이 완료되었습니다."
+        });
+        setAlertOpen(true);
         navi("/");
       });
       
       
     } catch (error) {
-      Swal.alert("회원가입","회원가입에 실패했습니다.", "error");
+      setAlertData({
+        title: "회원가입",
+        message: "회원가입에 실패했습니다."
+      });
+      setAlertOpen(true);
       console.log(error);
     }
   };
@@ -529,6 +542,14 @@ const SignupPage = () => {
           </form>
         </Typography>
       </Box>
+      
+      {/* 알림 다이얼로그 */}
+      <AlertDialog
+        open={alertOpen}
+        title={alertData.title}
+        message={alertData.message}
+        onConfirm={() => setAlertOpen(false)}
+      />
     </Modal>
   );
 };

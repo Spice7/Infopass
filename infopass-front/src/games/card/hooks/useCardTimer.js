@@ -15,7 +15,7 @@ export const useCardTimer = (isPlaying, gameStarted, gameMode, onTimeout) => {
   // 게임 모드에 따른 시간 제한 설정
   const setTimeLimitByMode = useCallback((mode) => {
     if (mode === 'timeAttack') {
-      const newTimeLimit = 20; // 타임어택 모드: 180초 (테스트용)
+      const newTimeLimit = 180; // 타임어택 모드: 180초 (테스트용)
       setRemainingTime(newTimeLimit);
     } else {
       // 일반 모드일 때는 시간 제한 없음      
