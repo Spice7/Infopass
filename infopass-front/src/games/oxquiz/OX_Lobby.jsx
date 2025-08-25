@@ -4,7 +4,8 @@ import { Client } from '@stomp/stompjs';
 import { LoginContext } from '../../user/LoginContextProvider';
 import './OX_Quiz.css';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { AlertDialog } from '../../user/RequireLogin';
 
 // ========================================
 // 🧩 파일 개요 (멀티 로비)
@@ -48,7 +49,7 @@ const OX_Lobby = () => {
     const { userInfo } = useContext(LoginContext);
     const userId = userInfo?.id;
     const nickname = userInfo?.nickname;
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
 
     // STOMP 클라이언트/방 리스트/진행 상태
     const [stompClient, setStompClient] = useState(null);
@@ -76,6 +77,16 @@ const OX_Lobby = () => {
     const roomSubRef = useRef(null);
     useEffect(() => { pendingCreateRef.current = pendingCreate; }, [pendingCreate]);
 
+    const location = useLocation();
+    const [alertOpen, setAlertOpen] = useState(false);
+    const [alertData, setAlertData] = useState({ title: "", message: "" }); 
+
+    useEffect(()=>{
+        if(location.state && location.state.alertOpen) {
+            setAlertOpen(location.state.alertOpen);
+            setAlertData(location.state.alertData);
+        }
+    }, [location.state]);
     // 방 목록 처리 + 자동입장
     const processRoomList = (rawList) => {
         const list = (rawList || []).map(r => ({
@@ -119,7 +130,7 @@ const OX_Lobby = () => {
 
     // STOMP 연결
     useEffect(() => {
-        const socket = new SockJS('http://localhost:9000/ws');
+        const socket = new SockJS('http://localhost:9000/ws-game');
         const client = new Client({
             webSocketFactory: () => socket,
             reconnectDelay: 4000,
@@ -146,6 +157,8 @@ const OX_Lobby = () => {
                 destination: '/app/ox/rooms',
                 body: JSON.stringify({ type: 'list' })
             });
+
+
         };
 
         client.activate();
@@ -310,7 +323,7 @@ const OX_Lobby = () => {
         setPlayers([]);
         setIsHost(false);
     };
-    
+
     // 방 갯수 계산
     const totalRooms = rooms.length;
 
@@ -332,6 +345,16 @@ const OX_Lobby = () => {
             display: 'flex',
             flexDirection: 'column'
         }}>
+            <AlertDialog
+                open={alertOpen}
+                title={alertData.title}
+                message={alertData.message}
+                onConfirm={() => {
+                    setAlertOpen(false);
+                    setAlertData({ title: "", message: "" });
+                    navigate('/oxquiz/OX_lobby');
+                }}
+            />
             {/* 상단 타이틀 영역 */}
             <div style={{
                 width: '100%',
@@ -347,7 +370,7 @@ const OX_Lobby = () => {
                 {/* 빛 효과 */}
                 <div style={{
                     position: 'absolute', left: '50%', top: 0, transform: 'translateX(-50%)',
-                    width: 400, height: 120, 
+                    width: 400, height: 120,
                     zIndex: 0,
                 }} />
                 {/* 로고 */}
@@ -409,7 +432,7 @@ const OX_Lobby = () => {
                         </div>
                     </div>
                     {/* 방 목록 카드형 */}
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 18, justifyContent:'center'}}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 18, justifyContent: 'center' }}>
                         {rooms.length === 0 && (
                             <div style={{ padding: 32, opacity: 0.7, fontSize: 18, color: '#b0c4de', background: '#1d2b42', borderRadius: 14, minWidth: 320, textAlign: 'center' }}>
                                 생성된 방이 없습니다.
@@ -437,7 +460,7 @@ const OX_Lobby = () => {
                                 onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
                             >
                                 <div style={{ fontWeight: 700, fontSize: 18, color: '#ffe066', marginBottom: 2, display: 'flex', alignItems: 'center', gap: 6 }}>
-                                    <span role="img" aria-label="room">🏠</span>{idx+1}. {r.title}
+                                    <span role="img" aria-label="room">🏠</span>{idx + 1}. {r.title}
                                 </div>
                                 <div style={{ fontSize: 14, color: '#b0c4de' }}>방장: <b style={{ color: '#7fd8ff' }}>{r.hostNick}</b></div>
                                 <div style={{ fontSize: 14 }}>인원: <b>{r.current}/{r.max}</b></div>
