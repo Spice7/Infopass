@@ -1,22 +1,31 @@
 package boot.infopass.dto;
 
-import lombok.Data;
-import lombok.ToString;
 import java.sql.Timestamp;
 
-@Data
-public class InquiryDto {
+import org.apache.ibatis.type.Alias;
 
-	
-	private int id; // auto-generated
-    private int user_id;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import lombok.Data;
+
+@Data
+@Alias("inquiry")
+public class InquiryDto {
+    private Integer id;
+    private Integer user_id;
     private String title;
     private String category;
     private String content;
-    private String status;
-    private Timestamp created_at; // auto-generated
-    private Timestamp updated_at; // auto-generated
+    private String status; // '접수','처리 중','답변 완료'
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
+    private Timestamp created_at;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
+    private Timestamp updated_at;
     private String response_content;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
     private Timestamp response_date;
-	
+
+    // JOIN fields for admin listing
+    private String user_name;    // from user.name
+    private String user_email;   // from user.email
 }
