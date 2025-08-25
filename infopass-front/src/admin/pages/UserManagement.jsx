@@ -245,21 +245,10 @@ const UserManagement = () => {
 	return (
 		<div className="admin-page">
 			<div className="admin-page-header">
-				<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-					<div>
-						<h2 className="admin-page-title">사용자 관리</h2>
-						<p className="admin-page-description">
-							등록된 사용자들의 정보를 조회하고 관리할 수 있습니다.
-						</p>
-					</div>
-					<button 
-						className="admin-btn primary"
-						onClick={handleAddUser}
-						style={{ marginLeft: '16px' }}
-					>
-						+ 사용자 추가
-					</button>
-				</div>
+				<h2 className="admin-page-title">사용자 관리</h2>
+				<p className="admin-page-description">
+					등록된 사용자들의 정보를 조회하고 관리할 수 있습니다.
+				</p>
 			</div>
 
 			{/* 검색 및 필터 */}
@@ -273,29 +262,33 @@ const UserManagement = () => {
 						className="admin-search-input"
 					/>
 				</div>
-				<div className="admin-sort-controls">
-					<label className="admin-label">정렬:
-						<select 
-							value={`${sortBy}-${sortOrder}`}
-							onChange={(e) => {
-								const [field, order] = e.target.value.split('-')
-								setSortBy(field)
-								setSortOrder(order)
-							}}
-							className="admin-select"
-						>
-							<option value="created_at-desc">가입일 (최신순)</option>
-							<option value="created_at-asc">가입일 (오래된순)</option>
-							<option value="name-asc">이름 (가나다순)</option>
-							<option value="level-desc">레벨 (높은순)</option>
-							<option value="level-asc">레벨 (낮은순)</option>
-							<option value="exp-desc">경험치 (높은순)</option>
-							<option value="exp-asc">경험치 (낮은순)</option>
-							<option value="rank_updated_at-desc">랭킹 업데이트 (최신순)</option>
-							<option value="usertype-desc">권한별 (관리자 우선)</option>
-						</select>
-					</label>
-				</div>
+				<label className="admin-label">정렬
+					<select 
+						value={`${sortBy}-${sortOrder}`}
+						onChange={(e) => {
+							const [field, order] = e.target.value.split('-')
+							setSortBy(field)
+							setSortOrder(order)
+						}}
+						className="admin-select"
+					>
+						<option value="created_at-desc">가입일 (최신순)</option>
+						<option value="created_at-asc">가입일 (오래된순)</option>
+						<option value="name-asc">이름 (가나다순)</option>
+						<option value="level-desc">레벨 (높은순)</option>
+						<option value="level-asc">레벨 (낮은순)</option>
+						<option value="exp-desc">경험치 (높은순)</option>
+						<option value="exp-asc">경험치 (낮은순)</option>
+						<option value="rank_updated_at-desc">랭킹 업데이트 (최신순)</option>
+						<option value="usertype-desc">권한별 (관리자 우선)</option>
+					</select>
+				</label>
+				<button 
+					className="admin-btn primary"
+					onClick={handleAddUser}
+				>
+					사용자 추가
+				</button>
 			</div>
 
 			{error && <div className="admin-error">{error}</div>}

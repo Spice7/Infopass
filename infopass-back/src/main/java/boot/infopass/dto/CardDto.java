@@ -12,6 +12,7 @@ public class CardDto {
     private String question;
     private String answer;
     private String subject;
+    private String explanation_text;
     private Timestamp created_at;
     
 }

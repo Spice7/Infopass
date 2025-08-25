@@ -5,6 +5,14 @@
   text-align: center;
 }
 
+/* 관리자 페이지에서는 폭 제한 해제 */
+body.admin-full #root {
+  max-width: none;
+  width: 100%;
+  padding: 0;
+  text-align: initial;
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;
