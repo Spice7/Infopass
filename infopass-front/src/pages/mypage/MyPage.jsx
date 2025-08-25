@@ -6,7 +6,8 @@ import Sidebar from './Sidebar';
 import MyInfo from './sections/myinfo/MyInfo';
 import WrongNotes from './sections/WrongNotes';
 import GameRecord from './sections/GameRecord';
-import Inquiries from './sections/Inquiries';
+import InquiryForm from './sections/InquiryForm.jsx';
+import InquiryList from './sections/InquiryList.jsx';
 
 const MyPage = () => {
   const [searchParams] = useSearchParams(); // menu에서 선택한 항목에 따라 쿼리 파라미터 설정
@@ -41,8 +42,10 @@ const MyPage = () => {
         return <WrongNotes />;
       case '게임 기록':
         return <GameRecord />;
-      case '문의 내역':
-        return <Inquiries />;
+      case '문의 하기':
+       return <InquiryForm setSelectedMenu={setSelectedMenu} />;
+        case '문의 내역':
+        return <InquiryList />;
       default:
         return <MyInfo />;
     }

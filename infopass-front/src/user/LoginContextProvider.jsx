@@ -145,6 +145,7 @@ const LoginContextProvider = ({ children }) => {
     setLogin(false);
     setUserInfo(null);
     setRoles({ isUser: false, isAdmin: false });
+    //navigate("/login", { replace: true });
   };
 
   // 🔓 로그아웃

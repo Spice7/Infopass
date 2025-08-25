@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
-import java.util.List;
 
 @RestController
 @RequestMapping("/rank")
@@ -29,6 +28,25 @@ public class RankingController {
     @GetMapping()
     public List<RankedUserDto> getRanking(@RequestParam("type") String type) {
         return rankingService.getRank(type);
+    }
+
+    @PostMapping("/recalculate")
+    public ResponseEntity<String> recalcNow() {
+        rankingService.recalculateRanksFromDb();
+        return ResponseEntity.ok("recalculated");
+    }
+
+    // 관리자/테스트용: Redis -> DB 동기화
+    @PostMapping("/persistRedis")
+    public ResponseEntity<String> persistRedis(@RequestParam(defaultValue = "rank:realtime") String key) {
+        rankingService.persistRedisRanksToDb(key);
+        return ResponseEntity.ok("persisted");
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<RankedUserDto> getUserRank(@PathVariable("id") int userId) {
+        RankedUserDto rank = rankingService.getRankByUserId(userId);
+        return ResponseEntity.ok(rank);
     }
 
 }

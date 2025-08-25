@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="boot.infopass.mapper.AdminMapper">
+
+    <!-- UserDto 매핑 (기존 LoginMapper.xml의 userMap 재사용) -->
+    <resultMap type="boot.infopass.dto.UserDto" id="adminUserMap">
+        <id property="id" column="id" jdbcType="INTEGER" />
+        <result property="password" column="password" jdbcType="VARCHAR" />
+        <result property="name" column="name" jdbcType="VARCHAR" />
+        <result property="nickname" column="nickname" jdbcType="VARCHAR" />
+        <result property="email" column="email" jdbcType="VARCHAR" />
+        <result property="phone" column="phone" jdbcType="VARCHAR" />
+        <result property="address" column="address" jdbcType="VARCHAR" />
+        <result property="usertype" column="usertype" jdbcType="VARCHAR" />
+        <result property="enabled" column="enabled" jdbcType="INTEGER" />
+        <result property="exp" column="exp" jdbcType="INTEGER" />
+        <result property="level" column="level" jdbcType="INTEGER" />
+        <result property="rank_updated_at" column="rank_updated_at" jdbcType="TIMESTAMP" />
+        <result property="created_at" column="created_at" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <!-- ==================== 사용자 CRUD ==================== -->
+    
+    <!-- 모든 사용자 조회 (관리자용) -->
+    <select id="getAllUsers" resultMap="adminUserMap">
+        SELECT 
+            id, password, name, nickname, email, phone, address, 
+            usertype, enabled, exp, level, rank_updated_at, created_at
+        FROM user 
+        ORDER BY created_at DESC
+    </select>
+    
+    <!-- ID로 사용자 조회 (관리자용) -->
+    <select id="getUserById" parameterType="Integer" resultMap="adminUserMap">
+        SELECT 
+            id, password, name, nickname, email, phone, address, 
+            usertype, enabled, exp, level, rank_updated_at, created_at
+        FROM user 
+        WHERE id = #{id}
+    </select>
+    
+    <!-- 사용자 정보 수정 (관리자용) -->
+    <update id="updateUser" parameterType="boot.infopass.dto.UserDto">
+        UPDATE user
+        SET
+            name = #{name},
+            nickname = #{nickname},
+            email = #{email},
+            phone = #{phone},
+            address = #{address},
+            usertype = #{usertype},
+            enabled = #{enabled}
+        WHERE id = #{id}
+    </update>
+    
+    <!-- 새 사용자 추가 (관리자용) -->
+    <insert id="insertUser" parameterType="boot.infopass.dto.UserDto" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user (
+            password, name, nickname, email, phone, address, 
+            usertype, enabled, exp, level, rank_updated_at, created_at
+        ) VALUES (
+            #{password}, #{name}, #{nickname}, #{email}, #{phone}, #{address}, 
+            #{usertype}, #{enabled}, #{exp}, #{level}, NOW(), NOW()
+        )
+    </insert>
+    
+    <!-- 사용자 삭제 (비활성화) (관리자용) -->
+    <update id="deleteUser" parameterType="Integer">
+        UPDATE user 
+        SET enabled = 0 
+        WHERE id = #{id}
+    </update>
+    
+    <!-- 사용자 상태 변경 (관리자용) -->
+    <update id="updateUserStatus">
+        UPDATE user 
+        SET enabled = #{enabled} 
+        WHERE id = #{id}
+    </update>
+    
+    <!-- ==================== 통계 및 관리 ==================== -->
+    
+    <!-- 전체 사용자 수 -->
+    <select id="getTotalUserCount" resultType="int">
+        SELECT COUNT(*) FROM user
+    </select>
+    
+    <!-- 활성 사용자 수 -->
+    <select id="getActiveUserCount" resultType="int">
+        SELECT COUNT(*) FROM user WHERE enabled = 1
+    </select>
+    
+    <!-- 관리자 사용자 수 -->
+    <select id="getAdminUserCount" resultType="int">
+        SELECT COUNT(*) FROM user WHERE usertype = 'ADMIN'
+    </select>
+    
+    <!-- 오늘 가입한 사용자 수 -->
+    <select id="getNewUsersToday" resultType="int">
+        SELECT COUNT(*) FROM user 
+        WHERE DATE(created_at) = CURDATE()
+    </select>
+    
+    <!-- 사용자 검색 (관리자용) -->
+    <select id="searchUsers" parameterType="String" resultMap="adminUserMap">
+        SELECT 
+            id, password, name, nickname, email, phone, address, 
+            usertype, enabled, exp, level, rank_updated_at, created_at
+        FROM user 
+        WHERE 
+            name LIKE CONCAT('%', #{keyword}, '%') OR
+            nickname LIKE CONCAT('%', #{keyword}, '%') OR
+            email LIKE CONCAT('%', #{keyword}, '%') OR
+            phone LIKE CONCAT('%', #{keyword}, '%') OR
+            address LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY created_at DESC
+    </select>
+    
+    <!-- 사용자 권한별 조회 (관리자용) -->
+    <select id="getUsersByType" parameterType="String" resultMap="adminUserMap">
+        SELECT 
+            id, password, name, nickname, email, phone, address, 
+            usertype, enabled, exp, level, rank_updated_at, created_at
+        FROM user 
+        WHERE usertype = #{usertype}
+        ORDER BY created_at DESC
+    </select>
+    
+    <!-- 비활성 사용자 조회 (관리자용) -->
+    <select id="getInactiveUsers" resultMap="adminUserMap">
+        SELECT 
+            id, password, name, nickname, email, phone, address, 
+            usertype, enabled, exp, level, rank_updated_at, created_at
+        FROM user 
+        WHERE enabled = 0
+        ORDER BY created_at DESC
+    </select>
+
+</mapper>

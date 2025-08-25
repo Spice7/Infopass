@@ -5,6 +5,7 @@ import './Home.css';
 import { LoginContext } from '../user/LoginContextProvider';
 import Menu from './menu';
 
+
 // 하단 퀵버튼 섹션 제거에 따라 불필요 배열 삭제
 
 const Home = () => {

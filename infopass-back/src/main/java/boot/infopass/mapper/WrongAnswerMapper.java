@@ -18,4 +18,8 @@ public interface WrongAnswerMapper {
 
 	// 블록 게임 전용 오답 조회
 	public List<WrongAnswerDto> selectWrongBlockAnswersByUserId(int userId);
+	
+	// 카드 게임 전용 오답 기록
+	public void insertCardWrongAnswer(WrongAnswerDto dto);
+	
 }

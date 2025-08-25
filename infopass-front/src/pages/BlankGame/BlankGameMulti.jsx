@@ -3,7 +3,7 @@ import "./BlankGame.css";
 import axios from "axios";
 import { LoginContext } from "../../user/LoginContextProvider";
 import BlankGameMain from "./BlankGameMain";
-
+import { useLocation } from "react-router-dom";
 const MAX_LIFE = 3;
 const TIMER_DURATION = 1800;
 const walkImgs = Array.from(
@@ -12,12 +12,16 @@ const walkImgs = Array.from(
 );
 
 const BlankGameMulti = () => {
+  const location = useLocation(); // ← useLocation 훅 사용
+  const { roomId, quizList } = location.state || {};
+
   // 상태 변수 선언
+  const [quizData, setQuizData] = useState(quizList || []);
   const [answer, setAnswer] = useState("");
   const [myScore, setMyScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(TIMER_DURATION);
   const [myLife, setMyLife] = useState(MAX_LIFE);
-  const [quizlist, setquizlist] = useState([]);
+
   const [resultMsg, setResultMsg] = useState("");
   const [currentindex, setcurrentindex] = useState(0);
   const { userInfo } = useContext(LoginContext);
@@ -28,16 +32,17 @@ const BlankGameMulti = () => {
     if (userInfo) {
       console.log("로그인 사용자:", userInfo.id, userInfo.nickname);
     }
-  }, [userInfo]);
+    // 전달받은 퀴즈 데이터 확인
+    if (quizData.length > 0) {
+      console.log("게임 시작, 퀴즈 데이터 로드 성공:", quizData);
+    }
+  }, [userInfo, quizData]);
 
   const useridx = userInfo?.id;
   const usernickname = userInfo?.nickname;
 
   // 캐릭터 선택 관련 상태 제거
   const [selectedChar] = useState(1); // 기본 캐릭터(1번)으로 고정
-
-  // 게임 소개 슬라이드 상태 및 데이터 (필요 없으면 제거 가능)
-  // ...slides 관련 코드 생략 가능...
 
   // 애니메이션 상태
   const [showMonster, setShowMonster] = useState(false);
@@ -59,10 +64,7 @@ const BlankGameMulti = () => {
   const gameEndedRef = useRef(false);
 
   // API URL
-  const quizurl = "http://localhost:9000/blankgamesingle/blankquizlist";
   const usersubmiturl = "http://localhost:9000/blankgamesingle/submitblankquiz";
-  const wronganswerurl =
-    "http://localhost:9000/blankgamesingle/blankwronganswer";
   const userstatusurl =
     "http://localhost:9000/blankgamesingle/blankinsertuserstatus";
 
@@ -104,19 +106,6 @@ const BlankGameMulti = () => {
     return () => clearInterval(timer);
   }, [gameStarted]);
 
-  // 퀴즈 데이터 가져오기
-  useEffect(() => {
-    axios
-      .get(quizurl)
-      .then((res) => {
-        setquizlist(res.data);
-        console.log("퀴즈 데이터 로드 성공:", res.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching quiz data:", error);
-      });
-  }, [gameStarted]);
-
   // 하트 렌더링 함수
   const renderHearts = (life) =>
     Array.from({ length: MAX_LIFE }).map((_, idx) => (
@@ -150,7 +139,7 @@ const BlankGameMulti = () => {
   useEffect(() => {
     if (gameEndedRef.current) return;
     const allSolved =
-      currentindex === quizlist.length - 1 && resultMsg === "정답입니다!";
+      currentindex === quizData.length - 1 && resultMsg === "정답입니다!";
     const noLife = myLife === 0;
     const noTime = timeLeft <= 0;
     if (gameStarted && (allSolved || noLife || noTime)) {
@@ -158,7 +147,7 @@ const BlankGameMulti = () => {
         handleGameEnd();
       }, 500);
     }
-  }, [currentindex, resultMsg, myLife, timeLeft, gameStarted, quizlist.length]);
+  }, [currentindex, resultMsg, myLife, timeLeft, gameStarted, quizData.length]);
 
   // OX 버튼 클릭 처리
   const handleSubmit = (e) => {
@@ -168,66 +157,72 @@ const BlankGameMulti = () => {
     setInputDisabled(true);
     const isCorrect =
       answer.trim().toLowerCase() ===
-      quizlist[currentindex]?.answer.toLowerCase();
+      quizData[currentindex]?.answer.toLowerCase();
 
-    axios.post(usersubmiturl, {
-      user_id: useridx,
-      quiz_id: quizlist[currentindex]?.id,
-      submitted_answer: answer,
-      is_correct: isCorrect,
-    });
+    axios
+      .post(usersubmiturl, {
+        user_id: useridx,
+        quiz_id: quizData[currentindex]?.id,
+        submitted_answer: answer,
+        is_correct: isCorrect,
+      })
+      .then(() => {
+        if (isCorrect) {
+          setResultMsg("정답입니다!");
+          setMyScore((prev) => prev + 1);
 
-    if (isCorrect) {
-      setResultMsg("정답입니다!");
-      setMyScore((prev) => prev + 1);
-
-      setTimeout(() => {
-        if (currentindex < quizlist.length - 1) {
-          setResultMsg("");
-          setcurrentindex((prev) => prev + 1);
-          setAnswer("");
-          setInputDisabled(false);
+          setTimeout(() => {
+            if (currentindex < quizData.length - 1) {
+              setResultMsg("");
+              setcurrentindex((prev) => prev + 1);
+              setAnswer("");
+              setInputDisabled(false);
+            } else {
+              handleGameEnd();
+            }
+          }, 1000);
         } else {
-          handleGameEnd();
+          setResultMsg("오답입니다!");
+          setShowMonster(true);
+
+          setTimeout(() => {
+            setShowLaser(true);
+            setMonsterFade(true);
+          }, 800);
+
+          setTimeout(() => {
+            setShowBoom(true);
+            setLaserFade(true);
+          }, 1300);
+
+          setTimeout(() => {
+            setBoomFade(true);
+            setIsShaking(true);
+          }, 1600);
+
+          setTimeout(() => {
+            setMyLife((prev) => (prev > 0 ? prev - 1 : 0));
+            setShowMonster(false);
+            setShowLaser(false);
+            setShowBoom(false);
+            setIsShaking(false);
+            setMonsterFade(false);
+            setLaserFade(false);
+            setBoomFade(false);
+
+            if (currentindex < quizData.length - 1) {
+              setResultMsg("");
+              setcurrentindex((prev) => prev + 1);
+              setAnswer("");
+              setInputDisabled(false);
+            }
+          }, 2000);
         }
-      }, 1000);
-    } else {
-      setResultMsg("오답입니다!");
-      setShowMonster(true);
-
-      setTimeout(() => {
-        setShowLaser(true);
-        setMonsterFade(true);
-      }, 800);
-
-      setTimeout(() => {
-        setShowBoom(true);
-        setLaserFade(true);
-      }, 1300);
-
-      setTimeout(() => {
-        setBoomFade(true);
-        setIsShaking(true);
-      }, 1600);
-
-      setTimeout(() => {
-        setMyLife((prev) => (prev > 0 ? prev - 1 : 0));
-        setShowMonster(false);
-        setShowLaser(false);
-        setShowBoom(false);
-        setIsShaking(false);
-        setMonsterFade(false);
-        setLaserFade(false);
-        setBoomFade(false);
-
-        if (currentindex < quizlist.length - 1) {
-          setResultMsg("");
-          setcurrentindex((prev) => prev + 1);
-          setAnswer("");
-          setInputDisabled(false);
-        }
-      }, 2000);
-    }
+      })
+      .catch((error) => {
+        console.error("정답 제출 중 오류 발생:", error);
+        setInputDisabled(false); // 오류 발생 시 다시 입력 가능하게
+      });
   };
 
   // 화면 렌더링
@@ -313,7 +308,7 @@ const BlankGameMulti = () => {
         <div className="blank-quiz">
           {resultMsg ? (
             <span className="resultMsg">{resultMsg}</span>
-          ) : showQuiz && quizlist.length > 0 && quizlist[currentindex] ? (
+          ) : showQuiz && quizData.length > 0 && quizData[currentindex] ? (
             <div className="question-wrapper">
               <div className="question-header">
                 <span className="question-number">
@@ -321,7 +316,7 @@ const BlankGameMulti = () => {
                 </span>
               </div>
               <div className="question-text">
-                {quizlist[currentindex]?.question}
+                {quizData[currentindex]?.question}
               </div>
               <div className="answer-section">
                 <form onSubmit={handleSubmit} className="blank-answer-form">

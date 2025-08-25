@@ -1,6 +1,7 @@
 package boot.infopass.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,7 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true, securedEnabled = true) // 어노테이션에 prePostEnabled = true를 추가하면
-                                                                    // AuthenticationManager를 자동으로 구성합니다.
+
+// AuthenticationManager를 자동으로 구성합니다.
 public class SecurityConfig {
 
     @Autowired
@@ -67,22 +69,24 @@ public class SecurityConfig {
                 .addFilterBefore(new JwtRequestFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
         http.authorizeHttpRequests(authorize -> authorize
                 // ✅ 1. 웹소켓 경로는 모든 보안 규칙에서 제외 (가장 중요!)
-                .requestMatchers("/ws/**").permitAll() // websocket
+                .requestMatchers("/ws-game/**").permitAll() // websocket
 
                 // ✅ 2. 인증 없이 접근을 허용할 경로들
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                .requestMatchers("/", "/login", "/user/**", "/wrong-answers/**", "/results/**").permitAll()
-                .requestMatchers("/css/**", "/js/**", "/images/**", "/ox_image/**").permitAll()
-                .requestMatchers("/lobby/**", "/oxquiz/**", "/rank/**", "/block/**", "/blankgamesingle/**", "/card/**", "/api/rooms/**", "/api/**").permitAll() // 게임 관련 API 허용
+                .requestMatchers("/", "/login", "/user/**", "/admin/**", "/wrong-answers/**", "/results/**", "/rank/**").permitAll()
+                .requestMatchers("/css/**", "/js/**", "/images/**", "/ox_image/**",
+                        "/api/rooms/player/**", "/api/ranking/**", "/public/**")
+                .permitAll()
+                .requestMatchers("/lobby/**", "/oxquiz/**", "/rank/**", "/block/**", "/blankgamesingle/**", "/card/**",
+                        "/api/rooms/**", "/api/**", "/inquiries/**")
+                .permitAll() // 게임 관련 API 허용
 
                 // ✅ 3. 특정 권한이 필요한 경로
                 .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
 
                 // ✅ 4. 위 규칙에 해당하지 않는 모든 요청은 인증 필요
-                .anyRequest().authenticated()
-        );
+                .anyRequest().authenticated());
 
         // 사용자 정보 서비스 설정
         http.userDetailsService(customUserDetailService);
@@ -102,7 +106,6 @@ public class SecurityConfig {
         // 허용할 오리진 설정
         configuration.addAllowedOrigin("http://localhost:5173");
         configuration.addAllowedOrigin("http://192.168.10.141:5173");
-
         // 허용할 헤더 설정
         configuration.addAllowedHeader("*");
 
