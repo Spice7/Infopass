@@ -54,6 +54,10 @@ export default function BlankGameLobby() {
       }
       const data = await res.json();
       const roomId = data.roomId;
+      // 디버깅: 서버 응답 확인
+      console.log("서버 응답 데이터:", data);
+      console.log("roomId:", data.roomId);
+      console.log("id:", data.id);
       joinRoom(roomId);
       fetchRooms();
     } catch (error) {

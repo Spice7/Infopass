@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from "react";
 
 /* --------------------------------------------------
    PHASES
@@ -6,32 +6,32 @@ import React, { useEffect, useState, useRef } from 'react';
 -------------------------------------------------- */
 
 const baseStyle = {
-  width: '60vw',
-  height: '75vh',
-  minWidth: '600px',
-  minHeight: '400px',
-  background: 'url(/ox_image/002.png) center/cover no-repeat',
-  borderRadius: '32px',
-  boxShadow: '0 8px 32px rgba(0,0,0,.25)',
-  margin: 'auto',
-  marginTop: '150px',
-  position: 'absolute',
+  width: "44vw",
+  height: "80vh",
+  minWidth: "600px",
+  minHeight: "400px",
+  background: "url(/ox_image/002.png) center/cover no-repeat",
+  borderRadius: "32px",
+  boxShadow: "0 8px 32px rgba(0,0,0,.25)",
+  margin: "auto",
+  marginTop: "150px",
+  position: "relative",
   inset: 0,
-  overflow: 'hidden',
-  zIndex: 10
+  overflow: "hidden",
+  zIndex: 10,
 };
 
 const loadingStyle = {
   ...baseStyle,
-  background: 'linear-gradient(135deg,#5ca5e9,#357abd)',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontSize: '2.2rem',
-  fontWeight: 'bold',
-  color: '#fff',
-  letterSpacing: '2px'
+  background: "linear-gradient(135deg,#5ca5e9,#357abd)",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  fontSize: "2.2rem",
+  fontWeight: "bold",
+  color: "#fff",
+  letterSpacing: "2px",
 };
 
 // 동적 CSS (keyframes + 클래스)
@@ -69,50 +69,92 @@ const dynamicCss = `
 // cluster 기준 원점(center bottom near single button): left 50%, top 70% 부근.
 // 초기(line-up): 왼→오 순서로 일렬 배치 (수평), 산개 위치는 기존 이미지 느낌 유지
 const characters = [
-  { key:'c5', img:'/ox_image/char5.png', cx:-270, cy:0, ex:-420, ey:-390, rot:'-25deg' },
-  { key:'c4', img:'/ox_image/char4.png', cx:-90,  cy:0, ex:-190, ey:-40,  rot:'-30deg' },
-  { key:'c1', img:'/ox_image/char1.png', cx:90,   cy:0, ex:100,  ey:0,    rot:'25deg' },
-  { key:'c3', img:'/ox_image/char3.png', cx:270,  cy:0, ex:370,  ey:-150, rot:'20deg' },
+  {
+    key: "c5",
+    img: "/ox_image/char5.png",
+    cx: -270,
+    cy: 0,
+    ex: -420,
+    ey: -200,
+    rot: "-25deg",
+  },
+  {
+    key: "c4",
+    img: "/ox_image/char4.png",
+    cx: -90,
+    cy: 0,
+    ex: -190,
+    ey: -40,
+    rot: "-30deg",
+  },
+  {
+    key: "c1",
+    img: "/ox_image/char1.png",
+    cx: 90,
+    cy: 0,
+    ex: 100,
+    ey: 0,
+    rot: "25deg",
+  },
+  {
+    key: "c3",
+    img: "/ox_image/char3.png",
+    cx: 270,
+    cy: 0,
+    ex: 370,
+    ey: -150,
+    rot: "20deg",
+  },
 ];
 
 const BlankGameMain = () => {
-  const [phase,setPhase] = useState('loading'); // loading|gather|monster|firing|boom|scatter|reveal
-  const [walkFrame,setWalkFrame] = useState(0);
-  const [shake,setShake] = useState(false);
+  const [phase, setPhase] = useState("loading"); // loading|gather|monster|firing|boom|scatter|reveal
+  const [walkFrame, setWalkFrame] = useState(0);
+  const [shake, setShake] = useState(false);
   // 레이저/폭발 위치 계산용
-  const [beamTop,setBeamTop] = useState(220); // px
-  const [beamHeight,setBeamHeight] = useState(350); // px
-  const [burstTop,setBurstTop] = useState('79%'); // px or %
+  const [beamTop, setBeamTop] = useState(220); // px
+  const [beamHeight, setBeamHeight] = useState(350); // px
+  const [burstTop, setBurstTop] = useState("79%"); // px or %
 
   const containerRef = useRef(null);
   const monsterRef = useRef(null);
 
   // CSS 주입 1회
-  useEffect(()=>{
-    const tag=document.createElement('style');
-    tag.innerHTML=dynamicCss;document.head.appendChild(tag);return()=>document.head.removeChild(tag);
-  },[]);
+  useEffect(() => {
+    const tag = document.createElement("style");
+    tag.innerHTML = dynamicCss;
+    document.head.appendChild(tag);
+    return () => document.head.removeChild(tag);
+  }, []);
 
   // 로딩 애니메이션
-  useEffect(()=>{
-    if(phase!=='loading') return; 
-    const iv = setInterval(()=> setWalkFrame(f=> (f+1)%4),180);
-    const to = setTimeout(()=> setPhase('gather'), 2200);
-    return ()=> {clearInterval(iv); clearTimeout(to);} ;
-  },[phase]);
+  useEffect(() => {
+    if (phase !== "loading") return;
+    const iv = setInterval(() => setWalkFrame((f) => (f + 1) % 4), 180);
+    const to = setTimeout(() => setPhase("gather"), 2200);
+    return () => {
+      clearInterval(iv);
+      clearTimeout(to);
+    };
+  }, [phase]);
 
   // 시퀀스 진행
-  useEffect(()=>{
-    if(phase==='gather') { // 캐릭터 클러스터 보이게 잠깐 멈춤
-      const t = setTimeout(()=> setPhase('monster'), 700); return ()=> clearTimeout(t);
+  useEffect(() => {
+    if (phase === "gather") {
+      // 캐릭터 클러스터 보이게 잠깐 멈춤
+      const t = setTimeout(() => setPhase("monster"), 700);
+      return () => clearTimeout(t);
     }
-    if(phase==='monster') { // 몬스터 떨어진 뒤 레이저
-      const t = setTimeout(()=> setPhase('firing'), 950); return ()=> clearTimeout(t);
+    if (phase === "monster") {
+      // 몬스터 떨어진 뒤 레이저
+      const t = setTimeout(() => setPhase("firing"), 950);
+      return () => clearTimeout(t);
     }
-    if(phase==='firing') { // 레이저 유지 후 폭발
+    if (phase === "firing") {
+      // 레이저 유지 후 폭발
       // 몬스터 위치 기준 빔/폭발 재계산
-      requestAnimationFrame(()=>{
-        if(!containerRef.current || !monsterRef.current) return;
+      requestAnimationFrame(() => {
+        if (!containerRef.current || !monsterRef.current) return;
         const cRect = containerRef.current.getBoundingClientRect();
         const mRect = monsterRef.current.getBoundingClientRect();
         const topPx = mRect.bottom - cRect.top - 4; // 몬스터 하단 조금 아래부터
@@ -120,56 +162,88 @@ const BlankGameMain = () => {
         const heightPx = Math.max(120, targetBurstY - topPx); // 최소 높이 보장
         setBeamTop(topPx);
         setBeamHeight(heightPx);
-        setBurstTop((targetBurstY - cRect.top) + 'px');
+        setBurstTop(targetBurstY - cRect.top + "px");
       });
-      const t = setTimeout(()=> setPhase('boom'), 450); return ()=> clearTimeout(t);
+      const t = setTimeout(() => setPhase("boom"), 450);
+      return () => clearTimeout(t);
     }
-    if(phase==='boom') {
+    if (phase === "boom") {
       setShake(true);
-      const t1 = setTimeout(()=> setShake(false), 600);
-      const t2 = setTimeout(()=> setPhase('scatter'), 620);
-      return ()=> {clearTimeout(t1); clearTimeout(t2);} ;
+      const t1 = setTimeout(() => setShake(false), 600);
+      const t2 = setTimeout(() => setPhase("scatter"), 620);
+      return () => {
+        clearTimeout(t1);
+        clearTimeout(t2);
+      };
     }
-    if(phase==='scatter') { // 캐릭터 산개 후 로고/버튼 등장
-      const t = setTimeout(()=> setPhase('reveal'), 950); return ()=> clearTimeout(t);
+    if (phase === "scatter") {
+      // 캐릭터 산개 후 로고/버튼 등장
+      const t = setTimeout(() => setPhase("reveal"), 950);
+      return () => clearTimeout(t);
     }
-  },[phase]);
+  }, [phase]);
 
-  const enterMulti = ()=> window.location.href='OX_Lobby';
-  const enterSingle = ()=> window.location.href='blankgamesingle';
+  const enterMulti = () => (window.location.href = "blankgamelobby");
+  const enterSingle = () => (window.location.href = "blankgamesingle");
 
-  if(phase==='loading') {
-    const walkImgs=['/ox_image/walk1.png','/ox_image/walk2.png','/ox_image/walk3.png','/ox_image/walk4.png'];
+  if (phase === "loading") {
+    const walkImgs = [
+      "/ox_image/walk1.png",
+      "/ox_image/walk2.png",
+      "/ox_image/walk3.png",
+      "/ox_image/walk4.png",
+    ];
     return (
       <div style={loadingStyle}>
-        <img src={walkImgs[walkFrame]} alt="loading" style={{width:'110px'}} />
+        <img
+          src={walkImgs[walkFrame]}
+          alt="loading"
+          style={{ width: "110px" }}
+        />
         로딩중...
       </div>
     );
   }
 
-  const showMonster=['monster','firing','boom','scatter','reveal'].includes(phase);
+  const showMonster = [
+    "monster",
+    "firing",
+    "boom",
+    "scatter",
+    "reveal",
+  ].includes(phase);
   // 레이저: firing 이후에도 끝까지 유지
-  const showLaser=['firing','boom','scatter','reveal'].includes(phase);
-  const laserPersist = ['boom','scatter','reveal'].includes(phase);
-  const showBurst=phase==='boom' || ['scatter','reveal'].includes(phase); // 폭발 유지
-  const revealLogo=phase==='reveal';
-  const revealBtns=phase==='reveal';
-  const scatter = ['scatter','reveal'].includes(phase);
+  const showLaser = ["firing", "boom", "scatter", "reveal"].includes(phase);
+  const laserPersist = ["boom", "scatter", "reveal"].includes(phase);
+  const showBurst = phase === "boom" || ["scatter", "reveal"].includes(phase); // 폭발 유지
+  const revealLogo = phase === "reveal";
+  const revealBtns = phase === "reveal";
+  const scatter = ["scatter", "reveal"].includes(phase);
 
   // 기준점: left 50%, top 70% (cluster origin)
   return (
-    <div ref={containerRef} style={baseStyle} className={`blank-stage ${shake?'shake':''}`}>      
-  <div className="chars-layer">
-        {characters.map(c=>{
-          const x = scatter? c.ex : c.cx;
-          const y = scatter? c.ey : c.cy;
-          const scale = scatter && (c.key==='c5' || c.key==='c3') ? 1.7 : 1;
-          const jumping = phase==='monster';
+    <div
+      ref={containerRef}
+      style={baseStyle}
+      className={`blank-stage ${shake ? "shake" : ""}`}
+    >
+      <div className="chars-layer">
+        {characters.map((c) => {
+          const x = scatter ? c.ex : c.cx;
+          const y = scatter ? c.ey : c.cy;
+          const scale = scatter && (c.key === "c5" || c.key === "c3") ? 1.7 : 1;
+          const jumping = phase === "monster";
           return (
-            <div key={c.key}
-                 className={`blank-char ${jumping? 'jump':''}`}
-                 style={{left:'46%', top:'70%', transform:`translate(${x}px,${y}px) rotate(${c.rot}) scale(${scale})`, zIndex:'1000'}}>
+            <div
+              key={c.key}
+              className={`blank-char ${jumping ? "jump" : ""}`}
+              style={{
+                left: "46%",
+                top: "70%",
+                transform: `translate(${x}px,${y}px) rotate(${c.rot}) scale(${scale})`,
+                zIndex: "1000",
+              }}
+            >
               <img src={c.img} alt="char" className="char-img" />
             </div>
           );
@@ -177,15 +251,48 @@ const BlankGameMain = () => {
       </div>
 
       {/* 몬스터 */}
-    <img ref={monsterRef} src="/ox_image/monster.png" alt="monster" className={`blank-monster ${showMonster? 'in':''}`} />
+      <img
+        ref={monsterRef}
+        src="/ox_image/monster.png"
+        alt="monster"
+        className={`blank-monster ${showMonster ? "in" : ""}`}
+      />
       {/* 레이저 & 폭발 */}
-  {showLaser && <img src="/ox_image/laserYellow1.png" alt="laser" className={`blank-laser ${laserPersist? 'persist':'on'}`} style={{top:beamTop+'px', height:beamHeight+'px'}} />}
-  {showBurst && <img src="/ox_image/laserboom2.png" alt="burst" className={`blank-burst show`} style={{top:burstTop}} />}
+      {showLaser && (
+        <img
+          src="/ox_image/laserYellow1.png"
+          alt="laser"
+          className={`blank-laser ${laserPersist ? "persist" : "on"}`}
+          style={{ top: beamTop + "px", height: beamHeight + "px" }}
+        />
+      )}
+      {showBurst && (
+        <img
+          src="/ox_image/laserboom2.png"
+          alt="burst"
+          className={`blank-burst show`}
+          style={{ top: burstTop }}
+        />
+      )}
 
       {/* 로고 & 버튼 */}
-      <img src="/gamelogo/BlankLogo.png" alt="logo" className={`blank-logo ${revealLogo? 'reveal':''}`} />
-      <img src="/ox_image/multibutton.png" alt="멀티" className={`blank-btn multi ${revealBtns? 'reveal':''}`} onClick={enterMulti} />
-      <img src="/ox_image/singlebutton.png" alt="싱글" className={`blank-btn single ${revealBtns? 'reveal':''}`} onClick={enterSingle} />
+      <img
+        src="/gamelogo/BlankLogo.png"
+        alt="logo"
+        className={`blank-logo ${revealLogo ? "reveal" : ""}`}
+      />
+      <img
+        src="/ox_image/multibutton.png"
+        alt="멀티"
+        className={`blank-btn multi ${revealBtns ? "reveal" : ""}`}
+        onClick={enterMulti}
+      />
+      <img
+        src="/ox_image/singlebutton.png"
+        alt="싱글"
+        className={`blank-btn single ${revealBtns ? "reveal" : ""}`}
+        onClick={enterSingle}
+      />
     </div>
   );
 };
