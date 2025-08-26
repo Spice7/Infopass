@@ -10,19 +10,34 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+      buffer: 'buffer',
+      process: 'process/browser',
     },
   },
-  plugins: [react()],
+  plugins: [
+    react()
+  ],
+  preview: { port: 5173 },
+  define: {
+    global: 'globalThis',
+    'process.env': {},
+  },
   optimizeDeps: {
+    include: ['buffer', 'process'],
     esbuildOptions: {
       define: {
-        global: "globalThis", // ✅ 이 줄이 핵심입니다!
+        global: "globalThis",
       },
     },
   },
   build: {
+    minify: 'esbuild',
+    esbuild: {
+      drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
+    },
     rollupOptions: {
       plugins: [rollupNodePolyFill()],
+      external: [],
     },
   },
   server: {
