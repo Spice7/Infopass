@@ -32,9 +32,9 @@ export default defineConfig({
   },
   build: {
     minify: 'esbuild',
-    esbuild: {
-      drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
-    },
+    // esbuild: {
+    //   drop: ['console', 'debugger'],  // main.jsx에서 runtime 제어하므로 비활성화
+    // },
     rollupOptions: {
       plugins: [rollupNodePolyFill()],
       external: [],
