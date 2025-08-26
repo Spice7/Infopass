@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import '../Admin.css'
 import { AlertDialog, ConfirmDialog, ErrorDialog, SuccessDialog } from '../../components/CommonDialogs'
+import { devLog } from '../../utils/logger'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:9000'
 
@@ -91,7 +92,10 @@ const OXQuestionManagement = () => {
 
     const saveEdit = async () => {
         try {
+            devLog.log('문제 저장 시도:', edit.id ? '수정' : '신규 등록', edit);
+            
             if (!edit.category || !edit.question || edit.answer === null || edit.answer === undefined || !edit.quiz_explanition) {
+                devLog.warn('필수 필드 누락:', { category: edit.category, question: edit.question, answer: edit.answer, quiz_explanition: edit.quiz_explanition });
                 showAlert('입력 오류', '카테고리 / 질문 / 정답 / 해설은 필수입니다.')
                 return
             }
@@ -99,13 +103,19 @@ const OXQuestionManagement = () => {
             const url = edit.id ? `${API_BASE}/admin/ox-questions/${edit.id}` : `${API_BASE}/admin/ox-questions`
             const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(edit) })
             if (!res.ok) throw new Error('save failed')
+            
+            devLog.log('문제 저장 성공:', edit.id ? '수정 완료' : '등록 완료');
             setEdit(null)
             fetchList()
             showSuccess(edit.id ? '문제가 수정되었습니다.' : '문제가 등록되었습니다.')
-        } catch (e) { showError(`저장 중 오류가 발생했습니다: ${e.message}`) }
+        } catch (e) { 
+            devLog.error('문제 저장 실패:', e.message, edit);
+            showError(`저장 중 오류가 발생했습니다: ${e.message}`) 
+        }
     }
 
     const remove = async (row) => {
+        devLog.log('문제 삭제 요청:', row);
         showConfirm(
             '문제 삭제',
             `#${row.id} 문제를 정말 삭제하시겠습니까?`,
@@ -116,21 +126,21 @@ const OXQuestionManagement = () => {
     const performDelete = async (row) => {
         closeDialog('confirm')
         try {
-            console.log('삭제 요청 URL:', `${API_BASE}/admin/ox-questions/${row.id}`)
+            devLog.log('삭제 요청 URL:', `${API_BASE}/admin/ox-questions/${row.id}`)
             const res = await fetch(`${API_BASE}/admin/ox-questions/${row.id}`, { method: 'DELETE' })
-            console.log('삭제 응답 상태:', res.status, res.statusText)
+            devLog.log('삭제 응답 상태:', res.status, res.statusText)
             
             if (!res.ok) {
                 const errorText = await res.text()
-                console.error('삭제 실패 응답 내용:', errorText)
+                devLog.error('삭제 실패 응답 내용:', errorText)
                 throw new Error(`삭제 실패: ${res.status} ${res.statusText}`)
             }
             
-            console.log('삭제 성공')
+            devLog.log('삭제 성공')
             fetchList()
             showSuccess('문제가 삭제되었습니다.')
         } catch (e) { 
-            console.error('삭제 오류:', e)
+            devLog.error('삭제 오류:', e)
             showError(`삭제 중 오류가 발생했습니다: ${e.message}`)
         }
     }
@@ -140,30 +150,41 @@ const OXQuestionManagement = () => {
     const updateBulkRow = (idx, key, val) => setBulk(b => b.map((r, i) => i === idx ? { ...r, [key]: val } : r))
 
     const submitBulk = async () => {
+        devLog.log('일괄 등록 시도:', bulk.length + '개 문제', bulk);
+        
         if (!bulk || bulk.length === 0) {
+            devLog.warn('일괄 등록 실패: 등록할 문제가 없음');
             showAlert('입력 오류', '등록할 문제가 없습니다.')
             return
         }
         const cat = bulk[0]?.category || ''
         if (!cat) { 
+            devLog.warn('일괄 등록 실패: 카테고리 누락');
             showAlert('입력 오류', '카테고리는 필수입니다.')
             return 
         }
         if (bulk.some(r => !r.question || r.answer === null || r.answer === undefined || !r.category || !r.quiz_explanition)) { 
+            devLog.warn('일괄 등록 실패: 필수 필드 누락', bulk.filter(r => !r.question || r.answer === null || r.answer === undefined || !r.category || !r.quiz_explanition));
             showAlert('입력 오류', '질문/정답/카테고리/해설은 필수입니다.')
             return 
         }
         if (bulk.some(r => r.category !== cat)) { 
+            devLog.warn('일괄 등록 실패: 카테고리 불일치', bulk.map(r => r.category));
             showAlert('입력 오류', '모든 행의 카테고리가 동일해야 합니다.')
             return 
         }
         try {
             const res = await fetch(`${API_BASE}/admin/ox-questions/bulk`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bulk) })
             if (!res.ok) throw new Error('bulk failed')
+            
+            devLog.log('일괄 등록 성공:', bulk.length + '개 문제 등록 완료');
             setBulk([{ question: '', answer: 1, category: cat, quiz_explanition: '' }])
             fetchList()
             showSuccess('문제들이 일괄 등록되었습니다.')
-        } catch (e) { showError(`일괄 등록 중 오류가 발생했습니다: ${e.message}`) }
+        } catch (e) { 
+            devLog.error('일괄 등록 실패:', e.message, bulk);
+            showError(`일괄 등록 중 오류가 발생했습니다: ${e.message}`) 
+        }
     }
 
     const getAnswerLabel = (answer) => {
@@ -257,7 +278,11 @@ const OXQuestionManagement = () => {
                             </div>
                             <div className="admin-form-row">
                                 <label>정답</label>
-                                <select className="admin-input" value={edit.answer||1} onChange={e=>setEdit(v=>({...v, answer:parseInt(e.target.value)}))}>
+                                <select className="admin-input" value={edit.answer ?? 1} onChange={e=>{
+                                    const newAnswer = parseInt(e.target.value);
+                                    devLog.log('OX 선택 변경:', newAnswer === 1 ? 'O (참)' : 'X (거짓)', { before: edit.answer, after: newAnswer });
+                                    setEdit(v=>({...v, answer:newAnswer}));
+                                }}>
                                     <option value={1}>O (참)</option>
                                     <option value={0}>X (거짓)</option>
                                 </select>
@@ -290,7 +315,7 @@ const OXQuestionManagement = () => {
                                     <td><input className="admin-input" value={row.category||''} onChange={e=>updateBulkRow(idx,'category',e.target.value)} /></td>
                                     <td><input className="admin-input" value={row.question||''} onChange={e=>updateBulkRow(idx,'question',e.target.value)} /></td>
                                     <td>
-                                        <select className="admin-input" value={row.answer||1} onChange={e=>updateBulkRow(idx,'answer',parseInt(e.target.value))}>
+                                        <select className="admin-input" value={row.answer ?? 1} onChange={e=>updateBulkRow(idx,'answer',parseInt(e.target.value))}>
                                             <option value={1}>O (참)</option>
                                             <option value={0}>X (거짓)</option>
                                         </select>
