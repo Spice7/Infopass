@@ -8,12 +8,11 @@
         room_id as roomId, user_id as userId, nickname, ready, joined_at as joinedAt from
         game_room_player where room_id=#{roomId} </select>
     <update id="updatePlayerReady"> update game_room_player set ready=#{ready} where id=#{playerId} </update>
-    <delete id="deletePlayer"> delete from game_room_player where Id=#{playerId} </delete>
+    <delete id="deletePlayer" parameterType="Long"> delete from game_room_player where
+        Id=#{playerId} </delete>
     <select id="existsByRoomIdAndUserId" resultType="boolean"> select count(*) > 0 from
         game_room_player where room_id = #{roomId} and user_id = #{userId} </select>
-    <select id="selectPlayerById" resultType="boot.infopass.dto.GameRoomPlayerDto"> 
-        SELECT id, room_id as roomId, user_id as userId, nickname, ready, joined_at as joinedAt 
-        FROM game_room_player 
-        WHERE id = #{playerId} 
-    </select>
+    <select id="selectPlayerById" resultType="boot.infopass.dto.GameRoomPlayerDto"> SELECT id,
+        room_id as roomId, user_id as userId, nickname, ready, joined_at as joinedAt FROM
+        game_room_player WHERE id = #{playerId} </select>
 </mapper>
