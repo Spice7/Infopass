@@ -130,16 +130,28 @@ public class GameRoomController {
             log.info("방 {}의 모든 플레이어 준비 상태: {}", roomId, allReady);
 
             if (allReady) {
-                // 모든 플레이어가 준비되었으면 게임 시작
-                List<BlankQuizDto> quizList = qservice.getQuizList();
-                log.info("=== 게임 시작 조건 충족! ===");
-                log.info("방 {}에서 게임 시작 메시지 전송", roomId);
-                log.info("퀴즈 개수: {}", quizList.size());
+                try {
+                    // 모든 플레이어가 준비되었으면 게임 시작
+                    List<BlankQuizDto> quizList = qservice.getQuizList();
 
-                // 게임 시작 메시지를 /topic/game/start/{roomId}로 전송
-                messagingTemplate.convertAndSend("/topic/game/start/" + roomId, quizList);
+                    log.info("=== 게임 시작 조건 충족! ===");
+                    log.info("방 {}에서 게임 시작 메시지 전송", roomId);
+                    log.info("퀴즈 개수: {}", quizList.size());
 
-                log.info("✅ 게임 시작 메시지 전송 완료: /topic/game/start/{}", roomId);
+                    // 게임 시작 데이터를 Map으로 구성 (수정된 부분)
+                    Map<String, Object> gameStartData = new HashMap<>();
+                    gameStartData.put("quizList", quizList);
+                    gameStartData.put("players", currentPlayers);
+                    gameStartData.put("roomId", roomId);
+
+                    // 객체로 전송 (수정)
+                    messagingTemplate.convertAndSend("/topic/game/start/" + roomId, gameStartData);
+
+                    log.info("✅ 게임 시작 메시지 전송 완료: /topic/game/start/{}", roomId);
+
+                } catch (Exception e) {
+                    log.error("❌ 게임 시작 처리 중 오류:", e);
+                }
             } else {
                 // 준비 상태 변경을 모든 클라이언트에게 알림
                 List<GameRoomPlayerDto> updatedPlayers = service.getPlayersByRoom(roomId);
@@ -233,17 +245,48 @@ public class GameRoomController {
             log.info("방 {}의 모든 플레이어 준비 상태: {}", roomId, allReady);
 
             if (allReady) {
-                // 모든 플레이어가 준비되었으면 게임 시작
-                List<BlankQuizDto> quizList = qservice.getQuizList();
+                try {
+                    // 모든 플레이어가 준비되었으면 게임 시작
+                    List<BlankQuizDto> quizList = qservice.getQuizList();
 
-                log.info("=== 게임 시작 조건 충족! ===");
-                log.info("방 {}에서 게임 시작 메시지 전송", roomId);
-                log.info("퀴즈 개수: {}", quizList.size());
+                    log.info("🎯 퀴즈 데이터 조회 시작");
+                    if (quizList == null) {
+                        log.error("❌ 퀴즈 서비스가 null을 반환했습니다");
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body("퀴즈 데이터 조회 실패");
+                    }
 
-                // 게임 시작 메시지를 /topic/game/start/{roomId}로 전송
-                messagingTemplate.convertAndSend("/topic/game/start/" + roomId, quizList);
+                    log.info("=== 게임 시작 조건 충족! ===");
+                    log.info("방 {}에서 게임 시작 메시지 전송", roomId);
+                    log.info("퀴즈 개수: {}", quizList.size());
+                    log.info("플레이어 수: {}", currentPlayers.size());
 
-                log.info("✅ 게임 시작 메시지 전송 완료: /topic/game/start/{}", roomId);
+                    // 첫 번째 퀴즈 확인
+                    if (!quizList.isEmpty()) {
+                        BlankQuizDto firstQuiz = quizList.get(0);
+                        log.info("📋 첫 번째 퀴즈: id={}, question={}, answer={}",
+                                firstQuiz.getId(), firstQuiz.getQuestion(), firstQuiz.getAnswer());
+                    }
+
+                    // 게임 시작 데이터를 Map으로 구성 (수정된 부분)
+                    Map<String, Object> gameStartData = new HashMap<>();
+                    gameStartData.put("quizList", quizList);
+                    gameStartData.put("players", currentPlayers); // currentPlayers 사용
+                    gameStartData.put("roomId", roomId);
+
+                    log.info("🎮 게임 시작 데이터 전송: quizList={}, players={}, roomId={}",
+                            quizList.size(), currentPlayers.size(), roomId);
+
+                    // 객체로 전송 (기존: quizList만 전송 → 수정: gameStartData 전송)
+                    messagingTemplate.convertAndSend("/topic/game/start/" + roomId, gameStartData);
+
+                    log.info("✅ 게임 시작 메시지 전송 완료: /topic/game/start/{}", roomId);
+
+                } catch (Exception e) {
+                    log.error("❌ 게임 시작 처리 중 오류:", e);
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body("게임 시작 중 오류가 발생했습니다: " + e.getMessage());
+                }
             } else {
                 // 준비 상태 변경을 모든 클라이언트에게 알림
                 List<GameRoomPlayerDto> updatedPlayers = service.getPlayersByRoom(roomId);

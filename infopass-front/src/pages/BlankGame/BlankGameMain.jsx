@@ -6,8 +6,8 @@ import React, { useEffect, useState, useRef } from "react";
 -------------------------------------------------- */
 
 const baseStyle = {
-  width: "60vw",
-  height: "75vh",
+  width: "44vw",
+  height: "80vh",
   minWidth: "600px",
   minHeight: "400px",
   background: "url(/ox_image/002.png) center/cover no-repeat",
@@ -75,7 +75,7 @@ const characters = [
     cx: -270,
     cy: 0,
     ex: -420,
-    ey: -390,
+    ey: -200,
     rot: "-25deg",
   },
   {
@@ -183,7 +183,7 @@ const BlankGameMain = () => {
     }
   }, [phase]);
 
-  const enterMulti = () => (window.location.href = "OX_Lobby");
+  const enterMulti = () => (window.location.href = "blankgamelobby");
   const enterSingle = () => (window.location.href = "blankgamesingle");
 
   if (phase === "loading") {

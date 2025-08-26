@@ -19,8 +19,24 @@ const BlankGameMulti = () => {
   const { roomId, quizList, players } = location.state || {};
   const { userInfo } = useContext(LoginContext);
 
-  // 기존 상태 변수들
-  const [quizData, setQuizData] = useState(quizList || []);
+  console.log("🎮 BlankGameMulti 초기 데이터:", {
+    roomId,
+    quizList,
+    quizListLength: quizList?.length,
+    players,
+    userInfo,
+    locationState: location.state,
+  });
+
+  // 초기 퀴즈 데이터 설정 - 더 명확하게
+  const [quizData, setQuizData] = useState(() => {
+    if (quizList && Array.isArray(quizList) && quizList.length > 0) {
+      console.log("✅ 초기 퀴즈 데이터 설정:", quizList.length, "개 문제");
+      return quizList;
+    }
+    console.log("⚠️ 초기 퀴즈 데이터 없음, WebSocket으로 대기");
+    return [];
+  });
   const [answer, setAnswer] = useState("");
   const [myScore, setMyScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(TIMER_DURATION);
@@ -56,18 +72,77 @@ const BlankGameMulti = () => {
   const userstatusurl =
     "http://localhost:9000/blankgamesingle/blankinsertuserstatus";
 
-  // WebSocket 연결 설정
+  // WebSocket 연결 설정 수정
   useEffect(() => {
     if (!roomId || !userInfo?.id) return;
 
-    const socket = new SockJS("http://localhost:9000/ws-game");
-    const client = Stomp.over(socket);
+    console.log("🔌 BlankGameMulti WebSocket 연결 시도:", roomId);
+    console.log("현재 퀴즈 데이터 상태:", {
+      quizData: quizData?.length,
+      quizList: quizList?.length,
+    });
+
+    const client = Stomp.over(
+      () => new SockJS("http://localhost:9000/ws-game")
+    );
+
+    // 디버그 활성화
+    client.debug = (str) => {
+      console.log("BlankGame STOMP: " + str);
+    };
 
     client.connect(
       {},
       () => {
-        console.log("WebSocket 연결 성공");
+        console.log("✅ BlankGameMulti WebSocket 연결 성공");
         setStompClient(client);
+
+        // 게임 시작 메시지 구독 (퀴즈 데이터 수신용)
+        const gameStartSubscription = client.subscribe(
+          `/topic/game/start/${roomId}`,
+          (message) => {
+            try {
+              console.log(
+                "🎮 BlankGameMulti에서 게임 시작 메시지 수신:",
+                message.body
+              );
+              const gameStartData = JSON.parse(message.body);
+              console.log("🎮 파싱된 게임 시작 데이터:", gameStartData);
+
+              const { quizList: receivedQuizList, players: gamePlayers } =
+                gameStartData;
+
+              if (receivedQuizList && receivedQuizList.length > 0) {
+                console.log("📝 퀴즈 데이터 업데이트:", receivedQuizList);
+                setQuizData(receivedQuizList);
+
+                // 퀴즈 데이터를 받았으므로 게임 시작 가능
+                if (!gameStarted && loading) {
+                  console.log("🚀 퀴즈 데이터 수신 완료, 게임 로딩 시작");
+                  // 강제로 로딩 상태 재시도
+                  setLoading(false);
+                  setTimeout(() => setLoading(true), 100);
+                }
+              } else {
+                console.error(
+                  "❌ 받은 퀴즈 데이터가 없거나 비어있음:",
+                  receivedQuizList
+                );
+              }
+
+              if (gamePlayers && Array.isArray(gamePlayers)) {
+                console.log("👥 플레이어 데이터 업데이트:", gamePlayers);
+              }
+            } catch (error) {
+              console.error(
+                "❌ 게임 시작 메시지 파싱 에러:",
+                error,
+                "원본:",
+                message.body
+              );
+            }
+          }
+        );
 
         // 게임 종료 메시지 구독
         const gameEndSubscription = client.subscribe(
@@ -76,7 +151,6 @@ const BlankGameMulti = () => {
             const endData = JSON.parse(message.body);
             console.log("게임 종료 메시지 수신:", endData);
 
-            // 다른 플레이어가 게임을 끝냈을 때 처리
             if (endData.userId !== userInfo.id) {
               handleGameEndByOther(endData);
             }
@@ -93,26 +167,49 @@ const BlankGameMulti = () => {
             showFinalResults(resultsData.results || []);
           }
         );
+
+        // 구독 정보 저장 (cleanup용)
+        client.gameStartSubscription = gameStartSubscription;
+        client.gameEndSubscription = gameEndSubscription;
+        client.gameResultSubscription = gameResultSubscription;
+
+        console.log("📡 모든 WebSocket 구독 완료");
       },
       (error) => {
-        console.error("WebSocket 연결 실패:", error);
+        console.error("❌ BlankGameMulti WebSocket 연결 실패:", error);
       }
     );
 
     return () => {
       if (client && client.connected) {
-        client.disconnect();
+        console.log("🔌 BlankGameMulti WebSocket 연결 해제");
+        try {
+          if (client.gameStartSubscription) {
+            client.gameStartSubscription.unsubscribe();
+          }
+          if (client.gameEndSubscription) {
+            client.gameEndSubscription.unsubscribe();
+          }
+          if (client.gameResultSubscription) {
+            client.gameResultSubscription.unsubscribe();
+          }
+          client.disconnect();
+        } catch (error) {
+          console.error("WebSocket 해제 중 오류:", error);
+        }
       }
     };
-  }, [roomId, userInfo?.id]);
+  }, [roomId, userInfo?.id]); // 의존성에서 gameStarted, loading 제거
 
-  // 초기 검증 (기존과 동일)
+  // 초기 검증 수정 - quizList 체크 완화
   useEffect(() => {
     console.log("BlankGameMulti 시작:", {
       roomId,
       quizList,
+      quizListLength: quizList?.length,
       players,
       userInfo,
+      quizDataLength: quizData?.length,
     });
 
     if (!roomId) {
@@ -121,16 +218,21 @@ const BlankGameMulti = () => {
       return;
     }
 
-    if (!quizList || quizList.length === 0) {
-      alert("퀴즈 데이터가 없습니다.");
-      navigate("/blankgamelobby");
-      return;
-    }
-
     if (!userInfo?.id) {
       alert("사용자 정보가 없습니다.");
       navigate("/login");
       return;
+    }
+
+    // 퀴즈 데이터가 있으면 즉시 게임 시작 준비
+    if (
+      quizList &&
+      Array.isArray(quizList) &&
+      quizList.length > 0 &&
+      quizData.length === 0
+    ) {
+      console.log("🔄 초기 퀴즈 데이터를 quizData로 복사");
+      setQuizData(quizList);
     }
 
     console.log("게임 데이터 검증 완료");
@@ -230,13 +332,111 @@ const BlankGameMulti = () => {
     console.log(message);
   };
 
-  // 게임 종료 조건 감지 (기존과 동일)
+  // 로딩 애니메이션 후 게임 시작 수정
+  useEffect(() => {
+    if (!loading) return;
+
+    console.log("🎬 로딩 애니메이션 시작, 퀴즈 데이터 상태:", {
+      quizDataLength: quizData?.length,
+      quizListLength: quizList?.length,
+    });
+
+    const walkTimer = setInterval(() => {
+      setWalkFrame((prev) => (prev + 1) % walkImgs.length);
+    }, 180);
+
+    const timer = setTimeout(() => {
+      // quizData가 있는지 확인
+      if (quizData && quizData.length > 0) {
+        console.log(
+          "✅ 퀴즈 데이터 확인됨, 게임 시작:",
+          quizData.length,
+          "개 문제"
+        );
+        setLoading(false);
+        setGameStarted(true);
+        setCountdown(3);
+
+        let counter = 3;
+        const countdownInterval = setInterval(() => {
+          counter -= 1;
+          if (counter === 0) {
+            clearInterval(countdownInterval);
+            setCountdown(null);
+            setShowQuiz(true);
+            setTimeLeft(TIMER_DURATION);
+          } else {
+            setCountdown(counter);
+          }
+        }, 1000);
+      } else {
+        console.log("⏳ 퀴즈 데이터 대기 중...");
+
+        // 초기 quizList가 있는지 다시 확인
+        if (quizList && Array.isArray(quizList) && quizList.length > 0) {
+          console.log("🔄 초기 quizList 발견, quizData에 설정:", quizList);
+          setQuizData(quizList);
+          return; // 재시도하지 않고 바로 게임 시작하도록
+        }
+
+        // 1초 후 재시도
+        setTimeout(() => {
+          console.log("🔄 퀴즈 데이터 재시도");
+          setLoading(true);
+        }, 1000);
+      }
+    }, 1500);
+
+    return () => {
+      clearInterval(walkTimer);
+      clearTimeout(timer);
+    };
+  }, [loading, quizData, quizList]); // quizList 의존성 추가
+
+  // 서버에서 직접 퀴즈 데이터를 가져오는 함수 추가
+  const fetchQuizDataDirectly = async () => {
+    try {
+      console.log("📞 서버에서 직접 퀴즈 데이터 요청");
+      const response = await axios.get(
+        "http://localhost:9000/blankgamesingle/quizlist"
+      );
+
+      if (
+        response.data &&
+        Array.isArray(response.data) &&
+        response.data.length > 0
+      ) {
+        console.log("✅ 직접 요청으로 퀴즈 데이터 획득:", response.data);
+        setQuizData(response.data);
+      } else {
+        console.error(
+          "❌ 직접 요청에서도 퀴즈 데이터를 못 받음:",
+          response.data
+        );
+      }
+    } catch (error) {
+      console.error("❌ 퀴즈 데이터 직접 요청 실패:", error);
+    }
+  };
+
+  // 퀴즈 데이터 상태 변경 감지
+  useEffect(() => {
+    console.log("📝 퀴즈 데이터 상태 변경:", {
+      quizDataLength: quizData?.length,
+      quizListLength: quizList?.length,
+      loading,
+      gameStarted,
+      showQuiz,
+    });
+  }, [quizData, quizList, loading, gameStarted, showQuiz]);
+
+  // 게임 종료 조건 감지에서도 quizData 사용
   useEffect(() => {
     if (gameEndedRef.current || !gameStarted || !showQuiz || gameFinished)
       return;
 
     const allSolved =
-      currentindex >= quizData.length - 1 && resultMsg === "정답입니다!";
+      currentindex >= quizData.length - 1 && resultMsg === "정답입니다!"; // quizData 사용
     const noLife = myLife === 0;
     const noTime = timeLeft <= 0;
 
@@ -252,42 +452,9 @@ const BlankGameMulti = () => {
     timeLeft,
     gameStarted,
     showQuiz,
-    quizData.length,
+    quizData.length, // quizData.length 사용
     gameFinished,
   ]);
-
-  // 로딩 애니메이션 후 게임 시작 (기존과 동일)
-  useEffect(() => {
-    if (!loading) return;
-
-    const walkTimer = setInterval(() => {
-      setWalkFrame((prev) => (prev + 1) % walkImgs.length);
-    }, 180);
-
-    const timer = setTimeout(() => {
-      setLoading(false);
-      setGameStarted(true);
-      setCountdown(3);
-
-      let counter = 3;
-      const countdownInterval = setInterval(() => {
-        counter -= 1;
-        if (counter === 0) {
-          clearInterval(countdownInterval);
-          setCountdown(null);
-          setShowQuiz(true);
-          setTimeLeft(TIMER_DURATION);
-        } else {
-          setCountdown(counter);
-        }
-      }, 1000);
-    }, 1500);
-
-    return () => {
-      clearInterval(walkTimer);
-      clearTimeout(timer);
-    };
-  }, [loading]);
 
   // 타이머 작동 (게임이 끝났으면 중단)
   useEffect(() => {
@@ -422,6 +589,11 @@ const BlankGameMulti = () => {
         <p>멀티플레이 게임 준비 중...</p>
         <p>방 번호: {roomId}</p>
         <p>참여자: {players?.length || 0}명</p>
+        {quizData?.length > 0 ? (
+          <p>퀴즈 로딩 완료: {quizData.length}개 문제</p>
+        ) : (
+          <p>퀴즈 데이터 대기 중...</p>
+        )}
       </div>
     );
   }
