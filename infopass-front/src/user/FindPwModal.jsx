@@ -5,9 +5,12 @@ import './userInfo.css';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
+import { AlertDialog } from './RequireLogin';
 
 const FindPwModal = () => {
     const [open, setOpen] = useState(false);
+    const [alertOpen, setAlertOpen] = useState(false);
+    const [alertData, setAlertData] = useState({ title: '', message: '' });
 
     const [step, setStep] = useState(1);
     const [email, setEmail] = useState('');
@@ -33,7 +36,11 @@ const FindPwModal = () => {
             return;
         }
         if (!isVerified) {
-            alert('휴대폰 인증을 완료해주세요');
+            setAlertData({
+                title: '인증 필요',
+                message: '휴대폰 인증을 완료해주세요'
+            });
+            setAlertOpen(true);
             return;
         }
 
@@ -276,6 +283,14 @@ const FindPwModal = () => {
                     </Typography>
                 </Box>
             </Modal>
+
+            {/* 알림 다이얼로그 */}
+            <AlertDialog
+                open={alertOpen}
+                title={alertData.title}
+                message={alertData.message}
+                onConfirm={() => setAlertOpen(false)}
+            />
         </div>
     );
 };

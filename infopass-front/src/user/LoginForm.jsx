@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { LoginContext } from './LoginContextProvider'
 import { useLocation, useNavigate } from 'react-router-dom';
 import SignupPage from './SignupPage';
@@ -11,7 +11,7 @@ const LoginForm = () => {
     const { login, openSignUpModal, openSignUpModalWithUser } = useContext(LoginContext)
     const navi = useNavigate();
     const location = useLocation();
-    
+
     // 소셜 로그인 후 회원가입 모달 열기
     useEffect(() => {
         if (location.state?.socialUser) {
@@ -32,7 +32,8 @@ const LoginForm = () => {
             await login(email, password, location);
         } catch (err) {
             console.error('로그인 실패', err);
-            alert('로그인에 실패했습니다.');
+            // LoginContextProvider에서 로그인 실패 알림창을 자동으로 표시하므로 
+            // 여기서는 별도 처리 불필요
         }
     }
 
