@@ -61,24 +61,28 @@ public class SecurityConfig {
 
         // 세션 정책을 STATELESS로 설정 (JWT 사용 시 필수)
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
         // 필터 설정
         // ✅ JWT 요청 필터 1️⃣
         // ✅ JWT 인증 필터 2️⃣
         http.addFilterAt(new JwtAuthenticationFilter(authenticationManager, jwtTokenProvider),
                 UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtRequestFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+
         http.authorizeHttpRequests(authorize -> authorize
                 // ✅ 1. 웹소켓 경로는 모든 보안 규칙에서 제외 (가장 중요!)
                 .requestMatchers("/ws-game/**").permitAll() // websocket
 
                 // ✅ 2. 인증 없이 접근을 허용할 경로들
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/", "/login", "/user/**", "/admin/**", "/wrong-answers/**", "/results/**", "/rank/**").permitAll()
+                .requestMatchers("/", "/api/rooms", "/api/rooms/player/search/**", "/login", "/user/**", "/admin/**",
+                        "/wrong-answers/**", "/results/**", "/rank/**")
+                .permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/ox_image/**",
                         "/api/rooms/player/**", "/api/ranking/**", "/public/**")
                 .permitAll()
                 .requestMatchers("/lobby/**", "/oxquiz/**", "/rank/**", "/block/**", "/blankgamesingle/**", "/card/**",
-                        "/api/rooms/**", "/api/**")
+                        "/api/rooms/**", "/api/**", "/inquiries/**", "/api/games/**", "/api/quiz/**")
                 .permitAll() // 게임 관련 API 허용
 
                 // ✅ 3. 특정 권한이 필요한 경로

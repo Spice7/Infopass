@@ -49,7 +49,7 @@ public class RankingService {
         rankMapper.recalculateAllPlayerRanks();
     }
 
-    @Scheduled(cron = "0 48 12 * * ?")
+    @Scheduled(cron = "0 0 01 * * ?")
     public void updatePlayerRanksInDb() {
         System.out.println("updateing all player ranks in db");
         rankMapper.recalculateAllPlayerRanks();
