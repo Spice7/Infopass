@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { applyExp } from '../user/gameResult';
 
 export const useExpAnimation = () => {
@@ -110,16 +110,27 @@ export const useExpAnimation = () => {
     }, 50);
   };
 
-  // 게임 종료 시 경험치/점수 저장
-  const saveScoreAndExp = async (finalScore, userInfo, gameType = "card") => {
+  // 게임 종료 시 경험치/점수 저장 (공용)
+  const saveScoreAndExp = async (finalScore, userInfo, gameType = "general", customSaveFunction = null) => {
     try {
+      // 게임 타입에 따른 경험치 계산 (기본값)
+      let expDelta = Math.floor(finalScore / 3);
+
       const data = ({
         user_id: userInfo?.id,
         score: finalScore,
-        user_exp: Math.floor(finalScore / 3),
+        user_exp: expDelta,
         user_type: gameType
       });
-      const expDelta = data.user_exp;
+
+      // 커스텀 저장 함수가 있다면 먼저 실행 (게임별 특화 로직)
+      if (customSaveFunction && typeof customSaveFunction === 'function') {
+        try {
+          await customSaveFunction(data);
+        } catch (saveError) {
+          console.error('게임별 저장 실패:', saveError);
+        }
+      }
 
       // 경험치 증가 및 레벨업 처리
       try {
@@ -144,6 +155,7 @@ export const useExpAnimation = () => {
     setAnimatedLevel(userLevel || 0);
     setAnimatedExp((userExp || 0) % 100);
   };
+
 
   // 상태 초기화
   const resetExp = () => {
@@ -170,6 +182,10 @@ export const useExpAnimation = () => {
     startExpBarAnimation,
     saveScoreAndExp,
     initializeExp,
-    resetExp
+    resetExp,
+    
+    // 현재 사용자 정보 (useCardGame에서 필요)
+    userLevel: animatedLevel,
+    userExp: animatedExp
   };
 };

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import ExpBar from '../../../components/ExpBar';
 
-const GameComplete = ({ score, moves, gameMode, remainingTime, timer, sessionExp, showExpAnimation, expCount, userLevel, userExp, showLevelUp, expBarAnimation, expBarFrom, expBarTo, animatedExp, animatedLevel, onRestart, onExitToMenu, formatTime }) => {
+const GameComplete = ({ score, moves, gameMode,  sessionExp, showExpAnimation, expCount,  showLevelUp, expBarAnimation, expBarFrom, expBarTo, animatedExp, animatedLevel, onRestart, onExitToMenu, matchedPairs }) => {
   // 애니메이션 상태 초기화
   useEffect(() => {
     if (expBarAnimation) {

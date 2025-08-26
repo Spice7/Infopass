@@ -7,6 +7,10 @@
     INSERT INTO wronganswer_log (user_id, game_type, question_id, submitted_answer, created_at)
     VALUES (#{userId}, 'oxquiz', #{questionId}, #{submittedAnswer}, NOW())
   </insert>
+  
+  <delete id="deleteWrongAnswersByQuestionId" parameterType="int">
+    DELETE FROM wronganswer_log WHERE question_id = #{questionId}
+  </delete>
 
   <!-- 블록 게임 전용 오답 기록 -->
   <insert id="insertBlockWrongAnswer" parameterType="boot.infopass.dto.WrongAnswerDto">

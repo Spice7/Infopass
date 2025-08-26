@@ -5,7 +5,7 @@ import { LoginContext } from "../../user/LoginContextProvider";
 import BlankGameMain from "./BlankGameMain";
 
 const MAX_LIFE = 3;
-const TIMER_DURATION = 1800;
+const TIMER_DURATION = 45;
 const walkImgs = Array.from(
   { length: 16 },
   (_, i) => `/ox_image/walk${i + 1}.png`
@@ -83,8 +83,10 @@ const BlankGameSingle = () => {
   // =========================
   const quizurl = "http://localhost:9000/blankgamesingle/blankquizlist";
   const usersubmiturl = "http://localhost:9000/blankgamesingle/submitblankquiz";
-  const wronganswerurl = "http://localhost:9000/blankgamesingle/blankwronganswer";
-  const userstatusurl = "http://localhost:9000/blankgamesingle/blankinsertuserstatus";
+  const wronganswerurl =
+    "http://localhost:9000/blankgamesingle/blankwronganswer";
+  const userstatusurl =
+    "http://localhost:9000/blankgamesingle/blankinsertuserstatus";
 
   // =========================
   // useEffect: 로딩 애니메이션

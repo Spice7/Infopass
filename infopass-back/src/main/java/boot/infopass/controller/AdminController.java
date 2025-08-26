@@ -84,7 +84,7 @@ public class AdminController {
 	 * 특정 사용자 조회
 	 */
 	@GetMapping("/users/{id}")
-	public ResponseEntity<UserDto> getUserById(@PathVariable Integer id) {
+	public ResponseEntity<UserDto> getUserById(@PathVariable("id") Integer id) {
 		try {
 			UserDto user = adminService.getUserById(id);
 			if (user != null) {
@@ -101,7 +101,7 @@ public class AdminController {
 	 * 사용자 정보 수정
 	 */
 	@PutMapping("/users/{id}")
-	public ResponseEntity<UserDto> updateUser(@PathVariable Integer id, @RequestBody UserDto userDto) {
+	public ResponseEntity<UserDto> updateUser(@PathVariable("id") Integer id, @RequestBody UserDto userDto) {
 		try {
 			UserDto updatedUser = adminService.updateUser(id, userDto);
 			if (updatedUser != null) {
@@ -131,7 +131,7 @@ public class AdminController {
 	 * 사용자 삭제 (실제로는 비활성화)
 	 */
 	@DeleteMapping("/users/{id}")
-	public ResponseEntity<Map<String, String>> deleteUser(@PathVariable Integer id) {
+	public ResponseEntity<Map<String, String>> deleteUser(@PathVariable("id") Integer id) {
 		try {
 			boolean result = adminService.deleteUser(id);
 			Map<String, String> response = Map.of(
@@ -152,7 +152,7 @@ public class AdminController {
 	 * 사용자 상태 토글 (활성/비활성)
 	 */
 	@PutMapping("/users/{id}/toggle-status")
-	public ResponseEntity<Map<String, String>> toggleUserStatus(@PathVariable Integer id) {
+	public ResponseEntity<Map<String, String>> toggleUserStatus(@PathVariable("id") Integer id) {
 		try {
 			boolean result = adminService.toggleUserStatus(id);
 			Map<String, String> response = Map.of(
