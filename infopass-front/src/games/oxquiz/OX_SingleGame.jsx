@@ -16,7 +16,7 @@ import { useNavigate } from 'react-router-dom';
 // 상수: 게임 규칙/리소스
 // =========================
 const MAX_LIFE = 3;                 // 초기 목숨
-const TIMER_DURATION = 15;           // 문제당 제한 시간(초)
+const TIMER_DURATION = 300;           // 문제당 제한 시간(300초)
 const walkImgs = Array.from({ length: 16 }, (_, i) => `/ox_image/walk${i + 1}.png`); // 로딩 애니메이션 프레임
 
 const OX_SingleGame = () => {

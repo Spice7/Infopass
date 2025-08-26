@@ -10,8 +10,10 @@ import Menu from './menu';
 
 const Home = () => {
   const navigate = useNavigate();
+
   const [checkgamehome, setcheckgamehome] = useState('/');
   <Menu checkgame={checkgamehome}/>
+
   const games = useMemo(() => ([
     {
       key: 'ox',
@@ -98,7 +100,7 @@ const Home = () => {
       mode: '멀티 (개발 중)',
       desc: '실시간 문제 풀이 대전 모드 (개발 중)',
       to: '#',
-      thumbnail: '/ox_image/002.png',
+      thumbnail: '/gamelogo/NoneGameLogo.png',
       comingSoon: true,
       dev: 'Infopass Team - 김기범',
       release: '개발 중',
@@ -111,7 +113,7 @@ const Home = () => {
       mode: '싱글 (개발 중)',
       desc: '속도와 정확도를 겨루는 타자 게임 (개발 중)',
       to: '#',
-      thumbnail: '/ox_image/002.png',
+      thumbnail: '/gamelogo/NoneGameLogo.png',
       comingSoon: true,
       dev: 'Infopass Team - 김기범',
       release: '개발 중',
@@ -131,8 +133,33 @@ const Home = () => {
 
         {/* 히어로 섹션 */}
         <div className="hero">
-          <h1>게임처럼 배우는 코딩 & 퀴즈</h1>
-          <p>즐겁게 플레이하며 실력을 키우세요</p>
+          <h1>
+            <span style={{
+              background: 'linear-gradient(90deg, #ffe066, #b5aaff 45%, #ffb3e6)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              color: 'transparent'
+            }}>
+              게임처럼 배우는 코딩 & 퀴즈
+            </span>
+          </h1>
+          <p style={{ fontSize: '1.18rem', color: '#ffe066', fontWeight: 700, marginBottom: 8 }}>
+            🚀 지금, 재미와 실력을 동시에!
+          </p>
+          <p style={{ color: '#c9d6ff', fontSize: '1.08rem', marginBottom: 0 }}>
+            단순한 공부는 그만!
+            <span style={{ color: '#ffd6e0', fontWeight: 600 }}>실전 문제, 실시간 대결,</span>
+            그리고 <span style={{ color: '#b5aaff', fontWeight: 600 }}>다양한 게임 모드</span>로
+            <br />
+            <span style={{ color: '#ffe066', fontWeight: 700 }}>즐겁게 실력을 키워보세요.</span>
+          </p>
+          <p style={{ color: '#b3c9ff', fontSize: '1.01rem', marginTop: 10 }}>
+            정보처리기사, 알고리즘, 코딩 실력까지!
+            <span style={{ color: '#ffd6e0', fontWeight: 600 }}>누구나 쉽게, 누구나 즐겁게</span>
+            <br />
+            <span style={{ color: '#b5aaff', fontWeight: 600 }}>Infopass</span>에서 도전하세요!
+          </p>
         </div>
 
         {/* 전체 게임 그리드 */}
@@ -179,7 +206,7 @@ const Home = () => {
                 {selected.highlight && <p className="modal-desc highlight-line">{selected.highlight}</p>}
                 {Array.isArray(selected.details) && (
                   <ul className="modal-desc-list">
-                    {selected.details.map((line,i)=> <li key={i}>{line}</li> )}
+                    {selected.details.map((line, i) => <li key={i}>{line}</li>)}
                   </ul>
                 )}
               </div>

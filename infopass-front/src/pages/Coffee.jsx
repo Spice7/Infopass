@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+
 import './LegalDocs.css';
 
 // QR 이미지 파일은 /public/coffee 폴더에 배치 (예: qr_dev1.png ... qr_dev5.png)
 // account 필드는 계좌번호 또는 후원 URL 로 교체
 const MEMBERS = [
-	{ id: 'dev1', name: '이건호', role: '팀장', msg: '블록 게임 / 관리자 페이지', account: '토스뱅크 1000-1111-2222', qr: '/coffee/qr_dev1.png' },
-	{ id: 'dev2', name: '이창연', role: '팀원', msg: '랭킹 / 스피드 퀴즈', account: '카카오 3333-44-55555', qr: '/coffee/qr_dev2.png' },
-	{ id: 'dev3', name: '이정민', role: '팀원', msg: '로그인 / 회원가입 / 카드 퀴즈', account: '국민 666601-01-777777', qr: '/coffee/qr_dev3.png' },
+	{ id: 'dev1', name: '이건호', role: '팀장', msg: '블록 게임 / 관리자 페이지', account: '토스뱅크 1000-1111-2222', qr: '/coffee/dyd.png'},
+	{ id: 'dev2', name: '이창연', role: '팀원', msg: '랭킹 / 스피드 퀴즈', account: '카카오 3333-44-55555', qr: '/coffee/dyd.png' },
+	{ id: 'dev3', name: '이정민', role: '팀원', msg: '로그인 / 회원가입 / 카드 퀴즈', account: '국민 666601-01-777777', qr: '/coffee/jung.jpg' },
 	{ id: 'dev4', name: '박용희', role: '팀원', msg: '메인 페이지 UI / OX 퀴즈', account: '토스뱅크 1000-3523-4427', qr: '/coffee/dyd.png' },
-	{ id: 'dev5', name: '김기범', role: '팀원', msg: '메인 페이지 / 마이페이지', account: '우리 1010-2020-3030', qr: '/coffee/qr_dev5.png' },
+	{ id: 'dev5', name: '김기범', role: '팀원', msg: '메인 페이지 / 마이페이지', account: '우리 1010-2020-3030', qr: '/coffee/gibum.png' },
 ];
 
 const Coffee = () => {
