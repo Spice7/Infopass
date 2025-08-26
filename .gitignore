@@ -176,3 +176,11 @@ sketch
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,java,react,intellij
 /.metadata/
+
+# Docker & 배포 관련
+.env
+.env.local
+.env.production
+
+# 보안 파일들
+*/src/main/resources/application-local.yml

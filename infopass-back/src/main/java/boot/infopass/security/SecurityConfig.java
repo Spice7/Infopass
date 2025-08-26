@@ -76,7 +76,7 @@ public class SecurityConfig {
                 // ✅ 2. 인증 없이 접근을 허용할 경로들
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/", "/api/rooms", "/api/rooms/player/search/**", "/login", "/user/**", "/admin/**",
-                        "/wrong-answers/**", "/results/**", "/rank/**")
+                        "/wrong-answers/**", "/results/**", "/rank/**", "/actuator/**")
                 .permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/ox_image/**",
                         "/api/rooms/player/**", "/api/ranking/**", "/public/**")
@@ -107,9 +107,21 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 허용할 오리진 설정
-        configuration.addAllowedOrigin("http://localhost:5173");
-        configuration.addAllowedOrigin("http://192.168.10.141:5173");
+        // 허용할 오리진 설정 - 환경별로 설정
+        String profile = System.getProperty("spring.profiles.active", "local");
+        if ("prod".equals(profile)) {
+            // 배포 환경에서는 실제 도메인 설정
+            configuration.addAllowedOrigin("http://localhost");  // Docker nginx
+            // TODO: 실제 배포 도메인으로 변경하세요
+            // AWS EC2 예시: http://ec2-xx-xxx-xxx-xxx.ap-northeast-2.compute.amazonaws.com
+            // 커스텀 도메인 예시: http://your-domain.com, https://your-domain.com
+            configuration.addAllowedOrigin("*"); // 임시: 모든 origin 허용 (보안상 권장하지 않음)
+        } else {
+            // 개발 환경 설정
+            configuration.addAllowedOrigin("http://localhost:5173");
+            configuration.addAllowedOrigin("http://192.168.10.141:5173");
+        }
+        
         // 허용할 헤더 설정
         configuration.addAllowedHeader("*");
 
@@ -131,7 +143,15 @@ public class SecurityConfig {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
         // 인증 없이 허용할 경로를 여기에 추가
-        return path.startsWith("/api/rooms/");
+        return path.startsWith("/user/social/") ||
+               path.startsWith("/user/checkId") ||
+               path.startsWith("/user/checkNickName") ||
+               path.startsWith("/user/join") ||
+               path.startsWith("/user/sendSms") ||
+               path.startsWith("/user/verifyCode") ||
+               path.startsWith("/user/findPw") ||
+               path.startsWith("/user/findId") ||
+               path.startsWith("/rank/") ||
+               path.startsWith("/actuator/");
     }
-
 }
