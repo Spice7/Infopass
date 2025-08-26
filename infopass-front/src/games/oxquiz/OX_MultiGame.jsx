@@ -4,6 +4,8 @@ import axios from 'axios';
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import { LoginContext } from '../../user/LoginContextProvider';
+import { useNavigate } from 'react-router-dom';
+import { AlertDialog } from '../../user/RequireLogin';
 
 // ========================================
 // 🧩 파일 개요
@@ -35,7 +37,9 @@ const OX_MultiGame = () => {
   const [showCorrectOverlay, setShowCorrectOverlay] = useState(false);
 
   const { userInfo } = useContext(LoginContext);
-
+  const navigate = useNavigate();
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertData, setAlertData] = useState({ title: "", message: "" });
   // 로그인 사용자
   useEffect(() => {
     if (userInfo) {
@@ -159,12 +163,12 @@ const OX_MultiGame = () => {
   // useEffect: 타이머 작동
   // =========================
   useEffect(() => {
-    if (!gameStarted) return;
+    if (!gameStarted || gameResult) return;
     const timer = setInterval(() => {
       setTimeLeft((prev) => (prev > 0 ? +(prev - 0.1).toFixed(1) : 0.0));
     }, 100);
     return () => clearInterval(timer);
-  }, [gameStarted]);
+  }, [gameStarted, gameResult]);
 
   // =========================
   // useEffect: 타이머 0초 처리
@@ -194,7 +198,7 @@ const OX_MultiGame = () => {
     // roomId나 useridx가 없으면 연결 시도조차 하지 않음
     if (!roomId || !useridx) return;
 
-    const socket = new SockJS('http://localhost:9000/ws');
+    const socket = new SockJS('http://localhost:9000/ws-game');
     const client = new Client({
       webSocketFactory: () => socket,
       debug: str => console.log(str),
@@ -408,7 +412,7 @@ const OX_MultiGame = () => {
                 setEnemyShaking(false);
               } else {
                 // ==================================================
-                // ✅ 2. 게임 종료 조건 판별 및 결과 설정
+                //  게임 종료 조건 판별 및 결과 설정
                 // ==================================================
                 gameEndedRef.current = true;
 
@@ -503,7 +507,39 @@ const OX_MultiGame = () => {
             }, 3000); // 3초 후 다음 문제
           }
 
+          // 상대방 나감 등으로 게임 종료
+          if (data.type === 'gameEnd') {
+            if (String(data.winnerId) === String(useridx)) {
+              gameEndedRef.current = true;
+
+              const finalScore = stateRef.current.myScore;
+              setGameResult('WIN');
+              setAlertData({
+                title: "게임 종료",
+                message: "상대방이 게임을 나갔습니다. 승리 처리됩니다."
+              });
+              setAlertOpen(true);
+              axios.post(multiresulturl, {
+                user_id: useridx,
+                lobby_id: roomId,
+                score: finalScore,
+                user_rank: 1,
+                user_rank_point: 30,
+                game_type: "oxquiz",
+              }).then((res) => {
+                console.log("Multi result:", res.data);
+              });
+              axios.post(lobbyendedurl, { host_user_id: useridx, roomid: roomId, status: "ENDED" }).then((res) => {
+                console.log(res.data);
+              }).catch((err) => {
+                console.error("Error ending lobby:", err);
+              });
+            }
+          }
+
         });
+
+
 
         // 방 스냅샷 요청
         client.publish({
@@ -511,6 +547,42 @@ const OX_MultiGame = () => {
           body: JSON.stringify({ type: 'info', roomId: +roomId })
         });
       }
+
+      // 새로고침 후에도 join 메시지 전송
+      client.publish({
+        destination: '/app/ox/room.join',
+        body: JSON.stringify({
+          type: 'join',
+          roomId: roomId,
+          userId: useridx,
+          nickname: usernickname,
+        }),
+      });
+      // 에러 메시지 구독
+      client.subscribe("/topic/ox/errors", msg => {
+        const data = JSON.parse(msg.body);
+        console.log("새로고침한 내 userId:", data.userId);
+        // 내 userId와 일치하는 메시지만 처리
+        if (data.type === 'joinDenied' && String(data.userId) === String(useridx)) {
+          axios.post(multiresulturl, {
+            user_id: useridx,
+            lobby_id: roomId,
+            score: 0,
+            user_rank: 2,
+            user_rank_point: -50,
+            game_type: "oxquiz",
+          }).then((res) => {
+            console.log("Multi result:", res.data);
+          });
+          navigate('/oxquiz/OX_lobby', {state:{
+            alertOpen: true,
+            alertData: {
+              title: "게임 종료",
+              message: "도중에 게임에서 나가 패널티가 부과됩니다."
+            }
+          }});
+        }
+      });
     };
 
     client.activate();
@@ -543,11 +615,11 @@ const OX_MultiGame = () => {
         }
       }
     };
-  }, [roomId, useridx]); // 의존성 배열은 그대로 유지
+  }, [navigate, roomId, useridx, usernickname]); // 의존성 배열은 그대로 유지
 
   // OX 클릭 → 내 답 전송
   const handleOXClick = (ox) => {
-    if (buttonDisabled) return;
+    if (buttonDisabled || gameResult) return;
     setMyOX(ox);
 
     if (stompClient && stompClient.connected && roomId) {
@@ -654,7 +726,7 @@ const OX_MultiGame = () => {
   // 게임 종료 화면
   // ==================================================
   if (gameResult) {
-  let resultText = '';
+    let resultText = '';
     let isWin = false, isLose = false;
     if (gameResult === 'WIN') {
       resultText = 'WIN';
@@ -665,7 +737,7 @@ const OX_MultiGame = () => {
     } else {
       resultText = 'DRAW';
     }
-  
+
     return (
       <div
         style={{
@@ -683,8 +755,8 @@ const OX_MultiGame = () => {
           background: isWin
             ? 'linear-gradient(135deg, #ffe066 0%, #7fd8ff 100%)'
             : isLose
-            ? 'linear-gradient(135deg, #232a3a 0%, #3a3a3a 100%)'
-            : 'linear-gradient(135deg, #bdbdbd 0%, #e0e0e0 100%)',
+              ? 'linear-gradient(135deg, #232a3a 0%, #3a3a3a 100%)'
+              : 'linear-gradient(135deg, #bdbdbd 0%, #e0e0e0 100%)',
           transition: 'background 0.5s',
           overflow: 'hidden',
         }}
@@ -720,8 +792,8 @@ const OX_MultiGame = () => {
             background: isWin
               ? 'rgba(255,255,255,0.95)'
               : isLose
-              ? 'rgba(34,52,79,0.97)'
-              : 'rgba(220,220,220,0.97)',
+                ? 'rgba(34,52,79,0.97)'
+                : 'rgba(220,220,220,0.97)',
             borderRadius: 28,
             boxShadow: '0 8px 32px rgba(0,0,0,0.28)',
             padding: '54px 48px 44px 48px',
@@ -743,8 +815,8 @@ const OX_MultiGame = () => {
               textShadow: isWin
                 ? '2px 2px 12px #ffe066'
                 : isLose
-                ? '2px 2px 12px #22344f'
-                : '2px 2px 12px #bbb',
+                  ? '2px 2px 12px #22344f'
+                  : '2px 2px 12px #bbb',
               marginBottom: 18,
               letterSpacing: 2,
               display: 'flex',
@@ -795,8 +867,8 @@ const OX_MultiGame = () => {
                     animation: isWin
                       ? 'jump 0.7s infinite cubic-bezier(0.5,0,0.5,1)'
                       : isLose
-                      ? 'shake 0.3s infinite alternate'
-                      : 'none',
+                        ? 'shake 0.3s infinite alternate'
+                        : 'none',
                     zIndex: 2,
                     position: 'relative',
                   }}
@@ -873,8 +945,8 @@ const OX_MultiGame = () => {
                     animation: isLose
                       ? 'jump 0.7s infinite cubic-bezier(0.5,0,0.5,1)'
                       : isWin
-                      ? 'shake 0.3s infinite alternate'
-                      : 'none',
+                        ? 'shake 0.3s infinite alternate'
+                        : 'none',
                     zIndex: 2,
                     position: 'relative',
                   }}
@@ -932,8 +1004,8 @@ const OX_MultiGame = () => {
               background: isWin
                 ? 'linear-gradient(90deg, #ffe066 0%, #7fd8ff 100%)'
                 : isLose
-                ? 'linear-gradient(90deg, #888 0%, #232a3a 100%)'
-                : 'linear-gradient(90deg, #bdbdbd 0%, #e0e0e0 100%)',
+                  ? 'linear-gradient(90deg, #888 0%, #232a3a 100%)'
+                  : 'linear-gradient(90deg, #bdbdbd 0%, #e0e0e0 100%)',
               color: isWin ? '#22344f' : isLose ? '#fff' : '#333',
               boxShadow: '0 2px 12px rgba(0,0,0,0.13)',
               cursor: 'pointer',
@@ -944,15 +1016,15 @@ const OX_MultiGame = () => {
               e.currentTarget.style.background = isWin
                 ? 'linear-gradient(90deg, #7fd8ff 0%, #ffe066 100%)'
                 : isLose
-                ? 'linear-gradient(90deg, #232a3a 0%, #888 100%)'
-                : 'linear-gradient(90deg, #e0e0e0 0%, #bdbdbd 100%)';
+                  ? 'linear-gradient(90deg, #232a3a 0%, #888 100%)'
+                  : 'linear-gradient(90deg, #e0e0e0 0%, #bdbdbd 100%)';
             }}
             onMouseOut={e => {
               e.currentTarget.style.background = isWin
                 ? 'linear-gradient(90deg, #ffe066 0%, #7fd8ff 100%)'
                 : isLose
-                ? 'linear-gradient(90deg, #888 0%, #232a3a 100%)'
-                : 'linear-gradient(90deg, #bdbdbd 0%, #e0e0e0 100%)';
+                  ? 'linear-gradient(90deg, #888 0%, #232a3a 100%)'
+                  : 'linear-gradient(90deg, #bdbdbd 0%, #e0e0e0 100%)';
             }}
           >
             로비로 돌아가기
@@ -981,6 +1053,13 @@ const OX_MultiGame = () => {
               100% { opacity: 1; transform: scale(1);}
             }
           `}</style>
+          {/* 알림 다이얼로그 */}
+          <AlertDialog
+            open={alertOpen}
+            title={alertData.title}
+            message={alertData.message}
+            onConfirm={() => setAlertOpen(false)}
+          />
         </div>
       </div>
     );
@@ -1099,7 +1178,7 @@ const OX_MultiGame = () => {
               />
               {myLife <= 2 && (
                 <>
-                   <span style={{
+                  <span style={{
                     position: 'absolute',
                     left: 10,
                     top: 40,
@@ -1219,7 +1298,7 @@ const OX_MultiGame = () => {
               {/* ✅ 상대방 생명력(enemyLife)에 따른 효과 추가 */}
               {enemyLife <= 2 && (
                 <>
-                   <span style={{
+                  <span style={{
                     position: 'absolute',
                     left: 10,
                     top: 40,
@@ -1319,6 +1398,7 @@ const OX_MultiGame = () => {
           </div>
         )}
       </div>
+
     </div>
   );
 };

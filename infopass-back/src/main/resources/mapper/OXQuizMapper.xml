@@ -4,4 +4,66 @@
 	<select id="GetAllQuiz" resultType="oxquiz">
 		select * from oxquiz_question order by rand()
 	</select>
+	
+	<!-- ============ Admin CRUD ============ -->
+	<select id="listOXQuizQuestions" resultType="oxquizAdmin" parameterType="map">
+		SELECT id, question, answer, quiz_explanition, category, created_at
+		FROM oxquiz_question
+		<where>
+			<if test="q != null and q != ''">
+				AND (question LIKE CONCAT('%', #{q}, '%') OR quiz_explanition LIKE CONCAT('%', #{q}, '%'))
+			</if>
+			<if test="category != null and category != ''">
+				AND category = #{category}
+			</if>
+		</where>
+		ORDER BY id DESC
+		<if test="size != null and size &gt; 0">
+			LIMIT #{size}
+			<if test="offset != null and offset &gt;= 0">
+				OFFSET #{offset}
+			</if>
+		</if>
+	</select>
+
+	<select id="countOXQuizQuestions" resultType="int" parameterType="map">
+		SELECT COUNT(*)
+		FROM oxquiz_question
+		<where>
+			<if test="q != null and q != ''">
+				AND (question LIKE CONCAT('%', #{q}, '%') OR quiz_explanition LIKE CONCAT('%', #{q}, '%'))
+			</if>
+			<if test="category != null and category != ''">
+				AND category = #{category}
+			</if>
+		</where>
+	</select>
+
+	<select id="findOXQuizQuestionById" resultType="oxquizAdmin" parameterType="int">
+		SELECT id, question, answer, quiz_explanition, category, created_at
+		FROM oxquiz_question
+		WHERE id = #{id}
+	</select>
+
+	<insert id="insertOXQuizQuestion" parameterType="oxquizAdmin" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO oxquiz_question (question, answer, quiz_explanition, category, created_at)
+		VALUES (#{question}, #{answer}, #{quiz_explanition}, #{category}, NOW())
+	</insert>
+
+	<update id="updateOXQuizQuestion" parameterType="oxquizAdmin">
+		UPDATE oxquiz_question
+		SET question = #{question},
+			answer = #{answer},
+			quiz_explanition = #{quiz_explanition},
+			category = #{category}
+		WHERE id = #{id}
+	</update>
+
+	<delete id="deleteOXQuizQuestion" parameterType="int">
+		DELETE FROM oxquiz_question WHERE id = #{id}
+	</delete>
+
+	<select id="countByCategory" resultType="int" parameterType="string">
+		SELECT COUNT(*) FROM oxquiz_question WHERE category = #{category}
+	</select>
 </mapper>

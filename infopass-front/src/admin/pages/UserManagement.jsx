@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import '../Admin.css'
+import { AlertDialog, ConfirmDialog, ErrorDialog, SuccessDialog } from '../../components/CommonDialogs'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:9000'
 
@@ -15,6 +16,50 @@ const UserManagement = () => {
 	const [isEditMode, setIsEditMode] = useState(false)
 	const [isAddMode, setIsAddMode] = useState(false)
 	const [editingUser, setEditingUser] = useState(null)
+
+	// 다이얼로그 상태 관리
+	const [dialogs, setDialogs] = useState({
+		alert: { open: false, title: '', message: '' },
+		confirm: { open: false, title: '', message: '', onConfirm: null },
+		error: { open: false, message: '' },
+		success: { open: false, message: '' }
+	})
+
+	// 다이얼로그 헬퍼 함수들
+	const showAlert = (title, message) => {
+		setDialogs(prev => ({
+			...prev,
+			alert: { open: true, title, message }
+		}))
+	}
+
+	const showConfirm = (title, message, onConfirm) => {
+		setDialogs(prev => ({
+			...prev,
+			confirm: { open: true, title, message, onConfirm }
+		}))
+	}
+
+	const showError = (message) => {
+		setDialogs(prev => ({
+			...prev,
+			error: { open: true, message }
+		}))
+	}
+
+	const showSuccess = (message) => {
+		setDialogs(prev => ({
+			...prev,
+			success: { open: true, message }
+		}))
+	}
+
+	const closeDialog = (type) => {
+		setDialogs(prev => ({
+			...prev,
+			[type]: { open: false, title: '', message: '', onConfirm: null }
+		}))
+	}
 
 	// 페이지네이션
 	const [currentPage, setCurrentPage] = useState(1)
@@ -135,9 +180,15 @@ const UserManagement = () => {
 
 	// 사용자 삭제 (비활성화)
 	const handleDeleteUser = async (userId) => {
-		const confirmDelete = window.confirm('정말로 이 사용자를 삭제하시겠습니까?\n(실제로는 계정이 비활성화됩니다)')
-		
-		if (!confirmDelete) return
+		showConfirm(
+			'사용자 삭제',
+			'정말로 이 사용자를 삭제하시겠습니까?\n(실제로는 계정이 비활성화됩니다)',
+			() => performDeleteUser(userId)
+		)
+	}
+
+	const performDeleteUser = async (userId) => {
+		closeDialog('confirm')
 		
 		try {
 			const response = await fetch(`${API_BASE}/admin/users/${userId}`, {
@@ -147,17 +198,17 @@ const UserManagement = () => {
 				},
 			})
 			
-			if (response.ok) {
-				const result = await response.json()
-				alert(result.message)
-				fetchUsers() // 목록 새로고침
-				setIsModalOpen(false)
-			} else {
-				alert('사용자 삭제에 실패했습니다.')
-			}
+					if (response.ok) {
+			const result = await response.json()
+			showSuccess(result.message)
+			fetchUsers() // 목록 새로고침
+			setIsModalOpen(false)
+		} else {
+			showError('사용자 삭제에 실패했습니다.')
+		}
 		} catch (error) {
 			console.error('사용자 삭제 오류:', error)
-			alert('사용자 삭제 중 오류가 발생했습니다.')
+			showError('사용자 삭제 중 오류가 발생했습니다.')
 		}
 	}
 
@@ -204,20 +255,20 @@ const UserManagement = () => {
 				body: JSON.stringify(editingUser),
 			})
 			
-			if (response.ok) {
-				await response.json()
-				alert(isAddMode ? '사용자가 추가되었습니다.' : '사용자 정보가 수정되었습니다.')
-				fetchUsers() // 목록 새로고침
-				setIsModalOpen(false)
-				setIsEditMode(false)
-				setIsAddMode(false)
-				setEditingUser(null)
-			} else {
-				alert('사용자 저장에 실패했습니다.')
-			}
+					if (response.ok) {
+			await response.json()
+			showSuccess(isAddMode ? '사용자가 추가되었습니다.' : '사용자 정보가 수정되었습니다.')
+			fetchUsers() // 목록 새로고침
+			setIsModalOpen(false)
+			setIsEditMode(false)
+			setIsAddMode(false)
+			setEditingUser(null)
+		} else {
+			showError('사용자 저장에 실패했습니다.')
+		}
 		} catch (error) {
 			console.error('사용자 저장 오류:', error)
-			alert('사용자 저장 중 오류가 발생했습니다.')
+			showError('사용자 저장 중 오류가 발생했습니다.')
 		}
 	}
 
@@ -245,21 +296,10 @@ const UserManagement = () => {
 	return (
 		<div className="admin-page">
 			<div className="admin-page-header">
-				<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-					<div>
-						<h2 className="admin-page-title">사용자 관리</h2>
-						<p className="admin-page-description">
-							등록된 사용자들의 정보를 조회하고 관리할 수 있습니다.
-						</p>
-					</div>
-					<button 
-						className="admin-btn primary"
-						onClick={handleAddUser}
-						style={{ marginLeft: '16px' }}
-					>
-						+ 사용자 추가
-					</button>
-				</div>
+				<h2 className="admin-page-title">사용자 관리</h2>
+				<p className="admin-page-description">
+					등록된 사용자들의 정보를 조회하고 관리할 수 있습니다.
+				</p>
 			</div>
 
 			{/* 검색 및 필터 */}
@@ -273,29 +313,33 @@ const UserManagement = () => {
 						className="admin-search-input"
 					/>
 				</div>
-				<div className="admin-sort-controls">
-					<label className="admin-label">정렬:
-						<select 
-							value={`${sortBy}-${sortOrder}`}
-							onChange={(e) => {
-								const [field, order] = e.target.value.split('-')
-								setSortBy(field)
-								setSortOrder(order)
-							}}
-							className="admin-select"
-						>
-							<option value="created_at-desc">가입일 (최신순)</option>
-							<option value="created_at-asc">가입일 (오래된순)</option>
-							<option value="name-asc">이름 (가나다순)</option>
-							<option value="level-desc">레벨 (높은순)</option>
-							<option value="level-asc">레벨 (낮은순)</option>
-							<option value="exp-desc">경험치 (높은순)</option>
-							<option value="exp-asc">경험치 (낮은순)</option>
-							<option value="rank_updated_at-desc">랭킹 업데이트 (최신순)</option>
-							<option value="usertype-desc">권한별 (관리자 우선)</option>
-						</select>
-					</label>
-				</div>
+				<label className="admin-label">정렬
+					<select 
+						value={`${sortBy}-${sortOrder}`}
+						onChange={(e) => {
+							const [field, order] = e.target.value.split('-')
+							setSortBy(field)
+							setSortOrder(order)
+						}}
+						className="admin-select"
+					>
+						<option value="created_at-desc">가입일 (최신순)</option>
+						<option value="created_at-asc">가입일 (오래된순)</option>
+						<option value="name-asc">이름 (가나다순)</option>
+						<option value="level-desc">레벨 (높은순)</option>
+						<option value="level-asc">레벨 (낮은순)</option>
+						<option value="exp-desc">경험치 (높은순)</option>
+						<option value="exp-asc">경험치 (낮은순)</option>
+						<option value="rank_updated_at-desc">랭킹 업데이트 (최신순)</option>
+						<option value="usertype-desc">권한별 (관리자 우선)</option>
+					</select>
+				</label>
+				<button 
+					className="admin-btn primary"
+					onClick={handleAddUser}
+				>
+					사용자 추가
+				</button>
 			</div>
 
 			{error && <div className="admin-error">{error}</div>}
@@ -610,6 +654,45 @@ const UserManagement = () => {
 					</div>
 				</div>
 			)}
+
+			{/* 다이얼로그들 */}
+			<AlertDialog
+				open={dialogs.alert.open}
+				title={dialogs.alert.title}
+				message={dialogs.alert.message}
+				onConfirm={() => closeDialog('alert')}
+				isAdmin={true}
+			/>
+
+			<ConfirmDialog
+				open={dialogs.confirm.open}
+				title={dialogs.confirm.title}
+				message={dialogs.confirm.message}
+				onConfirm={() => {
+					if (dialogs.confirm.onConfirm) {
+						dialogs.confirm.onConfirm()
+					}
+					closeDialog('confirm')
+				}}
+				onCancel={() => closeDialog('confirm')}
+				confirmText="삭제"
+				cancelText="취소"
+				isAdmin={true}
+			/>
+
+			<ErrorDialog
+				open={dialogs.error.open}
+				message={dialogs.error.message}
+				onConfirm={() => closeDialog('error')}
+				isAdmin={true}
+			/>
+
+			<SuccessDialog
+				open={dialogs.success.open}
+				message={dialogs.success.message}
+				onConfirm={() => closeDialog('success')}
+				isAdmin={true}
+			/>
 		</div>
 	)
 }

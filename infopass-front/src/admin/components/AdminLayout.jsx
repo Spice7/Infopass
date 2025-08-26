@@ -11,6 +11,14 @@ const AdminLayout = ({ children }) => {
 	const navigate = useNavigate()
 
 	useEffect(() => {
+		// 관리자 페이지 진입 시 전역 폭 제한 해제용 클래스 부여
+		document.body.classList.add('admin-full')
+		return () => {
+			document.body.classList.remove('admin-full')
+		}
+	}, [])
+
+	useEffect(() => {
 		// 로그인 정보가 로드될 때까지 기다림
 		if (userInfo !== null) {
 			setLoading(false)
