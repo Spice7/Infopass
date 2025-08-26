@@ -51,7 +51,7 @@ const OX_MultiGame = () => {
 
   // 상대방 정보
   const [enemynickname, setEnemynickname] = useState('상대방닉네임');
-  const [enemyidx, setEnemyidx] = useState(null);
+  const [setEnemyidx] = useState(null);
   const [enemyOX, setEnemyOX] = useState(null);
   const [enemyScore, setEnemyScore] = useState(0);
   const [enemyLife, setEnemyLife] = useState(MAX_LIFE);
@@ -234,7 +234,11 @@ const OX_MultiGame = () => {
 
           if (data.type === 'charDenied') {
             if (String(data.userId) === String(useridx)) {
-              alert('이미 선택된 캐릭터입니다.');
+              setAlertData({
+                title: "이미 선택된 캐릭터입니다.",
+                message: '다른 캐릭터를 선택해주세요.'
+              });
+              setAlertOpen(true);
               setSelectedChar(null);
             }
           }
