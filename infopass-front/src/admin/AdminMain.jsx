@@ -1,16 +1,23 @@
-import React, { useState } from 'react'
-import AnalyticsDashboard from './AnalyticsDashboard'
+import React from 'react'
+import { Routes, Route } from 'react-router-dom'
+import AdminLayout from './components/AdminLayout'
+import Analytics from './pages/Analytics'
+import UserManagement from './pages/UserManagement'
+import InquiryManagement from './pages/InquiryManagement'
+import CardQuestionManagement from './pages/CardQuestionManagement'
+import OXQuestionManagement from './pages/OXQuestionManagement'
 
 const AdminMain = () => {
-	const [activeTab, setActiveTab] = useState('db')
-
 	return (
-		<div className="content-area">
-			<h2 className="section-title">관리자 대시보드</h2>
-			{activeTab === 'db' && (
-				<AnalyticsDashboard />
-			)}
-		</div>
+		<AdminLayout>
+			<Routes>
+				<Route path="/" element={<Analytics />} />
+				<Route path="/users" element={<UserManagement />} />
+				<Route path="/inquiries" element={<InquiryManagement />} />
+				<Route path="/card-questions" element={<CardQuestionManagement />} />
+				<Route path="/ox-questions" element={<OXQuestionManagement />} />
+			</Routes>
+		</AdminLayout>
 	)
 }
 

@@ -28,13 +28,8 @@ const LoginForm = () => {
         const password = form.password.value
 
         try {
-            // login 함수가 Promise 반환한다고 가정
-            await login(email, password);
-
-            // 로그인 성공 시
-            // 이전 페이지가 지정되어 있으면 그쪽으로, 없으면 기본 '/' 페이지로
-            const redirectPath = location.state?.from || '/';
-            navi(redirectPath, { replace: true });
+            // login 함수에 location 전달하여 원래 페이지로 이동 처리
+            await login(email, password, location);
         } catch (err) {
             console.error('로그인 실패', err);
             alert('로그인에 실패했습니다.');

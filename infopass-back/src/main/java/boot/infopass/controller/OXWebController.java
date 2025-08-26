@@ -1,5 +1,6 @@
 package boot.infopass.controller;
 
+import java.security.Principal;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -128,9 +129,19 @@ public class OXWebController {
     }
 
     @MessageMapping("/ox/room.join")
-    public void join(GenericMsg msg) {
+    public void join(GenericMsg msg, Principal principal) {
         Room r = rooms.get(msg.getRoomId());
+        System.out.println("join 요청: userId=" + msg.getUserId() + ", 방 상태=" + r.status);
         if (r != null) {
+        	// 게임이 이미 시작된 방이면 입장 거부
+        	 if ("PLAYING".equalsIgnoreCase(r.status)) {
+        		 	System.out.println("연결해지해라 시바아아앙아ㅏ");
+        		 	template.convertAndSend(
+        		 			"/topic/ox/errors",
+        		 		    Map.of("type", "joinDenied", "reason", "게임이 이미 진행 중입니다.", "userId", msg.getUserId())
+        		 		);
+        	        return;
+        	    }
             boolean alreadyIn = r.players.stream()
                 .anyMatch(p -> p.userId.equals(msg.getUserId()));
             if (!alreadyIn && r.current() < r.max_players) {
@@ -140,6 +151,7 @@ public class OXWebController {
             broadcastRoom(r.id);
             broadcastRooms();
         }
+        
     }
 
     @MessageMapping("/ox/room.leave")
@@ -147,6 +159,14 @@ public class OXWebController {
         Room r = rooms.get(msg.getRoomId());
         if (r != null) {
             r.players.removeIf(p -> p.userId.equals(msg.getUserId()));
+            // 남은 인원이 1명이고 게임이 진행 중이면
+            if (r.players.size() == 1 && "PLAYING".equalsIgnoreCase(r.status)) {
+                // 남은 플레이어의 userId
+                String winnerId = r.players.get(0).userId;
+                // 게임 종료 메시지 브로드캐스트
+                template.convertAndSend("/topic/ox/room." + r.id,
+                    Map.of("type", "gameEnd", "winnerId", winnerId));
+            }
             
             if (r.players.isEmpty()) {
                 // DB 삭제
@@ -172,7 +192,7 @@ public class OXWebController {
     @MessageMapping("/ox/room.start")
     public void start(GenericMsg msg) {
         Room r = rooms.get(msg.getRoomId());
-        r.status= "PLAYING";
+        //r.status= "PLAYING";
         if (r != null && r.host_user_id.equals(msg.getUserId())) {
             if (r.current() == r.max_players) {
             	lobby.UpdateStatus(r);
@@ -356,7 +376,7 @@ public class OXWebController {
 
     private void broadcastRoom(int roomId) {
         Room r = rooms.get(roomId);
-        System.out.println(r);
+        System.out.println("브로드캐스트 한 방번호 : " +r);
         if (r != null) {
             List<Map<String,Object>> ps = new ArrayList<>();
             for (Player p : r.players) {

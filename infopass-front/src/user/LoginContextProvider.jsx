@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Cookies from "js-cookie";
 import * as auth from "./auth";
-import * as Swal from "./alert";
 import { createContext } from "react";
 import { registerLogoutCallback } from "./authUtils";
+import { 
+  LoginSuccessDialog, 
+  LogoutConfirmDialog, 
+  AlertDialog, 
+  ConfirmDialog 
+} from "./RequireLogin";
 
 //  여기에 LoginContext를 생성하고 export 합니다.
 export const LoginContext = createContext();
@@ -26,6 +31,14 @@ const LoginContextProvider = ({ children }) => {
   // 소셜 유저 정보
   const [existingUser, setExistingUser] = useState(null);
 
+  // 다이얼로그 상태들
+  const [loginSuccessOpen, setLoginSuccessOpen] = useState(false);
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [alertData, setAlertData] = useState({ title: '', message: '', type: 'info' });
+  const [confirmData, setConfirmData] = useState({ title: '', message: '', onConfirm: null });
+
   // 소셜 유저 받아서 회원가입 모달 열 때 호출하는 함수
   const openSignUpModalWithUser = (user) => {
     setExistingUser(user);
@@ -43,6 +56,7 @@ const LoginContextProvider = ({ children }) => {
 
   // 페이지 이동
   const navigate = useNavigate();
+  const location = useLocation();
 
   // 🍪➡💍 로그인 체크
   const loginCheck = async () => {
@@ -98,17 +112,22 @@ const LoginContextProvider = ({ children }) => {
         Cookies.set("accessToken", accessToken);
         loginSetting(data, accessToken);
 
-        Swal.alert("로그인 성공", "메인 화면으로 이동합니다", "success", () => {
-          navigate(location.state?.from || "/");
-        });
+        // 원래 페이지로 이동 (location이 전달된 경우)
+        if (location?.state?.from) {
+          navigate(location.state.from);
+        } else {
+          // 로그인 성공 다이얼로그 표시 (기본 동작)
+          setLoginSuccessOpen(true);
+        }
       }
     } catch (error) {
-      Swal.alert(
-        "로그인 실패",
-        "아이디 또는 비밀번호가 일치하지 않습니다",
-        "error",
-        error
-      );
+      // 로그인 실패 다이얼로그 표시
+      setAlertData({
+        title: "로그인 실패",
+        message: "아이디 또는 비밀번호가 일치하지 않습니다",
+        type: "error"
+      });
+      setAlertOpen(true);
     }
   };
 
@@ -145,6 +164,7 @@ const LoginContextProvider = ({ children }) => {
     setLogin(false);
     setUserInfo(null);
     setRoles({ isUser: false, isAdmin: false });
+    //navigate("/login", { replace: true });
   };
 
   // 🔓 로그아웃
@@ -155,18 +175,37 @@ const LoginContextProvider = ({ children }) => {
       return;
     }
 
-    Swal.confirm(
-      "로그아웃하시겠습니까?",
-      "로그아웃을 진행합니다.",
-      "warning",
-      (result) => {
-        if (result.isConfirmed) {
-          Swal.alert("로그아웃 성공", "", "success");
-          logoutSetting();
-          navigate("/");
-        }
-      }
-    );
+    // 로그아웃 확인 다이얼로그 표시
+    setLogoutConfirmOpen(true);
+  };
+
+  // 로그아웃 확인 처리
+  const handleLogoutConfirm = () => {
+    setLogoutConfirmOpen(false);
+    setAlertData({
+      title: "로그아웃 성공",
+      message: "로그아웃되었습니다",
+      type: "success"
+    });
+    setAlertOpen(true);
+    logoutSetting();
+    navigate("/");
+  };
+
+  // 로그아웃 취소 처리
+  const handleLogoutCancel = () => {
+    setLogoutConfirmOpen(false);
+  };
+
+  // 로그인 성공 다이얼로그 확인 처리
+  const handleLoginSuccessConfirm = () => {
+    setLoginSuccessOpen(false);
+    navigate("/");
+  };
+
+  // 알림 다이얼로그 확인 처리
+  const handleAlertConfirm = () => {
+    setAlertOpen(false);
   };
 
   // Mount 시 로그인 체크 및 로그아웃 콜백 등록
@@ -193,6 +232,27 @@ const LoginContextProvider = ({ children }) => {
       }}
     >
       {children}
+      
+      {/* 로그인 성공 다이얼로그 */}
+      <LoginSuccessDialog
+        open={loginSuccessOpen}
+        onConfirm={handleLoginSuccessConfirm}
+      />
+      
+      {/* 로그아웃 확인 다이얼로그 */}
+      <LogoutConfirmDialog
+        open={logoutConfirmOpen}
+        onConfirm={handleLogoutConfirm}
+        onCancel={handleLogoutCancel}
+      />
+      
+      {/* 알림 다이얼로그 */}
+      <AlertDialog
+        open={alertOpen}
+        title={alertData.title}
+        message={alertData.message}
+        onConfirm={handleAlertConfirm}
+      />
     </LoginContext.Provider>
   );
 };

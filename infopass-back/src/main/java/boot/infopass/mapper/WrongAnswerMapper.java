@@ -10,6 +10,7 @@ import boot.infopass.dto.WrongAnswerDto;
 public interface WrongAnswerMapper {
 
 	public void insertWrongAnswer(WrongAnswerDto dto);
+	public int deleteWrongAnswersByQuestionId(Integer questionId);
 
 	// 블록 게임 전용 오답 기록
 	public void insertBlockWrongAnswer(WrongAnswerDto dto);
@@ -18,4 +19,8 @@ public interface WrongAnswerMapper {
 
 	// 블록 게임 전용 오답 조회
 	public List<WrongAnswerDto> selectWrongBlockAnswersByUserId(int userId);
+	
+	// 카드 게임 전용 오답 기록
+	public void insertCardWrongAnswer(WrongAnswerDto dto);
+	
 }

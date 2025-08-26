@@ -3,12 +3,15 @@ import React, { useMemo, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Home.css';
 import { LoginContext } from '../user/LoginContextProvider';
+import Menu from './menu';
+
 
 // 하단 퀵버튼 섹션 제거에 따라 불필요 배열 삭제
 
 const Home = () => {
   const navigate = useNavigate();
-
+  const {checkgamehome, setcheckgamehome}=useState('/');
+  <Menu checkgame={checkgamehome}/>
   const games = useMemo(() => ([
     {
       key: 'ox',
@@ -64,7 +67,7 @@ const Home = () => {
       desc: '주어진 코드 속 빈칸을 올바른 알고리즘/구문 블록으로 채워 “정상 실행”을 완성하라. 문제를 해석 → 로직 추론 → 블록 선택 순으로 사고력을 단련. 퍼즐처럼 맞춰지며 동작할 때의 쾌감이 핵심.',
       to: '/block/main',
       thumbav: '/gamelogo/BlockquizAd.gif',
-      thumbnail: '/ox_image/002ex.png',
+      thumbnail: '/gamelogo/block_thumbnail.png',
       dev: 'Infopass Team - 이건호',
       release: '2025.08.19',
       tech: 'React · Blockly · Spring',
@@ -184,7 +187,7 @@ const Home = () => {
                 <button
                   className={"start-btn" + (selected.comingSoon ? ' disabled' : '')}
                   disabled={!!selected.comingSoon}
-                  onClick={() => { if (!selected.comingSoon) { closeModal(); navigate(selected.to); } }}
+                  onClick={() => { if (!selected.comingSoon) { closeModal(); navigate(selected.to); setcheckgamehome(selected.to); } }}
                 >{selected.comingSoon ? '준비중' : '게임 시작'}</button>
               </div>
             </div>

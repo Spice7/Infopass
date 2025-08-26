@@ -3,26 +3,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import { LoginContext } from '../user/LoginContextProvider';
 import './menu.css';
 
-const Menu = () => {
+const Menu = ({ checkgamehome }) => {
         const { isLogin, userInfo, logout } = useContext(LoginContext);
         const navigate = useNavigate();
         const [drawerOpen, setDrawerOpen] = useState(false);
-
+        const [checkgame,setcheckgame] = useState(checkgamehome)
+        
 
     const handleLogout = () => {
-        logout();
-        navigate('/');
+        logout(); // LoginContextProvider에서 다이얼로그 처리
     };
-    const logincheck=(e)=>{
-        if(!isLogin){
-            e.preventDefault();
-            e.stopPropagation();     // 추가 전파 차단 (선택)
-            alert("로그인후 이용가능합니다.");
-            setDrawerOpen(false);
-            return;
-        }
-        setDrawerOpen(false);
-    }
 
     return (
         <div>
@@ -42,7 +32,7 @@ const Menu = () => {
                     {isLogin && userInfo?.usertype === 'ADMIN' && (
                         <Link to="/admin" className="nav-btn">관리자 페이지</Link>
                     )}
-                    {isLogin && userInfo?.usertype === 'USER' && (
+                    {isLogin && (
                         <Link to="/mypage" className="nav-btn">마이페이지</Link>
                     )}
                     <Link to="/rank" className="nav-btn">랭킹</Link>
@@ -64,23 +54,23 @@ const Menu = () => {
                     {/* 기본 섹션 */}
                     <div className="drawer-section">
                         <Link to="/" className="drawer-link" onClick={() => setDrawerOpen(false)}>🏠 <span>홈</span></Link>
-                        <button className="drawer-link recent" type="button" disabled title="준비 중" style={{opacity:.55}}>🕒 <span>최근 플레이한 게임</span></button>
+                        <Link to ={checkgame} className="drawer-link">🕒 <span>최근 플레이한 게임</span></Link>
                     </div>
                     <div className="drawer-separator" />
                     {/* 게임 섹션 */}
                     <div className="drawer-heading">게임</div>
                     <div className="drawer-section games">
-                        <Link to="/oxquiz/OX_main" className="drawer-link" onClick={() => setDrawerOpen(false)}>❌<span>OX 퀴즈</span></Link>
-                        <Link to="/blankgamemain" className="drawer-link" onClick={() => setDrawerOpen(false)}>📝 <span>스피드 퀴즈</span></Link>
-                        <Link to="/block/main" className="drawer-link" onClick={() => setDrawerOpen(false)}>🧱 <span>블록 코딩</span></Link>
-                        <Link to="/card/main" className="drawer-link" onClick={() => setDrawerOpen(false)}>🃏 <span>카드 뒤집기</span></Link>
+                        <Link to="/oxquiz/OX_main" className="drawer-link" onClick={() => { setDrawerOpen(false); setcheckgame('/oxquiz/OX_main'); }}>❌<span>OX 퀴즈</span></Link>
+                        <Link to="/blankgamemain" className="drawer-link" onClick={() => { setDrawerOpen(false); setcheckgame('/blankgamemain'); } }>📝 <span>스피드 퀴즈</span></Link>
+                        <Link to="/block/main" className="drawer-link" onClick={() => { setDrawerOpen(false); setcheckgame('/block/main'); }}>🧱 <span>블록 코딩</span></Link>
+                        <Link to="/card/main" className="drawer-link" onClick={() => { setDrawerOpen(false); setcheckgame('/card/main'); }}>🃏 <span>카드 뒤집기</span></Link>
                     </div>
                     <div className="drawer-separator" />
                     {/* 커뮤니티/기타 */}
                     <div className="drawer-heading">서비스</div>
                     <div className="drawer-section etc">
                         <Link to="/rank" className="drawer-link" onClick={() => setDrawerOpen(false)}>🏆 <span>랭킹</span></Link>
-                        <Link to="/mypage?tab=inquiries" className="drawer-link" onClick={logincheck}>💬 <span>문의하기</span></Link>
+                        <Link to="/mypage?tab=inquiries" className="drawer-link" onClick={() => setDrawerOpen(false)}>💬 <span>문의하기</span></Link>
                         <Link to="/coffee" className="drawer-link" onClick={() => setDrawerOpen(false)}>☕ <span>개발자에게 커피쏘기</span></Link>
                     </div>
                     <div className="drawer-separator" />
@@ -90,9 +80,10 @@ const Menu = () => {
                         {isLogin && (
                           <div className="drawer-link user-static" aria-label="로그인 사용자">🙍 <span style={{border:'1px solid white', borderRadius:'20px', padding:'2px 4px', width:'80px', background: 'linear-gradient(90deg,var(--accent2),var(--accent))',color:'black'}}>{userInfo?.nickname}</span></div>
                         )}
-                        <Link to="/mypage?tab=info" className="drawer-link" onClick={logincheck}>📂 <span>마이페이지</span></Link>
-                        <Link to="/mypage?tab=wrong" className="drawer-link" onClick={logincheck}>📓 <span>오답노트</span></Link>
-                        <Link to="/mypage?tab=records" className="drawer-link" onClick={logincheck}>📊 <span>게임 기록</span></Link>
+                        <Link to="/mypage?tab=info" className="drawer-link" onClick={() => setDrawerOpen(false)}>📂 <span>마이페이지</span></Link>
+                        <Link to="/mypage?tab=wrong" className="drawer-link" onClick={() => setDrawerOpen(false)}>📓 <span>오답노트</span></Link>
+                        <Link to="/mypage?tab=records" className="drawer-link" onClick={() => setDrawerOpen(false)}>📊 <span>게임 기록</span></Link>
+
                     </div>
                     <div className='drawer-separator'/>
                     <div className="drawer-heading">이용약관</div>

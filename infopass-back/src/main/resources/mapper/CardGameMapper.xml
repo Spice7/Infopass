@@ -20,4 +20,66 @@
 		insert into cardgame_submission (user_id, question_id, session_id, submitted_answer, is_correct, created_at) 
 		values (#{user_id}, #{question_id}, #{session_id}, #{submitted_answer}, #{is_correct}, now())
 	</insert>
+
+	<!-- ============ Admin CRUD ============ -->
+	<select id="listCardQuestions" resultType="card" parameterType="map">
+		SELECT id, question, answer, subject, explanation_text, created_at
+		FROM cardgame_question
+		<where>
+			<if test="q != null and q != ''">
+				AND (question LIKE CONCAT('%', #{q}, '%') OR answer LIKE CONCAT('%', #{q}, '%'))
+			</if>
+			<if test="subject != null and subject != ''">
+				AND subject = #{subject}
+			</if>
+		</where>
+		ORDER BY id DESC
+		<if test="size != null and size &gt; 0">
+			LIMIT #{size}
+			<if test="offset != null and offset &gt;= 0">
+				OFFSET #{offset}
+			</if>
+		</if>
+	</select>
+
+	<select id="countCardQuestions" resultType="int" parameterType="map">
+		SELECT COUNT(*)
+		FROM cardgame_question
+		<where>
+			<if test="q != null and q != ''">
+				AND (question LIKE CONCAT('%', #{q}, '%') OR answer LIKE CONCAT('%', #{q}, '%'))
+			</if>
+			<if test="subject != null and subject != ''">
+				AND subject = #{subject}
+			</if>
+		</where>
+	</select>
+
+	<select id="findCardQuestionById" resultType="card" parameterType="int">
+		SELECT id, question, answer, subject, explanation_text, created_at
+		FROM cardgame_question
+		WHERE id = #{id}
+	</select>
+
+	<insert id="insertCardQuestion" parameterType="card" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO cardgame_question (question, answer, subject, explanation_text, created_at)
+		VALUES (#{question}, #{answer}, #{subject}, #{explanation_text}, NOW())
+	</insert>
+
+	<update id="updateCardQuestion" parameterType="card">
+		UPDATE cardgame_question
+		SET question = #{question},
+			answer = #{answer},
+			subject = #{subject},
+			explanation_text = #{explanation_text}
+		WHERE id = #{id}
+	</update>
+
+	<delete id="deleteCardQuestion" parameterType="int">
+		DELETE FROM cardgame_question WHERE id = #{id}
+	</delete>
+
+	<select id="countBySubject" resultType="int" parameterType="string">
+		SELECT COUNT(*) FROM cardgame_question WHERE subject = #{subject}
+	</select>
 </mapper>

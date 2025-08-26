@@ -6,27 +6,28 @@ import BlankGameSingle from "../pages/BlankGame/BlankGameSingle";
 import BlankGameLobby from "../pages/BlankGame/BlankGameLobby";
 import RoomWaitPage from "../pages/BlankGame/RoomWaitPage";
 import BlankGameMulti from "../pages/BlankGame/BlankGameMulti";
+import RequireLogin from "@/user/RequireLogin";
 const blankgame = [
-  <Route key="blankgame" path="/blankgamemain" element={<BlankGameMain />} />,
+  <Route key="blankgame" path="/blankgamemain" element={<RequireLogin><BlankGameMain /></RequireLogin>} />,
   <Route
     key="blankgamesingle"
     path="/blankgamesingle"
-    element={<BlankGameSingle />}
+    element={<RequireLogin><BlankGameSingle /></RequireLogin>}
   />,
   <Route
     key="blankgamelobby"
     path="/blankgamelobby"
-    element={<BlankGameLobby />}
+    element={<RequireLogin><BlankGameLobby /></RequireLogin>}
   />,
   <Route
     key="roomwaitpage"
     path="/blankgame/wait/:roomId"
-    element={<RoomWaitPage />}
+    element={<RequireLogin><RoomWaitPage /></RequireLogin>}
   />,
   <Route
     key="blankgamemulti"
     path="/blankgamemulti"
-    element={<BlankGameMulti />}
+    element={<RequireLogin><BlankGameMulti /></RequireLogin>}
   />,
 ];
 

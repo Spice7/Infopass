@@ -19,11 +19,6 @@ public class WrongAnswerService {
         return wrongAnswerMapper.selectWrongAnswersByUserId(userId);
     }
 
-    public int findUserIdByUsername(String username) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
     /**
      * 블록 게임 오답 기록
      */
@@ -41,5 +36,13 @@ public class WrongAnswerService {
      */
     public List<WrongAnswerDto> findBlockWrongsByUserId(int userId) {
         return wrongAnswerMapper.selectWrongBlockAnswersByUserId(userId);
+    }
+    
+    public void insertCardWrongAnswer(int user_id, int question_id) {
+    	WrongAnswerDto dto = new WrongAnswerDto();
+    	dto.setUserId(user_id);
+    	dto.setGameType("card");
+    	dto.setQuestionId(question_id);    	
+    	wrongAnswerMapper.insertCardWrongAnswer(dto);
     }
 }
