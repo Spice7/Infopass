@@ -1,7 +1,7 @@
 /* ===== CSS 변수 정의 ===== */
 :root {
   /* 색상 */
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+   /* //--primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);  */
   --white: #ffffff;
   --white-transparent-1: rgba(255, 255, 255, 0.1);
   --white-transparent-2: rgba(255, 255, 255, 0.2);
@@ -26,24 +26,76 @@
   --transition: all 0.3s ease;
 }
 
-/* ===== 모달 스타일 ===== */
-div.SignupPage-modal-container {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 90vw;
-  height: 90vh;
-  max-width: 750px;
-  max-height: 800px;
-  background: var(--primary-gradient);
-  border-radius: 20px;
-  box-shadow: var(--shadow-heavy);
-  padding: 40px;
-  color: var(--white);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--white-transparent-2);
-  overflow-y: auto;
+/* ===== Dialog 스타일 (SignupPage용) ===== */
+.signup-dialog-paper {
+  background: var(--primary-gradient) !important;
+  border-radius: 20px !important;
+  box-shadow: var(--shadow-heavy) !important;
+  color: var(--white) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid var(--white-transparent-2) !important;
+  overflow: hidden !important;
+  max-width: 750px !important;
+  width: 90vw !important;
+  max-height: 90vh !important;
+}
+
+/* Dialog 제목 스타일 */
+.signup-dialog-title {
+  background: var(--primary-gradient) !important;
+  color: var(--white) !important;
+  padding: 30px 30px 20px 30px !important;
+  border-bottom: 1px solid var(--white-transparent-2) !important;
+}
+
+.signup-dialog-title .infoTextFrame {
+  margin: 0 !important;
+}
+
+.signup-dialog-title .userinfoText {
+  font-size: 28px !important;
+  font-weight: 700 !important;
+  margin: 0 !important;
+  background: linear-gradient(45deg, var(--white), #f0f0f0) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  text-shadow: var(--shadow-light) !important;
+}
+
+/* Dialog 내용 스타일 */
+.signup-dialog-content {
+  background: var(--primary-gradient) !important;
+  color: var(--white) !important;
+  padding: 30px !important;
+  overflow-y: auto !important;
+}
+
+/* Dialog 내용 스크롤바 스타일 */
+.signup-dialog-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.signup-dialog-content::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 10px 0;
+}
+
+.signup-dialog-content::-webkit-scrollbar-thumb {
+  background: var(--white-transparent-3);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.signup-dialog-content::-webkit-scrollbar-thumb:hover {
+  background: var(--white-transparent-5);
+  background-clip: content-box;
+}
+
+.signup-dialog-content {
+  scrollbar-width: thin;
+  scrollbar-color: var(--white-transparent-3) transparent;
 }
 
 /* ===== 기본 정보 텍스트 프레임 ===== */
@@ -328,7 +380,7 @@ div.find-pw-modal-container {
   height: 90vh;
   max-width: 600px;
   max-height: 600px;
-  background: var(--primary-gradient);
+  background: rgba(255,255,255,0.1);
   border-radius: 20px;
   box-shadow: var(--shadow-heavy);
   padding: 40px;
@@ -374,7 +426,7 @@ div.find-pw-modal-container {
   justify-content: center; 
   min-height: calc(100vh - 60px);
   margin-top: 60px;
-  background: var(--primary-gradient);
+  background: rgba(255,255,255,0.1);
   padding: 20px;
   color: var(--white);
   width: 100%;
@@ -666,6 +718,26 @@ input[type=number] {
     padding: 15px 10px;
   }
   
+  /* Dialog 반응형 */
+  .signup-dialog-paper {
+    width: 95vw !important;
+    max-width: none !important;
+    max-height: 95vh !important;
+    margin: 10px !important;
+  }
+  
+  .signup-dialog-title {
+    padding: 20px 20px 15px 20px !important;
+  }
+  
+  .signup-dialog-title .userinfoText {
+    font-size: 24px !important;
+  }
+  
+  .signup-dialog-content {
+    padding: 20px !important;
+  }
+  
   /* 입력 프레임 */
   .userInputFrame {
     flex-direction: column;
@@ -765,6 +837,24 @@ input[type=number] {
 }
 
 @media (max-width: 480px) {
+  /* Dialog 초소형 화면 */
+  .signup-dialog-paper {
+    width: 98vw !important;
+    margin: 5px !important;
+  }
+  
+  .signup-dialog-title {
+    padding: 15px 15px 10px 15px !important;
+  }
+  
+  .signup-dialog-title .userinfoText {
+    font-size: 20px !important;
+  }
+  
+  .signup-dialog-content {
+    padding: 15px !important;
+  }
+  
   /* 이메일 입력 프레임 */
   .email-input-frame {
     flex-direction: column;
