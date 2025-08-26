@@ -6,11 +6,13 @@ server:
 
 #mysql_setting
 spring:
+  profiles:
+    active: local
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://infopass.c72c02iwaybk.ap-northeast-2.rds.amazonaws.com:3306/infopass?serverTimezone=Asia/Seoul
-    username: adminLKH
-    password: lkh940706!
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
   data:
     redis:
       host: localhost
@@ -40,15 +42,14 @@ mybatis:
     - /mapper/*.xml
 
 jwt:
-  secret-key: 2Jo!]8VlO)ohjFt5]9.h=n>}Knn!icdHTdT-7ra!:c."$oD#rh"#*kO*#y}^}{ZE}
+  secret-key: ${JWT_SECRET}
 
 social:
   kakao:
-    client-id: e1a223829a67fa4d5555d824be78d1c7
-    client-secret: TDcon0Mz2DzhNceLsXqRAI1j6gvG8JpV    
-    redirect-uri: http://localhost:5173/auth/callback/kakao
-
+    client-id: ${KAKAO_CLIENT_ID}
+    client-secret: ${KAKAO_CLIENT_SECRET}
+    redirect-uri: ${KAKAO_REDIRECT_URI:http://localhost:5173/auth/callback/kakao}
   naver:
-    client-id: kY3Gxh_p4svxg1tae7id
-    client-secret: DTJKEYynxi    
-    redirect-uri: http://localhost:5173/auth/callback/naver
+    client-id: ${NAVER_CLIENT_ID}
+    client-secret: ${NAVER_CLIENT_SECRET}
+    redirect-uri: ${NAVER_REDIRECT_URI:http://localhost:5173/auth/callback/naver}
