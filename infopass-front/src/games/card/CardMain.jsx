@@ -31,6 +31,9 @@ const CardMain = () => {
     userLevel,
     userExp,
     showLevelUp,
+    expBarAnimation,
+    expBarFrom,
+    expBarTo,
     animatedExp,
     animatedLevel,
     
@@ -63,7 +66,11 @@ const CardMain = () => {
 
   // 게임 시작 시 모드 전달
   const handleStartGame = () => {
-    startNewGame();
+    console.log('게임 시작 버튼 클릭:', gameMode);
+    // 게임 시작 전에 타이머 초기화
+    resetTimer();
+    // 그 다음 게임 시작 (새로운 게임이므로 점수/타이머 리셋)
+    startNewGame([], 0, true);
   };
 
   // 게임 재시작 시 타이머도 초기화
@@ -118,26 +125,27 @@ const CardMain = () => {
         </>
       ) : (
         <>
-           {!isPlaying && gameMode === 'normal' &&(
-            <GameComplete
-              score={score}
-              moves={moves}
-              gameMode={gameMode}
-              remainingTime={remainingTime}
-              timer={timer}
-              sessionExp={sessionExp}
-              showExpAnimation={showExpAnimation}
-              expCount={expCount}
-              userLevel={userLevel}
-              userExp={userExp}
-              showLevelUp={showLevelUp}
-              animatedExp={animatedExp}
-              animatedLevel={animatedLevel}
-              onRestart={handleGameRestart}
-              onExitToMenu={handleExitToMenu}
-              formatTime={formatTime}
-            />
-          )}
+                      {!isPlaying && gameMode === 'normal' && (
+             <GameComplete
+               score={score}
+               moves={moves}
+               gameMode={gameMode}
+               remainingTime={remainingTime}
+               timer={timer}
+               sessionExp={sessionExp}
+               showExpAnimation={showExpAnimation}
+               expCount={expCount}
+               userLevel={userLevel}
+               userExp={userExp}
+               showLevelUp={showLevelUp}
+               animatedExp={animatedExp}
+               animatedLevel={animatedLevel}
+               onRestart={handleGameRestart}
+               onExitToMenu={handleExitToMenu}
+               formatTime={formatTime}
+               matchedPairs={matchedPairs}
+             />
+           )}
           {!isPlaying && gameMode === 'timeAttack' && (
             remainingTime <= 0 || matchedPairs.length < questionData.length
           ) && (
@@ -151,29 +159,16 @@ const CardMain = () => {
               userLevel={userLevel}
               userExp={userExp}
               showLevelUp={showLevelUp}
+              expBarAnimation={expBarAnimation}
+              expBarFrom={expBarFrom}
+              expBarTo={expBarTo}
               animatedExp={animatedExp}
               animatedLevel={animatedLevel}
               onRestart={handleGameRestart}
               onExitToMenu={handleExitToMenu}
             />
-          )}
-          {!isPlaying && gameMode === 'normal' && matchedPairs.length < questionData.length && (
-            <GameTimeout
-              score={score}
-              moves={moves}
-              matchedPairs={matchedPairs}
-              sessionExp={sessionExp}
-              showExpAnimation={showExpAnimation}
-              expCount={expCount}
-              userLevel={userLevel}
-              userExp={userExp}
-              showLevelUp={showLevelUp}
-              animatedExp={animatedExp}
-              animatedLevel={animatedLevel}
-              onRestart={handleGameRestart}
-              onExitToMenu={handleExitToMenu}
-            />
-          )}
+          )}         
+
         </>
       )}
     </div>

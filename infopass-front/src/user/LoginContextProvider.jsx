@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import * as auth from "./auth";
 import { createContext } from "react";
@@ -56,7 +56,6 @@ const LoginContextProvider = ({ children }) => {
 
   // 페이지 이동
   const navigate = useNavigate();
-  const location = useLocation();
 
   // 🍪➡💍 로그인 체크
   const loginCheck = async () => {
@@ -114,10 +113,12 @@ const LoginContextProvider = ({ children }) => {
 
         // 원래 페이지로 이동 (location이 전달된 경우)
         if (location?.state?.from) {
-          navigate(location.state.from);
-        } else {
-          // 로그인 성공 다이얼로그 표시 (기본 동작)
           setLoginSuccessOpen(true);
+          navigate(location.state.from || "/");
+        } else {
+          // 로그인 성공 다이얼로그 표시 후 메인 페이지로 이동
+          setLoginSuccessOpen(true);
+          navigate("/");
         }
       }
     } catch (error) {
@@ -200,7 +201,7 @@ const LoginContextProvider = ({ children }) => {
   // 로그인 성공 다이얼로그 확인 처리
   const handleLoginSuccessConfirm = () => {
     setLoginSuccessOpen(false);
-    navigate("/");
+    // 로그인 성공 다이얼로그가 닫히면 현재 페이지에 머무름
   };
 
   // 알림 다이얼로그 확인 처리
