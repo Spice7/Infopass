@@ -162,6 +162,12 @@ export default function RoomWaitPage() {
                 if (me) {
                   console.log("👤 현재 플레이어 정보 업데이트:", me);
                   setCurrentPlayer(me);
+                } else {
+                  // 현재 사용자가 플레이어 목록에 없으면 방에서 나간 것으로 처리
+                  console.log(
+                    "👋 현재 사용자가 플레이어 목록에 없음 - 방에서 나감"
+                  );
+                  setCurrentPlayer(null);
                 }
               } else {
                 console.log("📢 기타 방 메시지:", data);
@@ -250,24 +256,140 @@ export default function RoomWaitPage() {
       }
     );
 
-    // cleanup
+    // cleanup - 페이지를 떠날 때 방 나가기 API 호출
     return () => {
-      if (client && client.connected) {
-        console.log("🔌 WebSocket 연결 해제");
+      const cleanup = async () => {
+        console.log("🚪 페이지 cleanup 시작");
+
+        // 현재 플레이어가 있으면 방에서 나가기
+        if (currentPlayer?.id) {
+          try {
+            console.log("🔄 페이지 이탈로 인한 방 나가기:", currentPlayer.id);
+            await axiosInstance.post(`/api/rooms/${currentRoomId}/leave`);
+            console.log("✅ 방 나가기 완료");
+          } catch (error) {
+            console.error("❌ 방 나가기 실패:", error);
+          }
+        }
+
+        // WebSocket 연결 해제
+        if (client && client.connected) {
+          console.log("🔌 WebSocket 연결 해제");
+          try {
+            if (client.roomSubscription) {
+              client.roomSubscription.unsubscribe();
+            }
+            if (client.gameStartSubscription) {
+              client.gameStartSubscription.unsubscribe();
+            }
+            client.disconnect();
+          } catch (error) {
+            console.error("WebSocket 해제 중 오류:", error);
+          }
+        }
+      };
+
+      cleanup();
+    };
+  }, [currentRoomId, userInfo?.id, navigate, currentPlayer?.id]);
+
+  // 브라우저 이벤트 감지 - 수정된 부분
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      console.log("🔄 페이지 언로드 감지 (새로고침/브라우저 닫기)");
+
+      if (currentPlayer?.id) {
+        // 동기적으로 처리 - sendBeacon 사용
+        const formData = new FormData();
+        navigator.sendBeacon(
+          `${API_BASE_URL}/api/rooms/${currentRoomId}/leave`,
+          formData
+        );
+        console.log("📡 sendBeacon으로 방 나가기 요청 전송");
+      }
+    };
+
+    const handlePopState = async (event) => {
+      console.log("🔄 뒤로가기/앞으로가기 감지");
+
+      if (currentPlayer?.id) {
         try {
-          if (client.roomSubscription) {
-            client.roomSubscription.unsubscribe();
-          }
-          if (client.gameStartSubscription) {
-            client.gameStartSubscription.unsubscribe();
-          }
-          client.disconnect();
+          console.log("🔄 브라우저 네비게이션으로 인한 방 나가기");
+          await axiosInstance.post(`/api/rooms/${currentRoomId}/leave`);
+          console.log("✅ 네비게이션으로 인한 방 나가기 완료");
         } catch (error) {
-          console.error("WebSocket 해제 중 오류:", error);
+          console.error("❌ 방 나가기 실패:", error);
         }
       }
     };
-  }, [currentRoomId, userInfo?.id, navigate]);
+
+    // 브라우저 뒤로가기/앞으로가기 감지를 위한 history 변경 감지
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === "hidden" && currentPlayer?.id) {
+        console.log("🔄 페이지 숨김 감지 (탭 전환/최소화)");
+
+        // 페이지가 숨겨지면 방 나가기 (선택사항)
+        try {
+          await axiosInstance.post(`/api/rooms/${currentRoomId}/leave`);
+          console.log("✅ 페이지 숨김으로 인한 방 나가기 완료");
+        } catch (error) {
+          console.error("❌ 방 나가기 실패:", error);
+        }
+      }
+    };
+
+    // 페이지 포커스 감지 (다른 탭으로 이동했다가 돌아올 때)
+    const handleFocus = () => {
+      console.log("🔄 페이지 포커스 복귀");
+      // 포커스가 돌아오면 플레이어 목록을 다시 가져와서 동기화
+      if (currentRoomId && userInfo?.id) {
+        fetchPlayers();
+      }
+    };
+
+    const handleBlur = async () => {
+      console.log("🔄 페이지 포커스 잃음");
+      // 포커스를 잃을 때는 특별한 동작 하지 않음 (너무 민감할 수 있음)
+    };
+
+    // 이벤트 리스너 등록
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("popstate", handlePopState);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("blur", handleBlur);
+
+    // cleanup
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("popstate", handlePopState);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("blur", handleBlur);
+    };
+  }, [currentPlayer?.id, currentRoomId, userInfo?.id]);
+
+  // React Router의 navigate 감지를 위한 추가 useEffect
+  useEffect(() => {
+    // 컴포넌트가 언마운트될 때 방 나가기 처리
+    return () => {
+      console.log("🔄 RoomWaitPage 컴포넌트 언마운트");
+
+      // 현재 플레이어가 있으면 방에서 나가기
+      if (currentPlayer?.id && currentRoomId) {
+        // 비동기 함수를 즉시 실행
+        (async () => {
+          try {
+            console.log("🔄 컴포넌트 언마운트로 인한 방 나가기");
+            await axiosInstance.post(`/api/rooms/${currentRoomId}/leave`);
+            console.log("✅ 컴포넌트 언마운트 방 나가기 완료");
+          } catch (error) {
+            console.error("❌ 컴포넌트 언마운트 방 나가기 실패:", error);
+          }
+        })();
+      }
+    };
+  }, []); // 빈 의존성 배열로 컴포넌트 언마운트 시에만 실행
 
   // 준비 완료 처리
   const handleReady = async () => {
@@ -348,6 +470,44 @@ export default function RoomWaitPage() {
       </div>
     );
   }
+
+  // 방 나가기 버튼 클릭 시 준비 상태 취소
+  const handleLeaveRoom = async () => {
+    console.log("🚪 방 나가기 버튼 클릭");
+    console.log("현재 상태:", { currentRoomId, currentPlayer });
+
+    try {
+      // 서버의 방 나가기 API 호출
+      console.log("🔄 서버에 방 나가기 요청:", currentRoomId);
+      const response = await axiosInstance.post(
+        `/api/rooms/${currentRoomId}/leave`
+      );
+      console.log("✅ 방 나가기 API 응답:", response.status, response.data);
+
+      // 로비로 이동
+      navigate("/blankgamelobby");
+    } catch (error) {
+      console.error("❌ 방 나가기 실패:", error);
+      console.error("❌ 에러 상세:", {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        message: error.message,
+      });
+
+      // 에러가 발생해도 로비로 이동
+      if (error.response?.status === 401) {
+        alert("인증이 만료되었습니다. 다시 로그인해주세요.");
+        navigate("/login");
+      } else {
+        alert(
+          "방 나가기 중 오류가 발생했습니다: " +
+            (error.response?.data || error.message)
+        );
+        navigate("/blankgamelobby");
+      }
+    }
+  };
 
   return (
     <div style={{ padding: "20px", maxWidth: "600px", margin: "0 auto" }}>
@@ -523,10 +683,10 @@ export default function RoomWaitPage() {
         <br />• 게임 중에는 동일한 문제를 모든 참가자가 함께 풉니다.
       </div>
 
-      {/* 나가기 버튼 */}
+      {/* 나가기 버튼 - 수정된 부분 */}
       <div style={{ marginTop: "20px", textAlign: "center" }}>
         <button
-          onClick={() => navigate("/blankgamelobby")}
+          onClick={handleLeaveRoom} // 수정: 새로운 핸들러 사용
           style={{
             padding: "10px 20px",
             backgroundColor: "#6c757d",

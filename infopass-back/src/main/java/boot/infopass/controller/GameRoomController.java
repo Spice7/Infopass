@@ -26,6 +26,7 @@ import boot.infopass.dto.UserDto;
 import boot.infopass.security.CustomUser;
 import boot.infopass.service.BlankQuizService;
 import boot.infopass.service.GameRoomService;
+import boot.infopass.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -303,6 +304,60 @@ public class GameRoomController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("준비 상태 변경에 실패했습니다.");
         }
 
+    }
+
+    // 방 나가기 API - CustomUser 활용으로 수정
+    @PostMapping("/{roomId}/leave")
+    public ResponseEntity<?> leaveRoom(@PathVariable Long roomId, Authentication authentication) {
+        try {
+            log.info("=== 방 나가기 요청 ===");
+            log.info("방 ID: {}, 사용자: {}", roomId, authentication.getName());
+
+            // SecurityContext에서 CustomUser 가져오기 (기존 joinRoom과 동일한 방식)
+            if (authentication == null || !(authentication.getPrincipal() instanceof CustomUser)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("사용자 인증 정보가 유효하지 않습니다.");
+            }
+
+            CustomUser customUser = (CustomUser) authentication.getPrincipal();
+            UserDto userDto = customUser.getUserData();
+
+            if (userDto == null) {
+                log.error("사용자 정보를 찾을 수 없습니다: {}", authentication.getName());
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("사용자 정보를 찾을 수 없습니다");
+            }
+
+            // 해당 방에서 현재 사용자의 플레이어 정보 조회
+            List<GameRoomPlayerDto> players = service.getPlayersByRoom(roomId);
+            GameRoomPlayerDto currentPlayer = players.stream()
+                    .filter(p -> p.getUserId().equals(userDto.getId()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (currentPlayer == null) {
+                log.warn("사용자 {}는 방 {}에 참여하지 않았습니다", userDto.getId(), roomId);
+                return ResponseEntity.ok().body("이미 방에서 나간 상태입니다");
+            }
+
+            log.info("방에서 제거할 플레이어: ID={}, 닉네임={}", currentPlayer.getId(), currentPlayer.getNickname());
+
+            // 플레이어를 방에서 제거
+            service.removePlayerFromRoom(currentPlayer.getId());
+
+            // 업데이트된 플레이어 목록 조회
+            List<GameRoomPlayerDto> updatedPlayers = service.getPlayersByRoom(roomId);
+            log.info("방 {}의 업데이트된 플레이어 목록: {}명", roomId, updatedPlayers.size());
+
+            // WebSocket으로 업데이트된 플레이어 목록 전송
+            messagingTemplate.convertAndSend("/topic/room/" + roomId, updatedPlayers);
+            log.info("✅ 방 나가기 완료, WebSocket 메시지 전송: /topic/room/{}", roomId);
+
+            return ResponseEntity.ok().body("방에서 성공적으로 나갔습니다");
+
+        } catch (Exception e) {
+            log.error("❌ 방 나가기 처리 중 오류:", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("방 나가기 처리 중 오류가 발생했습니다: " + e.getMessage());
+        }
     }
 
 }

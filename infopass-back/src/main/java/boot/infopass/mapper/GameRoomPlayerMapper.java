@@ -14,7 +14,7 @@ public interface GameRoomPlayerMapper {
 
     int updatePlayerReady(Long playerId, Boolean ready);
 
-    int deletePlayer(Long playerId);
+    void deletePlayer(Long playerId);
 
     boolean existsByRoomIdAndUserId(Long roomId, Long userId);
 

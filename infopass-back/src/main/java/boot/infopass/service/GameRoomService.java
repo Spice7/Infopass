@@ -78,4 +78,11 @@ public class GameRoomService {
         GameRoomPlayerDto player = playerMapper.selectPlayerById(playerId);
         return player != null ? player.getRoomId() : null;
     }
+
+    // 플레이어를 방에서 제거하는 메서드 추가
+    public void removePlayerFromRoom(Long playerId) {
+        log.info("플레이어 {} 제거 시도", playerId);
+        playerMapper.deletePlayer(playerId);
+        log.info("✅ 플레이어 {} 제거 완료", playerId);
+    }
 }
