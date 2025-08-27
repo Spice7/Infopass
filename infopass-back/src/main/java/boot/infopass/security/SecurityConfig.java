@@ -107,52 +107,16 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 허용할 오리진 설정 - 환경별로 설정
-        String profile = System.getProperty("spring.profiles.active", "local");
-        if ("prod".equals(profile)) {
-            // 배포 환경 - Docker 내부 통신
-            configuration.addAllowedOrigin("http://localhost");  // Docker nginx
-            configuration.addAllowedOrigin("http://localhost:80");
-            configuration.addAllowedOrigin("https://localhost");  // HTTPS 지원 추가
-            configuration.addAllowedOrigin("https://localhost:443");  // HTTPS 포트 지원 추가
-            
-            // EC2 Public IP 설정 (환경변수로 설정 가능하도록)
-            String ec2PublicIp = System.getenv("EC2_PUBLIC_IP");
-            if (ec2PublicIp != null && !ec2PublicIp.isEmpty()) {
-                configuration.addAllowedOrigin("http://" + ec2PublicIp);
-                configuration.addAllowedOrigin("http://" + ec2PublicIp + ":80");
-                configuration.addAllowedOrigin("https://" + ec2PublicIp);  // HTTPS 지원 추가
-                configuration.addAllowedOrigin("https://" + ec2PublicIp + ":443");  // HTTPS 포트 지원 추가
-            }
-            
-            // 커스텀 도메인 (환경변수로 설정)
-            String customDomain = System.getenv("CUSTOM_DOMAIN");
-            if (customDomain != null && !customDomain.isEmpty()) {
-                configuration.addAllowedOrigin("http://" + customDomain);
-                configuration.addAllowedOrigin("http://" + customDomain + ":9000");
-                configuration.addAllowedOrigin("https://" + customDomain);
-                configuration.addAllowedOrigin("https://" + customDomain + ":9000");
-            }
-            
-            // 프론트엔드 URL 환경변수 사용
-            String frontendUrl = System.getenv("VITE_FRONTEND_URL");
-            if (frontendUrl != null && !frontendUrl.isEmpty()) {
-                configuration.addAllowedOrigin(frontendUrl);
-                // HTTP/HTTPS 모두 지원
-                if (frontendUrl.startsWith("https://")) {
-                    configuration.addAllowedOrigin(frontendUrl.replace("https://", "http://"));
-                } else if (frontendUrl.startsWith("http://")) {
-                    configuration.addAllowedOrigin(frontendUrl.replace("http://", "https://"));
-                }
-            }
-            
-            // 개발/테스트용 - 실제 배포시 제거 권장
-            configuration.addAllowedOriginPattern("*"); // 임시 허용
-        } else {
-            // 개발 환경 설정
-            configuration.addAllowedOrigin("http://localhost:5173");
-            configuration.addAllowedOrigin("http://192.168.10.141:5173");
-        }
+        // 모든 오리진 허용 (개발 및 배포 환경 모두)
+        configuration.addAllowedOriginPattern("*");
+        
+        // 특정 오리진 명시적 허용
+        configuration.addAllowedOrigin("http://localhost:5173");
+        configuration.addAllowedOrigin("http://localhost:80");
+        configuration.addAllowedOrigin("http://localhost:9000");
+        configuration.addAllowedOrigin("http://3.39.163.37");
+        configuration.addAllowedOrigin("http://3.39.163.37:80");
+        configuration.addAllowedOrigin("http://3.39.163.37:9000");
         
         // 허용할 헤더 설정
         configuration.addAllowedHeader("*");
