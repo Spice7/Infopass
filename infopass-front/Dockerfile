@@ -30,7 +30,20 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY ssl/cert.pem /etc/nginx/ssl/cert.pem
 COPY ssl/key.pem /etc/nginx/ssl/key.pem
 
+# 환경변수 주입을 위한 스크립트 생성
+RUN apk add --no-cache bash
+
+# 환경변수를 JavaScript로 주입하는 스크립트 생성
+RUN echo '#!/bin/bash' > /docker-entrypoint.sh && \
+    echo 'set -e' >> /docker-entrypoint.sh && \
+    echo 'if [ -n "$VITE_API_BASE_URL" ]; then' >> /docker-entrypoint.sh && \
+    echo '  sed -i "s|http://localhost:9000|$VITE_API_BASE_URL|g" /usr/share/nginx/html/index.html' >> /docker-entrypoint.sh && \
+    echo '  sed -i "s|http://localhost:5173|$VITE_FRONTEND_URL|g" /usr/share/nginx/html/index.html' >> /docker-entrypoint.sh && \
+    echo 'fi' >> /docker-entrypoint.sh && \
+    echo 'exec nginx -g "daemon off;"' >> /docker-entrypoint.sh && \
+    chmod +x /docker-entrypoint.sh
+
 # 포트 노출 (HTTP + HTTPS)
 EXPOSE 80 443
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/docker-entrypoint.sh"]
