@@ -6,6 +6,7 @@ import './OX_Quiz.css';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AlertDialog } from '../../user/RequireLogin';
+import { API_ENDPOINTS } from '../../config/api';
 
 // ========================================
 // 🧩 파일 개요 (멀티 로비)
@@ -45,8 +46,6 @@ const OX_Lobby = () => {
     const [isHost, setIsHost] = useState(false);
 
     //url
-  import { API_ENDPOINTS } from '../../config/api';
-
   const createoxlobby = API_ENDPOINTS.LOBBY_OX;
 
     const roomSubRef = useRef(null);
