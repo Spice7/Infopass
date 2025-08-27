@@ -78,9 +78,10 @@ public class SecurityConfig {
                 .requestMatchers("/queue/**").permitAll() // websocket queue
                 .requestMatchers("/app/**").permitAll() // websocket app
 
-                // ✅ 2. 인증 없이 접근을 허용할 경로들
+                // ✅ 2. 인증 없이 접근을 허용할 경로들 (로그인 포함)
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/", "/api/rooms", "/api/rooms/player/search/**", "/login", "/user/**", "/admin/**",
+                .requestMatchers("/login").permitAll() // 로그인 명시적 허용
+                .requestMatchers("/", "/api/rooms", "/api/rooms/player/search/**", "/user/**", "/admin/**",
                         "/wrong-answers/**", "/results/**", "/rank/**", "/actuator/**")
                 .permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/ox_image/**",
