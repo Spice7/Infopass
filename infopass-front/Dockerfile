@@ -37,8 +37,16 @@ RUN apk add --no-cache bash
 RUN echo '#!/bin/bash' > /docker-entrypoint.sh && \
     echo 'set -e' >> /docker-entrypoint.sh && \
     echo 'if [ -n "$VITE_API_BASE_URL" ]; then' >> /docker-entrypoint.sh && \
+    echo '  echo "환경변수 주입 시작..."' >> /docker-entrypoint.sh && \
+    echo '  echo "VITE_API_BASE_URL: $VITE_API_BASE_URL"' >> /docker-entrypoint.sh && \
+    echo '  echo "VITE_FRONTEND_URL: $VITE_FRONTEND_URL"' >> /docker-entrypoint.sh && \
     echo '  sed -i "s|http://localhost:9000|$VITE_API_BASE_URL|g" /usr/share/nginx/html/index.html' >> /docker-entrypoint.sh && \
+    echo '  sed -i "s|https://localhost:9000|$VITE_API_BASE_URL|g" /usr/share/nginx/html/index.html' >> /docker-entrypoint.sh && \
+    echo '  sed -i "s|localhost:9000|$VITE_API_BASE_URL|g" /usr/share/nginx/html/index.html' >> /docker-entrypoint.sh && \
     echo '  sed -i "s|http://localhost:5173|$VITE_FRONTEND_URL|g" /usr/share/nginx/html/index.html' >> /docker-entrypoint.sh && \
+    echo '  sed -i "s|https://localhost:5173|$VITE_FRONTEND_URL|g" /usr/share/nginx/html/index.html' >> /docker-entrypoint.sh && \
+    echo '  sed -i "s|localhost:5173|$VITE_FRONTEND_URL|g" /usr/share/nginx/html/index.html' >> /docker-entrypoint.sh && \
+    echo '  echo "환경변수 주입 완료"' >> /docker-entrypoint.sh && \
     echo 'fi' >> /docker-entrypoint.sh && \
     echo 'exec nginx -g "daemon off;"' >> /docker-entrypoint.sh && \
     chmod +x /docker-entrypoint.sh
