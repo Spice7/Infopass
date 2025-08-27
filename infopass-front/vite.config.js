@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath, URL } from 'node:url';
-import __dirname from 'path';
 
 // 👇 Rollup polyfill plugin 설치 필요
 import rollupNodePolyFill from "rollup-plugin-node-polyfills";
@@ -31,10 +30,8 @@ export default defineConfig({
     },
   },
   build: {
+    sourcemap: false,
     minify: 'esbuild',
-    // esbuild: {
-    //   drop: ['console', 'debugger'],  // main.jsx에서 runtime 제어하므로 비활성화
-    // },
     rollupOptions: {
       plugins: [rollupNodePolyFill()],
       external: [],
