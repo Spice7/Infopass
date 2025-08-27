@@ -71,6 +71,9 @@ public class SecurityConfig {
 
         // WebSocket 메시지 인증을 위한 추가 설정
         http.authorizeHttpRequests(authorize -> authorize
+                // ✅ 0. 로그인 경로를 가장 먼저 허용 (우선순위 최상위)
+                .requestMatchers("/login").permitAll() // 로그인 명시적 허용
+                
                 // ✅ 1. 웹소켓 경로는 모든 보안 규칙에서 제외 (가장 중요!)
                 .requestMatchers("/ws/**").permitAll() // websocket
                 .requestMatchers("/ws-game/**").permitAll() // websocket game
@@ -78,9 +81,8 @@ public class SecurityConfig {
                 .requestMatchers("/queue/**").permitAll() // websocket queue
                 .requestMatchers("/app/**").permitAll() // websocket app
 
-                // ✅ 2. 인증 없이 접근을 허용할 경로들 (로그인 포함)
+                // ✅ 2. 인증 없이 접근을 허용할 경로들
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/login").permitAll() // 로그인 명시적 허용
                 .requestMatchers("/", "/api/rooms", "/api/rooms/player/search/**", "/user/**", "/admin/**",
                         "/wrong-answers/**", "/results/**", "/rank/**", "/actuator/**")
                 .permitAll()
