@@ -12,38 +12,17 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        String profile = System.getProperty("spring.profiles.active", "local");
+        // 모든 환경에서 동일한 설정 사용
+        registry.addEndpoint("/ws")
+                .setAllowedOriginPatterns("*") // 모든 origin 허용
+                .withSockJS();
         
-        if ("prod".equals(profile)) {
-            // 배포 환경 설정
-            registry.addEndpoint("/ws")
-                    .setAllowedOriginPatterns("*") // 임시로 모든 origin 허용
-                    .withSockJS();
-            registry.addEndpoint("/ws-game")
-                    .setAllowedOriginPatterns("*") // 임시로 모든 origin 허용
-                    .withSockJS()
-                    .setSessionCookieNeeded(false)
-                    .setHeartbeatTime(25000)
-                    .setDisconnectDelay(5000);
-        } else {
-            // 개발 환경 설정
-            registry.addEndpoint("/ws")
-                    .setAllowedOriginPatterns(
-                            "http://localhost:*",
-                            "http://127.0.0.1:*",
-                            "http://192.168.*.*:*")
-                    .withSockJS();
-            registry.addEndpoint("/ws-game")
-                    .setAllowedOriginPatterns(
-                            "http://localhost:*",
-                            "http://127.0.0.1:*",
-                            "http://192.168.*.*:*")
-                    .setAllowedOrigins("http://localhost:5173", "http://localhost:3000")
-                    .withSockJS()
-                    .setSessionCookieNeeded(false)
-                    .setHeartbeatTime(25000)
-                    .setDisconnectDelay(5000);
-        }
+        registry.addEndpoint("/ws-game")
+                .setAllowedOriginPatterns("*") // 모든 origin 허용
+                .withSockJS()
+                .setSessionCookieNeeded(false)
+                .setHeartbeatTime(25000)
+                .setDisconnectDelay(5000);
     }
 
     @Override

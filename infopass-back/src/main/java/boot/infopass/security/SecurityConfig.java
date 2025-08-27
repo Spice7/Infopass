@@ -71,7 +71,11 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(authorize -> authorize
                 // ✅ 1. 웹소켓 경로는 모든 보안 규칙에서 제외 (가장 중요!)
-                .requestMatchers("/ws-game/**").permitAll() // websocket
+                .requestMatchers("/ws/**").permitAll() // websocket
+                .requestMatchers("/ws-game/**").permitAll() // websocket game
+                .requestMatchers("/topic/**").permitAll() // websocket topic
+                .requestMatchers("/queue/**").permitAll() // websocket queue
+                .requestMatchers("/app/**").permitAll() // websocket app
 
                 // ✅ 2. 인증 없이 접근을 허용할 경로들
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
