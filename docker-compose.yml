@@ -64,11 +64,11 @@ services:
     restart: unless-stopped
     ports:
       - "80:80"
-      - "443:443"
+      # - "443:443"  # HTTPS 포트 비활성화 (SSL 에러 해결)
     environment:
       - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://3.39.163.37:9000}
-      - VITE_WS_BASE_URL=${VITE_WS_BASE_URL:-http://3.39.163.37:9000}
-      - VITE_FRONTEND_URL=${VITE_FRONTEND_URL:-https://3.39.163.37}
+      - VITE_WS_BASE_URL=${VITE_WS_BASE_URL:-ws://3.39.163.37:9000}
+      - VITE_FRONTEND_URL=${VITE_FRONTEND_URL:-http://3.39.163.37}
     depends_on:
       infopass-back:
         condition: service_healthy
