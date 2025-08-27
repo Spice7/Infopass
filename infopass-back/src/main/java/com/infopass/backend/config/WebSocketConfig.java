@@ -1,5 +1,6 @@
 package com.infopass.backend.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -10,6 +11,18 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    @Value("${WEBSOCKET_ENDPOINT:/ws-game}")
+    private String websocketEndpoint;
+    
+    @Value("${WEBSOCKET_ALLOWED_ORIGINS:http://3.39.163.37,http://localhost:5173}")
+    private String allowedOrigins;
+    
+    @Value("${WEBSOCKET_HEARTBEAT_INTERVAL:25000}")
+    private long heartbeatInterval;
+    
+    @Value("${WEBSOCKET_DISCONNECT_DELAY:5000}")
+    private long disconnectDelay;
+
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // 모든 환경에서 동일한 설정 사용
@@ -17,12 +30,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setAllowedOriginPatterns("*") // 모든 origin 허용
                 .withSockJS();
         
-        registry.addEndpoint("/ws-game")
+        registry.addEndpoint(websocketEndpoint)
                 .setAllowedOriginPatterns("*") // 모든 origin 허용
                 .withSockJS()
                 .setSessionCookieNeeded(false)
-                .setHeartbeatTime(25000)
-                .setDisconnectDelay(5000);
+                .setHeartbeatTime(heartbeatInterval)
+                .setDisconnectDelay(disconnectDelay);
     }
 
     @Override

@@ -69,6 +69,7 @@ public class SecurityConfig {
                 UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtRequestFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
+        // WebSocket 메시지 인증을 위한 추가 설정
         http.authorizeHttpRequests(authorize -> authorize
                 // ✅ 1. 웹소켓 경로는 모든 보안 규칙에서 제외 (가장 중요!)
                 .requestMatchers("/ws/**").permitAll() // websocket
@@ -95,6 +96,9 @@ public class SecurityConfig {
 
                 // ✅ 4. 위 규칙에 해당하지 않는 모든 요청은 인증 필요
                 .anyRequest().authenticated());
+
+        // WebSocket 메시지에 대한 모든 보안 제한 해제
+        http.csrf(csrf -> csrf.ignoringRequestMatchers("/ws/**", "/ws-game/**", "/topic/**", "/queue/**", "/app/**"));
 
         // 사용자 정보 서비스 설정
         http.userDetailsService(customUserDetailService);
