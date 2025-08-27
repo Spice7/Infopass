@@ -129,7 +129,9 @@ public class SecurityConfig {
             String customDomain = System.getenv("CUSTOM_DOMAIN");
             if (customDomain != null && !customDomain.isEmpty()) {
                 configuration.addAllowedOrigin("http://" + customDomain);
+                configuration.addAllowedOrigin("http://" + customDomain + ":9000");
                 configuration.addAllowedOrigin("https://" + customDomain);
+                configuration.addAllowedOrigin("https://" + customDomain + ":9000");
             }
             
             // 프론트엔드 URL 환경변수 사용
