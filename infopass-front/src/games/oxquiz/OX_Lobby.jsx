@@ -45,7 +45,9 @@ const OX_Lobby = () => {
     const [isHost, setIsHost] = useState(false);
 
     //url
-    const createoxlobby = 'http://localhost:9000/lobby/ox';
+  import { API_ENDPOINTS } from '../../config/api';
+
+  const createoxlobby = API_ENDPOINTS.LOBBY_OX;
 
     const roomSubRef = useRef(null);
     useEffect(() => { pendingCreateRef.current = pendingCreate; }, [pendingCreate]);
@@ -103,7 +105,7 @@ const OX_Lobby = () => {
 
     // STOMP 연결
     useEffect(() => {
-        const socket = new SockJS('http://localhost:9000/ws-game');
+        const socket = new SockJS(API_ENDPOINTS.WS_GAME);
         const client = new Client({
             webSocketFactory: () => socket,
             reconnectDelay: 4000,

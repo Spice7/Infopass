@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./Rank.css";
+import { API_ENDPOINTS } from "../../config/api";
 
 const Rank = () => {
   const [selectedWeek, setSelectedWeek] = useState("2024년 07월 29일 ~ 04일");
@@ -10,7 +11,7 @@ const Rank = () => {
 
   // 주간 랭킹 데이터 가져오기
   useEffect(() => {
-    fetch("http://localhost:9000/rank?type=weekly", {
+    fetch(API_ENDPOINTS.RANK_WEEKLY, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -48,7 +49,7 @@ const Rank = () => {
   // 실시간 랭킹 데이터 가져오기
   useEffect(() => {
     const fetchRealtimeRanking = () => {
-      fetch("http://localhost:9000/rank?type=realtime", {
+      fetch(API_ENDPOINTS.RANK_REALTIME, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

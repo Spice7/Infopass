@@ -68,9 +68,10 @@ const BlankGameMulti = () => {
   const gameEndedRef = useRef(false);
 
   // API URLs
-  const usersubmiturl = "http://localhost:9000/blankgamesingle/submitblankquiz";
-  const userstatusurl =
-    "http://localhost:9000/blankgamesingle/blankinsertuserstatus";
+import { API_ENDPOINTS } from "../../config/api";
+
+  const usersubmiturl = API_ENDPOINTS.BLANK_SUBMIT;
+  const userstatusurl = API_ENDPOINTS.BLANK_USER_STATUS;
 
   // WebSocket 연결 설정 수정
   useEffect(() => {
@@ -83,7 +84,7 @@ const BlankGameMulti = () => {
     });
 
     const client = Stomp.over(
-      () => new SockJS("http://localhost:9000/ws-game")
+              () => new SockJS(API_ENDPOINTS.WS_GAME)
     );
 
     // 디버그 활성화
@@ -398,7 +399,7 @@ const BlankGameMulti = () => {
     try {
       console.log("📞 서버에서 직접 퀴즈 데이터 요청");
       const response = await axios.get(
-        "http://localhost:9000/blankgamesingle/quizlist"
+        API_ENDPOINTS.BLANK_QUIZ_LIST
       );
 
       if (

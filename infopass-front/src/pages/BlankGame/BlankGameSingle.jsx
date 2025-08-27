@@ -81,12 +81,12 @@ const BlankGameSingle = () => {
   // =========================
   // API URL
   // =========================
-  const quizurl = "http://localhost:9000/blankgamesingle/blankquizlist";
-  const usersubmiturl = "http://localhost:9000/blankgamesingle/submitblankquiz";
-  const wronganswerurl =
-    "http://localhost:9000/blankgamesingle/blankwronganswer";
-  const userstatusurl =
-    "http://localhost:9000/blankgamesingle/blankinsertuserstatus";
+import { API_ENDPOINTS } from "../../config/api";
+
+  const quizurl = API_ENDPOINTS.BLANK_QUIZ_LIST;
+  const usersubmiturl = API_ENDPOINTS.BLANK_SUBMIT;
+  const wronganswerurl = API_ENDPOINTS.BLANK_WRONG_ANSWER;
+  const userstatusurl = API_ENDPOINTS.BLANK_USER_STATUS;
 
   // =========================
   // useEffect: 로딩 애니메이션

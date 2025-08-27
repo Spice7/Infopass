@@ -7,7 +7,7 @@ import Cookies from "js-cookie";
 import "./BlankGameLobby.css"; // CSS 파일은 로비와 공유될 수 있음
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:9000";
+import { API_BASE_URL } from "../../config/api";
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,

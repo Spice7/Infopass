@@ -5,7 +5,9 @@ import { LoginContext } from "../../user/LoginContextProvider";
 import "./BlankGameLobby.css";
 import Cookies from "js-cookie";
 
-const API = "http://localhost:9000/api/rooms";
+import { API_ENDPOINTS } from "../../config/api";
+
+const API = API_ENDPOINTS.ROOMS;
 
 export default function BlankGameLobby() {
   const { userInfo } = useContext(LoginContext);
