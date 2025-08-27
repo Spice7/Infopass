@@ -4,7 +4,7 @@ import { triggerLogout } from "./authUtils";
 
 // axios 객체 생성
 const api = axios.create({
-  baseURL: "http://localhost:9000",
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:9000",
   withCredentials: true, // 쿠키를 요청에 포함시키기 위해 필요
 });
 

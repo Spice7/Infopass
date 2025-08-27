@@ -97,7 +97,7 @@ public class UserService implements UserServiceInter {
 		Map<String, String> result = new HashMap<>();
 
 		try {
-			//coolsms.send(message); //msg 보내기
+			coolsms.send(message); //msg 보내기
 
 			log.info("생성된 인증번호 : "+verificationCode);
 

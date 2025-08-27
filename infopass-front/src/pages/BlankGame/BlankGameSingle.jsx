@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from "react";
 import "./BlankGame.css";
 import axios from "axios";
 import { LoginContext } from "../../user/LoginContextProvider";
-import BlankGameMain from "./BlankGameMain";
+import { API_ENDPOINTS } from "../../config/api";
 
 const MAX_LIFE = 3;
 const TIMER_DURATION = 45;
@@ -81,11 +81,8 @@ const BlankGameSingle = () => {
   // =========================
   // API URL
   // =========================
-import { API_ENDPOINTS } from "../../config/api";
-
   const quizurl = API_ENDPOINTS.BLANK_QUIZ_LIST;
   const usersubmiturl = API_ENDPOINTS.BLANK_SUBMIT;
-  const wronganswerurl = API_ENDPOINTS.BLANK_WRONG_ANSWER;
   const userstatusurl = API_ENDPOINTS.BLANK_USER_STATUS;
 
   // =========================
@@ -394,9 +391,8 @@ import { API_ENDPOINTS } from "../../config/api";
             setTimeLeft(TIMER_DURATION);
             setShowQuiz(false); // 퀴즈 화면 초기화
             setCountdown(null); // 카운트다운 초기화
-            setButtonDisabled(false); // 버튼 활성화
+            setInputDisabled(false); // 버튼 활성화
             setResultMsg(""); // 결과 메시지 초기화
-            setMyOX(null); // 선택 초기화
             setShowMonster(false);
             setShowLaser(false);
             setShowBoom(false);

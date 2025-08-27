@@ -99,10 +99,10 @@ const OX_SingleGame = () => {
   // API URL (백엔드 연동)
   // - 퀴즈 목록 / 사용자 답변 기록 / 오답 기록 / 플레이 상태 저장
   // =========================
-  const quizurl = 'http://localhost:9000/oxquiz/quizlist';
-  const usersubmiturl = 'http://localhost:9000/oxquiz/submitOXquiz';
-  const wronganswerurl = 'http://localhost:9000/oxquiz/wronganswer';
-  const userstatusurl = 'http://localhost:9000/oxquiz/InsertUserStatus';
+  const quizurl = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:9000'}/oxquiz/quizlist`;
+  const usersubmiturl = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:9000'}/oxquiz/submitOXquiz`;
+  const wronganswerurl = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:9000'}/oxquiz/wronganswer`;
+  const userstatusurl = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:9000'}/oxquiz/InsertUserStatus`;
 
   // ===== 기능(핸들러/보조 함수) 그룹 =====
   // =========================

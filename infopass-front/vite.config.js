@@ -2,43 +2,46 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath, URL } from 'node:url';
 
-// 👇 Rollup polyfill plugin 설치 필요
-import rollupNodePolyFill from "rollup-plugin-node-polyfills";
-
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
-      buffer: 'buffer',
-      process: 'process/browser',
+      // 필요할 때만 사용 (사용 시 npm i buffer process)
+      // buffer: 'buffer',
+      // process: 'process/browser',
     },
   },
-  plugins: [
-    react()
-  ],
+  plugins: [react()],
   preview: { port: 5173 },
   define: {
     global: 'globalThis',
-    'process.env': {},
+    __DEV__: JSON.stringify(mode !== 'production'),
+    __PROD__: JSON.stringify(mode === 'production'),
   },
   optimizeDeps: {
-    include: ['buffer', 'process'],
+    // 실제로 필요할 때만 include
+    // include: ['buffer', 'process'],
     esbuildOptions: {
-      define: {
-        global: "globalThis",
-      },
+      define: { global: 'globalThis' },
+      target: 'es2020',
     },
   },
   build: {
     sourcemap: false,
     minify: 'esbuild',
+    target: 'es2018',
+    modulePreload: false,
+    brotliSize: false,
     rollupOptions: {
-      plugins: [rollupNodePolyFill()],
-      external: [],
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom'],
+        },
+      },
     },
   },
   server: {
-    host: '0.0.0.0',   // 모든 인터페이스 공개
-    port: 5173         // 원하는 포트
-  }
-});
+    host: '0.0.0.0',
+    port: 5173,
+  },
+}));
