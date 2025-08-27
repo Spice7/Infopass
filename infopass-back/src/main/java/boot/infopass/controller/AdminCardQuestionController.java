@@ -11,7 +11,6 @@ import boot.infopass.dto.CardDto;
 import boot.infopass.service.AdminCardQuestionService;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/admin/card-questions")
 public class AdminCardQuestionController {
 

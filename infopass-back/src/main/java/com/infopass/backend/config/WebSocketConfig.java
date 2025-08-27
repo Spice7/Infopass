@@ -12,23 +12,38 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws")
-                // 개발 환경에서 다양한 로컬 호스트/포트 허용 (필요시 도메인으로 제한 가능)
-                .setAllowedOriginPatterns(
-                        "http://localhost:*",
-                        "http://127.0.0.1:*",
-                        "http://192.168.*.*:*")
-                .withSockJS();
-        registry.addEndpoint("/ws-game")
-                .setAllowedOriginPatterns(
-                        "http://localhost:*",
-                        "http://127.0.0.1:*",
-                        "http://192.168.*.*:*")
-                .setAllowedOrigins("http://localhost:5173", "http://localhost:3000") // React 개발 서버
-                .withSockJS()
-                .setSessionCookieNeeded(false) // 세션 쿠키 불필요
-                .setHeartbeatTime(25000) // 하트비트 설정
-                .setDisconnectDelay(5000); // 연결 해제 지연
+        String profile = System.getProperty("spring.profiles.active", "local");
+        
+        if ("prod".equals(profile)) {
+            // 배포 환경 설정
+            registry.addEndpoint("/ws")
+                    .setAllowedOriginPatterns("*") // 임시로 모든 origin 허용
+                    .withSockJS();
+            registry.addEndpoint("/ws-game")
+                    .setAllowedOriginPatterns("*") // 임시로 모든 origin 허용
+                    .withSockJS()
+                    .setSessionCookieNeeded(false)
+                    .setHeartbeatTime(25000)
+                    .setDisconnectDelay(5000);
+        } else {
+            // 개발 환경 설정
+            registry.addEndpoint("/ws")
+                    .setAllowedOriginPatterns(
+                            "http://localhost:*",
+                            "http://127.0.0.1:*",
+                            "http://192.168.*.*:*")
+                    .withSockJS();
+            registry.addEndpoint("/ws-game")
+                    .setAllowedOriginPatterns(
+                            "http://localhost:*",
+                            "http://127.0.0.1:*",
+                            "http://192.168.*.*:*")
+                    .setAllowedOrigins("http://localhost:5173", "http://localhost:3000")
+                    .withSockJS()
+                    .setSessionCookieNeeded(false)
+                    .setHeartbeatTime(25000)
+                    .setDisconnectDelay(5000);
+        }
     }
 
     @Override

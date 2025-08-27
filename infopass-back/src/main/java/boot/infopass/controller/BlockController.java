@@ -23,7 +23,6 @@ import boot.infopass.service.GameResultService;
 import boot.infopass.service.WrongAnswerService;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/block")
 public class BlockController {
 	@Autowired

@@ -39,6 +39,8 @@ services:
       - NAVER_REDIRECT_URI=${NAVER_REDIRECT_URI}
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
+      - EC2_PUBLIC_IP=${EC2_PUBLIC_IP}
+      - CUSTOM_DOMAIN=${CUSTOM_DOMAIN}
     depends_on:
       redis:
         condition: service_healthy

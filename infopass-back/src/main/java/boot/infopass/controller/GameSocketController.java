@@ -13,7 +13,6 @@ import boot.infopass.service.BlankQuizService;
 import boot.infopass.service.GameRoomService;
 import lombok.RequiredArgsConstructor;
 
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequiredArgsConstructor
 public class GameSocketController {

@@ -12,7 +12,6 @@ import boot.infopass.dto.InquiryDto;
 import boot.infopass.mapper.InquiryMapper;
 import boot.infopass.security.CustomUser;
 
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/inquiries")
 public class InquiryController {

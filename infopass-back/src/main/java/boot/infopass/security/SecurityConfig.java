@@ -110,12 +110,26 @@ public class SecurityConfig {
         // 허용할 오리진 설정 - 환경별로 설정
         String profile = System.getProperty("spring.profiles.active", "local");
         if ("prod".equals(profile)) {
-            // 배포 환경에서는 실제 도메인 설정
+            // 배포 환경 - Docker 내부 통신
             configuration.addAllowedOrigin("http://localhost");  // Docker nginx
-            // TODO: 실제 배포 도메인으로 변경하세요
-            // AWS EC2 예시: http://ec2-xx-xxx-xxx-xxx.ap-northeast-2.compute.amazonaws.com
-            // 커스텀 도메인 예시: http://your-domain.com, https://your-domain.com
-            configuration.addAllowedOrigin("*"); // 임시: 모든 origin 허용 (보안상 권장하지 않음)
+            configuration.addAllowedOrigin("http://localhost:80");
+            
+            // EC2 Public IP 설정 (환경변수로 설정 가능하도록)
+            String ec2PublicIp = System.getenv("EC2_PUBLIC_IP");
+            if (ec2PublicIp != null && !ec2PublicIp.isEmpty()) {
+                configuration.addAllowedOrigin("http://" + ec2PublicIp);
+                configuration.addAllowedOrigin("http://" + ec2PublicIp + ":80");
+            }
+            
+            // 커스텀 도메인 (환경변수로 설정)
+            String customDomain = System.getenv("CUSTOM_DOMAIN");
+            if (customDomain != null && !customDomain.isEmpty()) {
+                configuration.addAllowedOrigin("http://" + customDomain);
+                configuration.addAllowedOrigin("https://" + customDomain);
+            }
+            
+            // 개발/테스트용 - 실제 배포시 제거 권장
+            configuration.addAllowedOriginPattern("*"); // 임시 허용
         } else {
             // 개발 환경 설정
             configuration.addAllowedOrigin("http://localhost:5173");

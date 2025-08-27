@@ -19,8 +19,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/rank")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173", allowedHeaders = "*", methods = { RequestMethod.GET,
-        RequestMethod.OPTIONS }, allowCredentials = "true")
 public class RankingController {
     private final RankingService rankingService;
     private final RedisUtil redisUtil;

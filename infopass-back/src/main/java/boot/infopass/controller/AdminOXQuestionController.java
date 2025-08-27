@@ -11,7 +11,6 @@ import boot.infopass.dto.OXQuizAdminDto;
 import boot.infopass.service.AdminOXQuestionService;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/admin/ox-questions")
 public class AdminOXQuestionController {
 

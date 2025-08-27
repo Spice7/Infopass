@@ -14,7 +14,6 @@ import boot.infopass.dto.WrongAnswerDto;
 import boot.infopass.security.CustomUser;
 import boot.infopass.service.WrongAnswerService;
 
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/wrong-answers")
 public class WrongAnswerController {
