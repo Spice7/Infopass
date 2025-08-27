@@ -1,20 +1,19 @@
 # Build stage
 FROM node:20-alpine AS build
 
-# 빌드 시 Node 힙을 1.5GB로 제한 (2GB 인스턴스에서 안정적)
-ENV NODE_OPTIONS="--max-old-space-size=1536"
-ENV NODE_ENV=production
-
 WORKDIR /app
+
+# 빌드 시 devDependencies 꼭 설치되게 강제
+ENV NPM_CONFIG_PRODUCTION=false
+# 메모리 여유 (t2.small이면 1536 정도 권장)
+ENV NODE_OPTIONS="--max-old-space-size=1536"
 
 # 패키지 설치
 COPY package*.json ./
-# 조금 더 가볍게(감사/감사금 끔, 진행바 끔)
 RUN npm ci --no-audit --no-fund --progress=false
 
-# 소스 복사
+# 소스 복사 + 빌드
 COPY . .
-
 RUN npm run build
 
 # Runtime stage (Nginx)
