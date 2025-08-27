@@ -27,8 +27,8 @@ COPY --from=build /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # SSL 인증서 복사 (자체 서명 인증서)
-COPY cert.pem /etc/nginx/ssl/cert.pem
-COPY key.pem /etc/nginx/ssl/key.pem
+COPY ssl/cert.pem /etc/nginx/ssl/cert.pem
+COPY ssl/key.pem /etc/nginx/ssl/key.pem
 
 # 포트 노출 (HTTP + HTTPS)
 EXPOSE 80 443
