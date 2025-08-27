@@ -113,12 +113,16 @@ public class SecurityConfig {
             // 배포 환경 - Docker 내부 통신
             configuration.addAllowedOrigin("http://localhost");  // Docker nginx
             configuration.addAllowedOrigin("http://localhost:80");
+            configuration.addAllowedOrigin("https://localhost");  // HTTPS 지원 추가
+            configuration.addAllowedOrigin("https://localhost:443");  // HTTPS 포트 지원 추가
             
             // EC2 Public IP 설정 (환경변수로 설정 가능하도록)
             String ec2PublicIp = System.getenv("EC2_PUBLIC_IP");
             if (ec2PublicIp != null && !ec2PublicIp.isEmpty()) {
                 configuration.addAllowedOrigin("http://" + ec2PublicIp);
                 configuration.addAllowedOrigin("http://" + ec2PublicIp + ":80");
+                configuration.addAllowedOrigin("https://" + ec2PublicIp);  // HTTPS 지원 추가
+                configuration.addAllowedOrigin("https://" + ec2PublicIp + ":443");  // HTTPS 포트 지원 추가
             }
             
             // 커스텀 도메인 (환경변수로 설정)
@@ -126,6 +130,18 @@ public class SecurityConfig {
             if (customDomain != null && !customDomain.isEmpty()) {
                 configuration.addAllowedOrigin("http://" + customDomain);
                 configuration.addAllowedOrigin("https://" + customDomain);
+            }
+            
+            // 프론트엔드 URL 환경변수 사용
+            String frontendUrl = System.getenv("VITE_FRONTEND_URL");
+            if (frontendUrl != null && !frontendUrl.isEmpty()) {
+                configuration.addAllowedOrigin(frontendUrl);
+                // HTTP/HTTPS 모두 지원
+                if (frontendUrl.startsWith("https://")) {
+                    configuration.addAllowedOrigin(frontendUrl.replace("https://", "http://"));
+                } else if (frontendUrl.startsWith("http://")) {
+                    configuration.addAllowedOrigin(frontendUrl.replace("http://", "https://"));
+                }
             }
             
             // 개발/테스트용 - 실제 배포시 제거 권장
