@@ -5,6 +5,7 @@ import { LoginContext } from "../../user/LoginContextProvider";
 import { useLocation, useNavigate } from "react-router-dom";
 import SockJS from "sockjs-client";
 import { Stomp } from "@stomp/stompjs";
+import { API_ENDPOINTS } from "../../config/api";
 
 const MAX_LIFE = 3;
 const TIMER_DURATION = 45;
@@ -68,8 +69,6 @@ const BlankGameMulti = () => {
   const gameEndedRef = useRef(false);
 
   // API URLs
-import { API_ENDPOINTS } from "../../config/api";
-
   const usersubmiturl = API_ENDPOINTS.BLANK_SUBMIT;
   const userstatusurl = API_ENDPOINTS.BLANK_USER_STATUS;
 
