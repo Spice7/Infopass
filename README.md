@@ -10,7 +10,8 @@
 2. 팀소개
 3. 기술 스택
 4. ERD
-5. 주요기능
+5. 시스템 아키텍셔
+6. 주요 기능
 
 
 # 1. 개요
@@ -76,14 +77,14 @@ SPRING BOOT, SPRING SECURITY, JWT, NGNIX, AWS EC2, DOCKER, REDIS, MYSQL, MYBATIS
 
 
 
-# 5. 주요기능
-## - 5.1 메인 페이지
+# 6. 주요기능
+## - 6.1 메인 페이지
 <img width="2540" height="1190" alt="image" src="https://github.com/user-attachments/assets/18e8f324-53a0-43d4-a45b-0c0ed2ae1f70" />
 
 
 <br>
 
-## - 5.2 로그인/회원가입 기능
+## - 6.2 로그인/회원가입 기능
 
 |<img width="1893" height="932" alt="스크린샷 2025-08-27 114803" src="https://github.com/user-attachments/assets/a52df384-3a39-4608-ba75-ca1795df5f04" />|
 |-|
@@ -109,12 +110,12 @@ SPRING BOOT, SPRING SECURITY, JWT, NGNIX, AWS EC2, DOCKER, REDIS, MYSQL, MYBATIS
 <br>
 
      
-## - 5.3 유저 랭킹 서비스, 멀티 플레이 기능 페이지
+## - 6.3 유저 랭킹 서비스, 멀티 플레이 기능 페이지
 
 
 |<img width="2574" height="1256" alt="image" src="https://github.com/user-attachments/assets/a9f9d441-7f6e-426e-96e0-97ee4e91ab42" />
 |-|
-|유저 랭킹 주간/실시간 페이지|
+|**유저 랭킹 주간/실시간 페이지**|
 ### 유저 랭킹 서비스 기술 포인트
 기존의 DB ORDER BY 방식은 데이터가 많아질수록 성능 저하가 발생하는 한계가 있었습니다.
 이를 해결하기 위해 **Redis + DB 하이브리드 아키텍처**를 도입했습니다.
@@ -130,7 +131,7 @@ Redis의 **Sorted Set(ZSet)** 을 활용해 사용자의 점수를 즉시 반영
 
 |![2025-08-283 58 23online-video-cutter com-ezgif com-video-to-gif-converter 복사본](https://github.com/user-attachments/assets/5dba7da4-8b2e-4d83-a9ad-58a0d9539d0f)
 |-|
-|소켓을 이용한 멀티 플레이 페이지|
+|**소켓을 이용한 멀티 플레이 페이지**|
 
 ### 멀티 플레이 기능 기술 포인트
 실시간 통신을 위해 **WebSocket**을 선택했는데, 낮은 지연시간과 양방향 통신이 가능하기 때문입니다. HTTP 폴링 대비 서버 리소스를 절약하면서, 사용자 경험도 훨씬 개선할 수 있었습니다. 동시성 문제는 Spring의 메시지 전송 동기화, 트랜잭션, 그리고 낙관적 락을 통해 해결했습니다.
