@@ -128,6 +128,7 @@ Redis의 **Sorted Set(ZSet)** 을 활용해 사용자의 점수를 즉시 반영
 이 구조는 실시간성과 정확성을 분리해 시스템 부하를 줄이고 신뢰성을 확보했습니다.
 
 </br>
+
 |![2025-08-283 58 23online-video-cutter com-ezgif com-video-to-gif-converter 복사본](https://github.com/user-attachments/assets/5dba7da4-8b2e-4d83-a9ad-58a0d9539d0f)
 |-|
 |상품 관리 페이지 문의 및 리뷰 구현|
