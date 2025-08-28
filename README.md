@@ -79,8 +79,7 @@ SPRING BOOT, SPRING SECURITY, JWT, NGNIX, AWS EC2, DOCKER, REDIS, MYSQL, MYBATIS
 
 # 5. 주요기능
 ## - 5.1 메인 페이지
-![image](https://github.com/user-attachments/assets/78c5b875-b286-4dbc-9914-a934e3ee8a58)
-
+<img width="2540" height="1190" alt="image" src="https://github.com/user-attachments/assets/18e8f324-53a0-43d4-a45b-0c0ed2ae1f70" />
 
 
 <br>
@@ -210,7 +209,8 @@ DB가 올려져 있는 aws의 비용문제와 서버 과부하로 인한 속도 
 
 ### 상세페이지 기술 설명
 
-![스크린샷 2025-06-13 103930](https://github.com/user-attachments/assets/c6efe7b7-5716-4e71-b13a-515dd2547d22)
+![스크린샷 2025-06-13 103930](<img width="2574" height="1256" alt="image" src="https://github.com/user-attachments/assets/a9f9d441-7f6e-426e-96e0-97ee4e91ab42" />
+)
 |-|
 |상품상세 페이지|
 
