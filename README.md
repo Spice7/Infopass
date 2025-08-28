@@ -34,7 +34,7 @@
 
 # 2. 팀소개
 + **팀장**  박용희 @dydgml428
-+ **팀원**  손현정 @yjyj0234
++ **팀원**  이정민 @jungmin2803
 + **팀원**  현승윤 @hyeonsy99
 + **팀원**  이창연 @changyeonyes
 + **팀원**  원주희 @juxxi054
@@ -55,7 +55,7 @@
   
 ### **이정민**
 + 로그인/회원가입 페이지
-+ 카드게임 
++ 카드게임
 
 ### **김기범**
 + 관리자 페이지
@@ -84,34 +84,38 @@ SPRING BOOT, SPRING SECURITY, JWT, NGNIX, AWS EC2, DOCKER, REDIS, MYSQL, MYBATIS
 
 <br>
 
-## - 5.2 관리자 상품 등록/관리 (카테고리별)
-|<img width="841" alt="스크린샷 2025-06-16 오후 5 13 49" src="https://github.com/user-attachments/assets/6afb2c30-ca49-489d-ae7a-abebf53f0556" />|
+## - 5.2 로그인/회원가입 기능
+
+|<img width="1893" height="932" alt="스크린샷 2025-08-27 114803" src="https://github.com/user-attachments/assets/a52df384-3a39-4608-ba75-ca1795df5f04" />|
 |-|
-|상품 수정 페이지|
+|로그인 페이지|
 
-|<img width="769" alt="스크린샷 2025-06-16 오후 5 13 38" src="https://github.com/user-attachments/assets/16db363c-cd2f-4d0e-beef-31781a5a59f9" />|
+|<img width="1919" height="932" alt="화면 캡처 2025-08-28 162222" src="https://github.com/user-attachments/assets/31e05286-1806-4010-b8f9-5cbbdffc947e" />|
 |-|
-|상품 관리 페이지|
+|회원가입 페이지|
 
-### 관리자 페이지 주요 기술 포인트
-#### aws s3 연결
-이미지파일을 aws s3에 올리고 db에는 aws s3 url을 연결하였습니다.
-처음에는 DB에 BLOB(Binary Large Object)형식으로 이미지파일을 업로드 했었는데, 이미지 파일이 많아지면 
-DB가 올려져 있는 aws의 비용문제와 서버 과부하로 인한 속도 저하가 일어나기 때문에 aws s3를 도입하게 되었습니다.
-해당 방식을 통해 비용을 감소시키고 속도를 향상시켰습니다
-<br>
-<br>
-#### 유연하고 확장가능한 상품 db 설계
-![image](https://github.com/user-attachments/assets/2c91e49d-13ad-4a1a-894e-91959b6f4498)
-
-한 상품에 여러 색깔과 각 색깔에 대한 사이즈, 수량이 다르기 때문에 한 상품의 여러 색깔,사이즈,수량을 상품 옵션이라는 테이블로 만들었습니다.
-해당 방식을 통해 product 테이블과 product_option 테이블을 1:N 관계로 분리하여 설계 및 구현하였습니다.
-중복 데이터를 최소화하고 데이터 일관성 및 커리 효율성을 높였습니다.
-
-
-
+### 로그인/회원가입 페이지 주요 기술 포인트
+#### 인증 및 보안 시스템 (JWT, Spring Security)
+- Spring Security와 JWT를 활용한 로그인/회원가입 인증 시스템 설계 및 구현
+- Access/Refresh Token 이중 토큰 구조 및 만료/재발급 로직 개발
+- 사용자 인증/인가, 세션 관리, 토큰 검증 필터(JwtRequestFilter) 구현
+- 인증/인가 로직의 취약점 점검 및 XSS, CSRF 등 보안 강화
+  
+#### 로그인/회원가입 기능
+- 아이디(이메일), 비밀번호, 닉네임, 휴대폰 번호 등 중복 체크 및 유효성 검증
+- 휴대폰 본인 인증, SMS 인증, 소셜 로그인(네이버, 카카오) 연동
+- 회원가입 시 입력값 검증, 예외 처리, 사용자 피드백 제공
+- 로그인 성공 시 JWT 토큰 발급 및 클라이언트 브라우저 쿠키에 토큰 저장, 자동 로그인 처리
+- 로그인/회원가입 오류 상황에 대한 안내 및 예외 처리
 <br>
 
+
+
+
+<br>
+
+
+<br>
      
 ## - 5.7 유저 랭킹 서비스, 멀티 플레이 기능 페이지
 
