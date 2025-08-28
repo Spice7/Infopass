@@ -54,7 +54,7 @@ public class SecurityConfig {
         http.formLogin(login -> login.disable());
         http.httpBasic(basic -> basic.disable());
 
-        // CSRF 보호 비활성화
+        // CSRF 보호 완전 비활성화
         http.csrf(csrf -> csrf.disable());
 
         // CORS 설정 적용
@@ -63,17 +63,17 @@ public class SecurityConfig {
         // 세션 정책을 STATELESS로 설정 (JWT 사용 시 필수)
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        // 🚨 임시 테스트: JWT 필터 비활성화
-        // http.addFilterAt(new JwtAuthenticationFilter(authenticationManager, jwtTokenProvider),
-        //         UsernamePasswordAuthenticationFilter.class)
-        //         .addFilterBefore(new JwtRequestFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+        // ✅ JWT 필터 재활성화 - 로그인 처리를 위해 필수
+        http.addFilterAt(new JwtAuthenticationFilter(authenticationManager, jwtTokenProvider),
+                UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtRequestFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
         // 🚨 임시 테스트: 모든 요청 허용
         http.authorizeHttpRequests(authorize -> authorize
                 .anyRequest().permitAll());
 
-        // WebSocket 메시지에 대한 모든 보안 제한 해제
-        http.csrf(csrf -> csrf.ignoringRequestMatchers("/ws/**", "/ws-game/**", "/topic/**", "/queue/**", "/app/**"));
+        // CSRF 추가 설정 제거 (이미 완전 비활성화됨)
+        // http.csrf(csrf -> csrf.ignoringRequestMatchers("/ws/**", "/ws-game/**", "/topic/**", "/queue/**", "/app/**"));
 
         // 사용자 정보 서비스 설정
         http.userDetailsService(customUserDetailService);
