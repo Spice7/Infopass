@@ -1,5 +1,6 @@
 # Infopass
-![Image](https://github.com/user-attachments/assets/a51b5362-b882-4c86-9298-c1fb17927778)
+<img width="2540" height="1190" alt="image" src="https://github.com/user-attachments/assets/1a4de878-29d0-470e-95f7-5eb4472cd47d" />
+
 
 # 쇼핑몰 프로젝트
 쌍용아카데미 제4강의장 1조
