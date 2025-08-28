@@ -128,7 +128,7 @@ Redis의 **Sorted Set(ZSet)** 을 활용해 사용자의 점수를 즉시 반영
 이 구조는 실시간성과 정확성을 분리해 시스템 부하를 줄이고 신뢰성을 확보했습니다.
 
 </br>
-![스크린샷 2025-06-13 155159](https://github.com/user-attachments/assets/46657762-8372-4aaf-9320-5571c0e01f81)
+|![화면-기록-2025-08-28-오후-3 58 23+(2)](https://github.com/user-attachments/assets/2f28b0bc-94ca-4017-9d1c-883d0c8b9d45)
 |-|
 |상품 관리 페이지 문의 및 리뷰 구현|
 
