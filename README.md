@@ -113,9 +113,8 @@ DB가 올려져 있는 aws의 비용문제와 서버 과부하로 인한 속도 
 <br>
 
      
-## - 5.7 상세 페이지 
+## - 5.7 유저 랭킹 서비스, 멀티 플레이 기능 페이지
 
-### 상세페이지 기술 설명
 
 |<img width="2574" height="1256" alt="image" src="https://github.com/user-attachments/assets/a9f9d441-7f6e-426e-96e0-97ee4e91ab42" />
 |-|
