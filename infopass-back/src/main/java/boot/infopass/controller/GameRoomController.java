@@ -3,6 +3,7 @@ package boot.infopass.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -60,10 +61,50 @@ public class GameRoomController {
         return ResponseEntity.ok(response);
     }
 
+    // 방 리스트 조회 - 참여자 수 포함
     @GetMapping
-    @ResponseBody
-    public List<GameRoomDto> getRooms() {
-        return service.getAllRooms();
+    public ResponseEntity<List<Map<String, Object>>> getAllRooms() {
+        try {
+            log.info("=== 방 리스트 조회 요청 ===");
+
+            List<GameRoomDto> rooms = service.getAllRooms();
+            log.info("조회된 방 개수: {}", rooms.size());
+
+            // 각 방에 현재 참여자 수 추가
+            List<Map<String, Object>> roomsWithPlayerCount = rooms.stream()
+                    .map(room -> {
+                        Map<String, Object> roomData = new HashMap<>();
+                        roomData.put("id", room.getId());
+                        roomData.put("roomName", room.getRoomName());
+                        roomData.put("maxPlayers", room.getMaxPlayers());
+                        roomData.put("status", room.getStatus());
+                        roomData.put("createdAt", room.getCreatedAt());
+
+                        // 현재 참여자 수 조회
+                        try {
+                            List<GameRoomPlayerDto> players = service.getPlayersByRoom(room.getId());
+                            int currentPlayers = players != null ? players.size() : 0;
+                            roomData.put("currentPlayers", currentPlayers);
+
+                            log.info("방 {}: {} (참여자: {}/{})",
+                                    room.getId(), room.getRoomName(), currentPlayers, room.getMaxPlayers());
+
+                        } catch (Exception e) {
+                            log.warn("방 {}의 참여자 수 조회 실패: {}", room.getId(), e.getMessage());
+                            roomData.put("currentPlayers", 0);
+                        }
+
+                        return roomData;
+                    })
+                    .collect(Collectors.toList());
+
+            log.info("✅ 방 리스트 조회 완료");
+            return ResponseEntity.ok(roomsWithPlayerCount);
+
+        } catch (Exception e) {
+            log.error("❌ 방 리스트 조회 중 오류:", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     @GetMapping("/{roomId}/players")
@@ -90,7 +131,11 @@ public class GameRoomController {
 
             }
 
+            // 기존 joinRoom 메서드 사용 (addPlayerToRoom이 아님)
             service.joinRoom(roomId, userDto);
+
+            // 로비에 참여자 수 변경 알림
+            notifyLobbyPlayerCountChange(roomId);
 
             List<GameRoomPlayerDto> updatedPlayers = service.getPlayersByRoom(roomId);
             messagingTemplate.convertAndSend("/topic/room/" + roomId, updatedPlayers);
@@ -98,6 +143,7 @@ public class GameRoomController {
             Map<String, String> response = new HashMap<>();
             response.put("message", "방에 성공적으로 참가했습니다");
             return ResponseEntity.ok(response);
+
         } catch (Exception e) {
             log.error("방 참가 중 에러 발생:{}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("방 참가에 실패했습니다.");
@@ -305,15 +351,54 @@ public class GameRoomController {
 
     }
 
-    // 방 나가기 API - CustomUser 활용으로 수정
+    // 로비 업데이트 메시지 핸들러 추가
+    @MessageMapping("/lobby/update")
+    public void handleLobbyUpdate(@Payload Map<String, Object> message) {
+        try {
+            log.info("로비 업데이트 메시지 수신: {}", message);
+
+            String type = (String) message.get("type");
+
+            if ("ROOM_CREATED".equals(type)) {
+                // 새 방이 생성되었음을 모든 로비 사용자에게 알림
+                messagingTemplate.convertAndSend("/topic/lobby", Map.of(
+                        "type", "ROOM_LIST_UPDATE",
+                        "message", "새로운 방이 생성되었습니다"));
+            }
+
+        } catch (Exception e) {
+            log.error("로비 업데이트 처리 중 오류:", e);
+        }
+    }
+
+    // 방 입장/나가기 시 로비에 참여자 수 변경 알림
+    private void notifyLobbyPlayerCountChange(Long roomId) {
+        try {
+            List<GameRoomPlayerDto> players = service.getPlayersByRoom(roomId);
+            int currentPlayers = players != null ? players.size() : 0;
+
+            messagingTemplate.convertAndSend("/topic/lobby", Map.of(
+                    "type", "ROOM_PLAYER_COUNT_UPDATE",
+                    "roomId", roomId,
+                    "currentPlayers", currentPlayers));
+
+            log.info("로비에 방 {} 참여자 수 변경 알림: {}명", roomId, currentPlayers);
+
+        } catch (Exception e) {
+            log.error("로비 참여자 수 알림 전송 실패:", e);
+        }
+    }
+
     @PostMapping("/{roomId}/leave")
     public ResponseEntity<?> leaveRoom(@PathVariable Long roomId, Authentication authentication) {
         try {
             log.info("=== 방 나가기 요청 ===");
-            log.info("방 ID: {}, 사용자: {}", roomId, authentication.getName());
+            log.info("방 ID: {}, 사용자: {}", roomId, authentication != null ? authentication.getName() : "null");
 
             // SecurityContext에서 CustomUser 가져오기 (기존 joinRoom과 동일한 방식)
             if (authentication == null || !(authentication.getPrincipal() instanceof CustomUser)) {
+                log.error("❌ 인증 정보가 유효하지 않습니다. authentication: {}, principal: {}",
+                        authentication, authentication != null ? authentication.getPrincipal() : "null");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("사용자 인증 정보가 유효하지 않습니다.");
             }
 
@@ -321,39 +406,76 @@ public class GameRoomController {
             UserDto userDto = customUser.getUserData();
 
             if (userDto == null) {
-                log.error("사용자 정보를 찾을 수 없습니다: {}", authentication.getName());
+                log.error("❌ CustomUser에서 UserDto를 가져올 수 없습니다");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("사용자 정보를 찾을 수 없습니다");
+            }
+
+            log.info("🔍 사용자 정보: ID={}, email={}, nickname={}",
+                    userDto.getId(), userDto.getEmail(), userDto.getNickname());
+
+            // 방이 존재하는지 확인
+            try {
+                List<GameRoomPlayerDto> allPlayers = service.getPlayersByRoom(roomId);
+                log.info("🔍 방 {}의 전체 플레이어 목록: {}명", roomId, allPlayers.size());
+
+                for (GameRoomPlayerDto player : allPlayers) {
+                    log.info("  - 플레이어: ID={}, UserID={}, Nickname={}, Ready={}",
+                            player.getId(), player.getUserId(), player.getNickname(), player.getReady());
+                }
+
+            } catch (Exception e) {
+                log.error("❌ 방 {}가 존재하지 않거나 플레이어 조회 실패: {}", roomId, e.getMessage());
+                return ResponseEntity.badRequest().body("방이 존재하지 않습니다");
             }
 
             // 해당 방에서 현재 사용자의 플레이어 정보 조회
             List<GameRoomPlayerDto> players = service.getPlayersByRoom(roomId);
             GameRoomPlayerDto currentPlayer = players.stream()
-                    .filter(p -> p.getUserId().equals(userDto.getId()))
+                    .filter(p -> {
+                        boolean match = p.getUserId().equals(userDto.getId());
+                        log.debug("플레이어 비교: {} vs {} = {}", p.getUserId(), userDto.getId(), match);
+                        return match;
+                    })
                     .findFirst()
                     .orElse(null);
 
             if (currentPlayer == null) {
-                log.warn("사용자 {}는 방 {}에 참여하지 않았습니다", userDto.getId(), roomId);
+                log.warn("⚠️ 사용자 {}는 방 {}에 참여하지 않았습니다", userDto.getId(), roomId);
+                log.info("현재 방의 플레이어들:");
+                players.forEach(p -> log.info("  - UserID: {}, Nickname: {}", p.getUserId(), p.getNickname()));
                 return ResponseEntity.ok().body("이미 방에서 나간 상태입니다");
             }
 
-            log.info("방에서 제거할 플레이어: ID={}, 닉네임={}", currentPlayer.getId(), currentPlayer.getNickname());
+            log.info("✅ 방에서 제거할 플레이어 찾음: ID={}, UserID={}, Nickname={}",
+                    currentPlayer.getId(), currentPlayer.getUserId(), currentPlayer.getNickname());
 
             // 플레이어를 방에서 제거
+            log.info("🗑️ 플레이어 제거 시작: {}", currentPlayer.getId());
             service.removePlayerFromRoom(currentPlayer.getId());
+            log.info("✅ 플레이어 제거 완료");
+
+            // 로비에 참여자 수 변경 알림
+            notifyLobbyPlayerCountChange(roomId);
 
             // 업데이트된 플레이어 목록 조회
             List<GameRoomPlayerDto> updatedPlayers = service.getPlayersByRoom(roomId);
-            log.info("방 {}의 업데이트된 플레이어 목록: {}명", roomId, updatedPlayers.size());
+            log.info("🔄 방 {}의 업데이트된 플레이어 목록: {}명", roomId, updatedPlayers.size());
+
+            for (GameRoomPlayerDto player : updatedPlayers) {
+                log.info("  - 남은 플레이어: ID={}, UserID={}, Nickname={}",
+                        player.getId(), player.getUserId(), player.getNickname());
+            }
 
             // WebSocket으로 업데이트된 플레이어 목록 전송
+            log.info("📡 WebSocket 메시지 전송 시작: /topic/room/{}", roomId);
             messagingTemplate.convertAndSend("/topic/room/" + roomId, updatedPlayers);
-            log.info("✅ 방 나가기 완료, WebSocket 메시지 전송: /topic/room/{}", roomId);
+            log.info("✅ WebSocket 메시지 전송 완료");
 
             return ResponseEntity.ok().body("방에서 성공적으로 나갔습니다");
 
         } catch (Exception e) {
-            log.error("❌ 방 나가기 처리 중 오류:", e);
+            log.error("❌ 방 나가기 처리 중 예외 발생:", e);
+            log.error("❌ 스택 트레이스:", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("방 나가기 처리 중 오류가 발생했습니다: " + e.getMessage());
         }

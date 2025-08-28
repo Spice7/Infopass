@@ -510,196 +510,520 @@ export default function RoomWaitPage() {
   };
 
   return (
-    <div style={{ padding: "20px", maxWidth: "600px", margin: "0 auto" }}>
-      <h2>게임 대기방 (방 번호: {currentRoomId})</h2>
+    <div
+      style={{
+        minHeight: "0vh",
 
-      {/* 연결 상태 */}
+        padding: "20px",
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+        borderRadius: "10px",
+        marginTop:"100px",
+      }}
+    >
       <div
         style={{
-          marginBottom: "15px",
-          padding: "10px",
-          backgroundColor: isConnected ? "#d4edda" : "#f8d7da",
-          border: `1px solid ${isConnected ? "#c3e6cb" : "#f5c6cb"}`,
-          borderRadius: "5px",
-          fontSize: "14px",
+          maxWidth: "800px",
+          margin: "0 auto",
+          backgroundColor: "rgba(255, 255, 255, 0.95)",
+          borderRadius: "30px",
+          padding: "30px",
+          boxShadow: "0 20px 40px rgba(0, 0, 0, 0.1)",
+          backdropFilter: "blur(10px)",
         }}
       >
-        WebSocket 상태: {connectionStatus}
-      </div>
-
-      {/* 사용자 정보 */}
-      <div
-        style={{
-          marginBottom: "20px",
-          padding: "10px",
-          backgroundColor: "#f8f9fa",
-          borderRadius: "5px",
-          border: "1px solid #dee2e6",
-        }}
-      >
-        <strong>내 정보:</strong> {userInfo.nickname} (ID: {userInfo.id})
-        {currentPlayer && (
-          <div style={{ marginTop: "5px", fontSize: "14px" }}>
-            플레이어 ID: {currentPlayer.id} | 상태:{" "}
-            <span
-              style={{ color: currentPlayer.ready ? "#28a745" : "#dc3545" }}
-            >
-              {currentPlayer.ready ? "준비 완료" : "대기 중"}
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* 준비 버튼 */}
-      <div style={{ marginBottom: "20px" }}>
-        {currentPlayer?.ready ? (
-          <button
-            onClick={handleNotReady}
-            style={{
-              padding: "12px 24px",
-              backgroundColor: "#dc3545",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-              fontSize: "16px",
-              cursor: "pointer",
-              fontWeight: "bold",
-            }}
-          >
-            준비 취소
-          </button>
-        ) : (
-          <button
-            onClick={handleReady}
-            disabled={!currentPlayer}
-            style={{
-              padding: "12px 24px",
-              backgroundColor: currentPlayer ? "#28a745" : "#6c757d",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-              fontSize: "16px",
-              cursor: currentPlayer ? "pointer" : "not-allowed",
-              fontWeight: "bold",
-            }}
-          >
-            게임 준비 완료
-          </button>
-        )}
-      </div>
-
-      {/* 플레이어 목록 */}
-      <div>
-        <h3>참가자 목록 ({players.length}명)</h3>
-        {players.length === 0 ? (
-          <div
-            style={{
-              padding: "20px",
-              textAlign: "center",
-              backgroundColor: "#f8f9fa",
-              borderRadius: "5px",
-              color: "#6c757d",
-            }}
-          >
-            플레이어 목록을 불러오는 중...
-          </div>
-        ) : (
-          <div>
-            {players.map((player) => (
-              <div
-                key={player.id}
-                style={{
-                  padding: "12px",
-                  margin: "8px 0",
-                  backgroundColor:
-                    player.userId === userInfo.id ? "#e3f2fd" : "#ffffff",
-                  border:
-                    player.userId === userInfo.id
-                      ? "2px solid #2196f3"
-                      : "1px solid #dee2e6",
-                  borderRadius: "8px",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                }}
-              >
-                <div>
-                  <strong style={{ fontSize: "16px" }}>
-                    {player.nickname}
-                  </strong>
-                  {player.userId === userInfo.id && (
-                    <span
-                      style={{
-                        marginLeft: "8px",
-                        fontSize: "14px",
-                        color: "#2196f3",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      (나)
-                    </span>
-                  )}
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    fontSize: "14px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  <span style={{ marginRight: "8px" }}>
-                    {player.ready ? "🟢" : "🔴"}
-                  </span>
-                  <span
-                    style={{
-                      color: player.ready ? "#28a745" : "#dc3545",
-                    }}
-                  >
-                    {player.ready ? "준비 완료" : "대기 중"}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* 안내 메시지 */}
-      <div
-        style={{
-          marginTop: "20px",
-          padding: "15px",
-          backgroundColor: "#fff3cd",
-          border: "1px solid #ffeaa7",
-          borderRadius: "5px",
-          fontSize: "14px",
-        }}
-      >
-        <strong>💡 게임 시작 조건:</strong>
-        <br />
-        • 모든 참가자가 준비를 완료하면 자동으로 게임이 시작됩니다.
-        <br />• 게임 중에는 동일한 문제를 모든 참가자가 함께 풉니다.
-      </div>
-
-      {/* 나가기 버튼 - 수정된 부분 */}
-      <div style={{ marginTop: "20px", textAlign: "center" }}>
-        <button
-          onClick={handleLeaveRoom} // 수정: 새로운 핸들러 사용
+        {/* 헤더 */}
+        <div
           style={{
-            padding: "10px 20px",
-            backgroundColor: "#6c757d",
-            color: "white",
-            border: "none",
-            borderRadius: "5px",
-            fontSize: "14px",
-            cursor: "pointer",
+            textAlign: "center",
+            marginBottom: "30px",
+            paddingBottom: "20px",
+            borderBottom: "3px solid #667eea",
           }}
         >
-          방 나가기
-        </button>
+          <h2
+            style={{
+              fontSize: "28px",
+              fontWeight: "700",
+              color: "#2d3748",
+              margin: "0",
+              textShadow: "0 2px 4px rgba(0,0,0,0.1)",
+            }}
+          >
+            단체게임 대기방
+          </h2>
+          <p
+            style={{
+              fontSize: "16px",
+              color: "#718096",
+              margin: "8px 0 0 0",
+              fontWeight: "500",
+            }}
+          >
+            방 번호: {currentRoomId}
+          </p>
+        </div>
+
+        {/* 연결 상태 표시 */}
+        <div
+          style={{
+            textAlign: "center",
+            marginBottom: "25px",
+          }}
+        >
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: "8px 16px",
+              borderRadius: "20px",
+              fontSize: "14px",
+              fontWeight: "600",
+              backgroundColor: isConnected ? "#d4edda" : "#f8d7da",
+              color: isConnected ? "#155724" : "#721c24",
+              border: `2px solid ${isConnected ? "#c3e6cb" : "#f5c6cb"}`,
+            }}
+          >
+            <span style={{ fontSize: "12px" }}>
+              {isConnected ? "🟢" : "🔴"}
+            </span>
+            {connectionStatus}
+          </span>
+        </div>
+
+        {/* 사용자 정보 카드 */}
+        <div
+          style={{
+            marginBottom: "25px",
+            padding: "20px",
+            background: "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)",
+            borderRadius: "15px",
+            border: "2px solid #dee2e6",
+            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.05)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "15px",
+            }}
+          >
+            <div
+              style={{
+                width: "50px",
+                height: "50px",
+                borderRadius: "50%",
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "white",
+                fontSize: "20px",
+                fontWeight: "bold",
+              }}
+            >
+              {userInfo.nickname?.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <h3
+                style={{
+                  margin: "0",
+                  fontSize: "18px",
+                  fontWeight: "600",
+                  color: "#2d3748",
+                }}
+              >
+                {userInfo.nickname}
+              </h3>
+
+              {currentPlayer && (
+                <div
+                  style={{
+                    marginTop: "8px",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "4px 12px",
+                    borderRadius: "12px",
+                    fontSize: "12px",
+                    fontWeight: "600",
+                    backgroundColor: currentPlayer.ready
+                      ? "#d4edda"
+                      : "#f8d7da",
+                    color: currentPlayer.ready ? "#155724" : "#721c24",
+                  }}
+                >
+                  <span>{currentPlayer.ready ? "✅" : "⏱️"}</span>
+                  {currentPlayer.ready ? "준비 완료" : "대기 중"}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* 준비 버튼 */}
+        <div
+          style={{
+            marginBottom: "30px",
+            textAlign: "center",
+          }}
+        >
+          {currentPlayer?.ready ? (
+            <button
+              onClick={handleNotReady}
+              style={{
+                padding: "15px 40px",
+                background: "linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)",
+                color: "white",
+                border: "none",
+                borderRadius: "25px",
+                fontSize: "16px",
+                fontWeight: "700",
+                cursor: "pointer",
+                boxShadow: "0 8px 15px rgba(231, 76, 60, 0.3)",
+                transition: "all 0.3s ease",
+                transform: "translateY(0)",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = "translateY(-2px)";
+                e.target.style.boxShadow = "0 12px 20px rgba(231, 76, 60, 0.4)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = "translateY(0)";
+                e.target.style.boxShadow = "0 8px 15px rgba(231, 76, 60, 0.3)";
+              }}
+            >
+              🚫 준비 취소
+            </button>
+          ) : (
+            <button
+              onClick={handleReady}
+              disabled={!currentPlayer}
+              style={{
+                padding: "15px 40px",
+                background: currentPlayer
+                  ? "linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)"
+                  : "linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%)",
+                color: "white",
+                border: "none",
+                borderRadius: "25px",
+                fontSize: "16px",
+                fontWeight: "700",
+                cursor: currentPlayer ? "pointer" : "not-allowed",
+                boxShadow: currentPlayer
+                  ? "0 8px 15px rgba(39, 174, 96, 0.3)"
+                  : "0 4px 8px rgba(149, 165, 166, 0.3)",
+                transition: "all 0.3s ease",
+                transform: "translateY(0)",
+              }}
+              onMouseEnter={(e) => {
+                if (currentPlayer) {
+                  e.target.style.transform = "translateY(-2px)";
+                  e.target.style.boxShadow =
+                    "0 12px 20px rgba(39, 174, 96, 0.4)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (currentPlayer) {
+                  e.target.style.transform = "translateY(0)";
+                  e.target.style.boxShadow =
+                    "0 8px 15px rgba(39, 174, 96, 0.3)";
+                }
+              }}
+            >
+              {currentPlayer ? "🚀 게임 준비 완료" : "⏳ 연결 중..."}
+            </button>
+          )}
+        </div>
+
+        {/* 플레이어 목록 */}
+        <div style={{ marginBottom: "25px" }}>
+          <h3
+            style={{
+              fontSize: "20px",
+              fontWeight: "600",
+              color: "#2d3748",
+              marginBottom: "15px",
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+            }}
+          >
+            👥 참가자 목록
+            <span
+              style={{
+                backgroundColor: "#667eea",
+                color: "white",
+                padding: "4px 12px",
+                borderRadius: "12px",
+                fontSize: "14px",
+                fontWeight: "700",
+              }}
+            >
+              {players.length}명
+            </span>
+          </h3>
+
+          {players.length === 0 ? (
+            <div
+              style={{
+                padding: "40px 20px",
+                textAlign: "center",
+                background: "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)",
+                borderRadius: "15px",
+                border: "2px dashed #dee2e6",
+              }}
+            >
+              <div style={{ fontSize: "48px", marginBottom: "10px" }}>⏳</div>
+              <p
+                style={{
+                  color: "#6c757d",
+                  fontSize: "16px",
+                  margin: "0",
+                  fontWeight: "500",
+                }}
+              >
+                플레이어 목록을 불러오는 중...
+              </p>
+            </div>
+          ) : (
+            <div
+              style={{
+                display: "grid",
+                gap: "12px",
+              }}
+            >
+              {players.map((player, index) => (
+                <div
+                  key={player.id}
+                  style={{
+                    padding: "18px",
+                    background:
+                      player.userId === userInfo.id
+                        ? "linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)"
+                        : "linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)",
+                    border:
+                      player.userId === userInfo.id
+                        ? "3px solid #2196f3"
+                        : "2px solid #e9ecef",
+                    borderRadius: "15px",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
+                    transition: "all 0.3s ease",
+                    animation: `fadeInUp 0.5s ease ${index * 0.1}s both`,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "15px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "45px",
+                        height: "45px",
+                        borderRadius: "50%",
+                        background: player.ready
+                          ? "linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)"
+                          : "linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "white",
+                        fontSize: "18px",
+                        fontWeight: "bold",
+                        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+                      }}
+                    >
+                      {player.nickname?.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontSize: "18px",
+                            fontWeight: "600",
+                            color: "#2d3748",
+                          }}
+                        >
+                          {player.nickname}
+                        </span>
+                        {player.userId === userInfo.id && (
+                          <span
+                            style={{
+                              padding: "2px 8px",
+                              backgroundColor: "#2196f3",
+                              color: "white",
+                              borderRadius: "8px",
+                              fontSize: "12px",
+                              fontWeight: "600",
+                            }}
+                          >
+                            ME
+                          </span>
+                        )}
+                      </div>
+                      <p
+                        style={{
+                          margin: "4px 0 0 0",
+                          fontSize: "12px",
+                          color: "#718096",
+                        }}
+                      >
+                        Player:{index + 1}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        padding: "6px 12px",
+                        borderRadius: "12px",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        backgroundColor: player.ready ? "#d4edda" : "#f8d7da",
+                        color: player.ready ? "#155724" : "#721c24",
+                      }}
+                    >
+                      <span style={{ fontSize: "16px" }}>
+                        {player.ready ? "🟢" : "🔴"}
+                      </span>
+                      {player.ready ? "준비 완료" : "대기 중"}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* 안내 메시지 */}
+        <div
+          style={{
+            marginBottom: "25px",
+            padding: "20px",
+            background: "linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%)",
+            border: "2px solid #ffeaa7",
+            borderRadius: "15px",
+            boxShadow: "0 4px 8px rgba(255, 234, 167, 0.3)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: "12px",
+            }}
+          >
+            <span style={{ fontSize: "24px" }}>💡</span>
+            <div>
+              <h4
+                style={{
+                  margin: "0 0 10px 0",
+                  fontSize: "16px",
+                  fontWeight: "700",
+                  color: "#856404",
+                }}
+              >
+                게임 시작 조건
+              </h4>
+              <ul
+                style={{
+                  margin: "0",
+                  paddingLeft: "20px",
+                  color: "#856404",
+                  fontSize: "14px",
+                  lineHeight: "1.6",
+                }}
+              >
+                <li>
+                  모든 참가자가 준비를 완료하면 자동으로 게임이 시작됩니다
+                </li>
+                <li>게임 중에는 동일한 문제를 모든 참가자가 함께 풉니다</li>
+                <li>빠르고 정확하게 답변하여 높은 점수를 획득하세요!</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* 나가기 버튼 */}
+        <div style={{ textAlign: "center" }}>
+          <button
+            onClick={handleLeaveRoom}
+            style={{
+              padding: "12px 30px",
+              background: "linear-gradient(135deg, #6c757d 0%, #495057 100%)",
+              color: "white",
+              border: "none",
+              borderRadius: "20px",
+              fontSize: "14px",
+              fontWeight: "600",
+              cursor: "pointer",
+              boxShadow: "0 4px 8px rgba(108, 117, 125, 0.3)",
+              transition: "all 0.3s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = "translateY(-1px)";
+              e.target.style.boxShadow = "0 6px 12px rgba(108, 117, 125, 0.4)";
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = "translateY(0)";
+              e.target.style.boxShadow = "0 4px 8px rgba(108, 117, 125, 0.3)";
+            }}
+          >
+            🚪 방 나가기
+          </button>
+        </div>
       </div>
+
+      {/* CSS 애니메이션 */}
+      <style jsx>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes pulse {
+          0%,
+          100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.05);
+          }
+        }
+
+        .pulse {
+          animation: pulse 2s infinite;
+        }
+      `}</style>
     </div>
   );
 }
