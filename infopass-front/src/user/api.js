@@ -11,21 +11,14 @@ const api = axios.create({
 // 요청 인터셉터: 모든 요청에 JWT 토큰을 Authorization 헤더에 추가
 api.interceptors.request.use(
   (config) => {
+    // Cookies에서만 토큰 가져오기 (중복 제거)
     const accessToken = Cookies.get("accessToken");
-    // ⚠️ 수정할 부분: localStorage에서 토큰을 가져와 헤더에 추가
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
-    }
-    // ⚠️ CSRF 토큰이 필요하다면 아래처럼 추가
-    // const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-    // if (csrfToken) {
-    //   config.headers['X-CSRF-TOKEN'] = csrfToken;
-    // }
     console.log("Token in header:", accessToken);
+    
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
+    
     return config;
   },
   (error) => {

@@ -83,8 +83,16 @@ public class SecurityConfig {
 
                 // ✅ 2. 인증 없이 접근을 허용할 경로들
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/", "/api/rooms", "/api/rooms/player/search/**", "/user/**", "/admin/**",
+                .requestMatchers("/", "/api/rooms", "/api/rooms/player/search/**", 
                         "/wrong-answers/**", "/results/**", "/rank/**", "/actuator/**")
+                .permitAll()
+                // 사용자 관련 특정 경로만 허용 (회원가입, 아이디/비번 찾기 등)
+                .requestMatchers("/user/checkId", "/user/checkNickName", "/user/join", 
+                        "/user/sendSms", "/user/verifyCode", "/user/findPw", "/user/findId",
+                        "/user/social/**", "/user/getResearchEmail", "/user/findPwCheck", "/user/changePw")
+                .permitAll()
+                // 소셜 로그인 콜백 경로 허용
+                .requestMatchers("/auth/callback/**")
                 .permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/ox_image/**",
                         "/api/rooms/player/**", "/api/ranking/**", "/public/**")
@@ -94,7 +102,7 @@ public class SecurityConfig {
                 .permitAll() // 게임 관련 API 허용
 
                 // ✅ 3. 특정 권한이 필요한 경로
-                .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers("/user/info", "/user/update/**", "/user/remove/**").hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
 
                 // ✅ 4. 위 규칙에 해당하지 않는 모든 요청은 인증 필요
@@ -118,16 +126,32 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 모든 오리진 허용 (개발 및 배포 환경 모두)
-        configuration.addAllowedOriginPattern("*");
+        // 환경변수에서 허용 오리진 가져오기
+        String frontendUrl = System.getenv("VITE_FRONTEND_URL");
+        String ec2PublicIp = System.getenv("EC2_PUBLIC_IP");
+        String customDomain = System.getenv("CUSTOM_DOMAIN");
         
-        // 특정 오리진 명시적 허용
+        // 기본 개발환경 오리진 허용
         configuration.addAllowedOrigin("http://localhost:5173");
         configuration.addAllowedOrigin("http://localhost:80");
-        configuration.addAllowedOrigin("http://localhost:9000");
-        configuration.addAllowedOrigin("http://3.39.163.37");
-        configuration.addAllowedOrigin("http://3.39.163.37:80");
-        configuration.addAllowedOrigin("http://3.39.163.37:9000");
+        configuration.addAllowedOrigin("http://localhost:3000");
+        
+        // 환경변수 기반 오리진 추가
+        if (frontendUrl != null && !frontendUrl.isEmpty()) {
+            configuration.addAllowedOrigin(frontendUrl);
+        }
+        if (ec2PublicIp != null && !ec2PublicIp.isEmpty()) {
+            configuration.addAllowedOrigin("http://" + ec2PublicIp);
+            configuration.addAllowedOrigin("http://" + ec2PublicIp + ":80");
+            configuration.addAllowedOrigin("http://" + ec2PublicIp + ":9000");
+        }
+        if (customDomain != null && !customDomain.isEmpty()) {
+            configuration.addAllowedOrigin("http://" + customDomain);
+            configuration.addAllowedOrigin("http://" + customDomain + ":80");
+        }
+        
+        // 모든 패턴 허용 (유연성을 위해 유지)
+        configuration.addAllowedOriginPattern("*");
         
         // 허용할 헤더 설정
         configuration.addAllowedHeader("*");

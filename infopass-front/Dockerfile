@@ -26,9 +26,9 @@ RUN mkdir -p /etc/nginx/ssl
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# SSL 인증서 복사 (자체 서명 인증서)
-COPY ssl/cert.pem /etc/nginx/ssl/cert.pem
-COPY ssl/key.pem /etc/nginx/ssl/key.pem
+# SSL 인증서 디렉토리만 생성 (HTTP 전용 모드)
+# COPY ssl/cert.pem /etc/nginx/ssl/cert.pem
+# COPY ssl/key.pem /etc/nginx/ssl/key.pem
 
 # 환경변수 주입을 위한 스크립트 생성
 RUN apk add --no-cache bash
