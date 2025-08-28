@@ -109,15 +109,8 @@ SPRING BOOT, SPRING SECURITY, JWT, NGNIX, AWS EC2, DOCKER, REDIS, MYSQL, MYBATIS
 - 로그인/회원가입 오류 상황에 대한 안내 및 예외 처리
 <br>
 
-
-
-
-<br>
-
-
-<br>
      
-## - 5.7 유저 랭킹 서비스, 멀티 플레이 기능 페이지
+## - 5.3 유저 랭킹 서비스, 멀티 플레이 기능 페이지
 
 
 |<img width="2574" height="1256" alt="image" src="https://github.com/user-attachments/assets/a9f9d441-7f6e-426e-96e0-97ee4e91ab42" />
