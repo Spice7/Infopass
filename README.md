@@ -131,7 +131,7 @@ Redis의 **Sorted Set(ZSet)** 을 활용해 사용자의 점수를 즉시 반영
 
 |![2025-08-283 58 23online-video-cutter com-ezgif com-video-to-gif-converter 복사본](https://github.com/user-attachments/assets/5dba7da4-8b2e-4d83-a9ad-58a0d9539d0f)
 |-|
-|상품 관리 페이지 문의 및 리뷰 구현|
+|소켓을 이용한 멀티 플레이 페이지|
 
 ### 멀티 플레이 기능 기술 포인트
 실시간 통신을 위해 **WebSocket**을 선택했는데, 낮은 지연시간과 양방향 통신이 가능하기 때문입니다. HTTP 폴링 대비 서버 리소스를 절약하면서, 사용자 경험도 훨씬 개선할 수 있었습니다. 동시성 문제는 Spring의 메시지 전송 동기화, 트랜잭션, 그리고 낙관적 락을 통해 해결했습니다.
