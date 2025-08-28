@@ -48,6 +48,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager)
             throws Exception {
         log.info("securityFilterChain...");
+        log.info("로그인 경로 /login 접근 허용 설정 중...");
 
         // 폼 기반 로그인 및 HTTP 기본 인증 비활성화
         http.formLogin(login -> login.disable());
@@ -69,43 +70,42 @@ public class SecurityConfig {
                 UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtRequestFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
-        // WebSocket 메시지 인증을 위한 추가 설정
+        // 권한 설정 - 간소화된 버전
         http.authorizeHttpRequests(authorize -> authorize
-                // ✅ 0. 로그인 경로를 가장 먼저 허용 (우선순위 최상위)
-                .requestMatchers("/login").permitAll() // 로그인 명시적 허용
+                // 🔐 가장 중요: 로그인 경로 최우선 허용
+                .requestMatchers(HttpMethod.POST, "/login").permitAll()
+                .requestMatchers(HttpMethod.OPTIONS, "/login").permitAll()
                 
-                // ✅ 1. 웹소켓 경로는 모든 보안 규칙에서 제외 (가장 중요!)
-                .requestMatchers("/ws/**").permitAll() // websocket
-                .requestMatchers("/ws-game/**").permitAll() // websocket game
-                .requestMatchers("/topic/**").permitAll() // websocket topic
-                .requestMatchers("/queue/**").permitAll() // websocket queue
-                .requestMatchers("/app/**").permitAll() // websocket app
-
-                // ✅ 2. 인증 없이 접근을 허용할 경로들
+                // 🌐 전체 허용 경로들
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/", "/api/rooms", "/api/rooms/player/search/**", 
-                        "/wrong-answers/**", "/results/**", "/rank/**", "/actuator/**")
+                .requestMatchers("/", "/actuator/**").permitAll()
+                
+                // 🎮 게임 관련 전체 허용
+                .requestMatchers("/api/**", "/lobby/**", "/oxquiz/**", "/rank/**", "/block/**", 
+                        "/blankgamesingle/**", "/card/**", "/inquiries/**", "/api/games/**", "/api/quiz/**",
+                        "/wrong-answers/**", "/results/**")
                 .permitAll()
-                // 사용자 관련 특정 경로만 허용 (회원가입, 아이디/비번 찾기 등)
+                
+                // 👤 사용자 관련 허용 (회원가입, 찾기 등)
                 .requestMatchers("/user/checkId", "/user/checkNickName", "/user/join", 
                         "/user/sendSms", "/user/verifyCode", "/user/findPw", "/user/findId",
-                        "/user/social/**", "/user/getResearchEmail", "/user/findPwCheck", "/user/changePw")
+                        "/user/social/**", "/user/getResearchEmail", "/user/findPwCheck", "/user/changePw",
+                        "/auth/callback/**")
                 .permitAll()
-                // 소셜 로그인 콜백 경로 허용
-                .requestMatchers("/auth/callback/**")
+                
+                // 🎨 정적 리소스
+                .requestMatchers("/css/**", "/js/**", "/images/**", "/ox_image/**", "/public/**")
                 .permitAll()
-                .requestMatchers("/css/**", "/js/**", "/images/**", "/ox_image/**",
-                        "/api/rooms/player/**", "/api/ranking/**", "/public/**")
+                
+                // 🔗 웹소켓 관련
+                .requestMatchers("/ws/**", "/ws-game/**", "/topic/**", "/queue/**", "/app/**")
                 .permitAll()
-                .requestMatchers("/lobby/**", "/oxquiz/**", "/rank/**", "/block/**", "/blankgamesingle/**", "/card/**",
-                        "/api/rooms/**", "/api/**", "/inquiries/**", "/api/games/**", "/api/quiz/**")
-                .permitAll() // 게임 관련 API 허용
 
-                // ✅ 3. 특정 권한이 필요한 경로
+                // 🔒 인증 필요 경로
                 .requestMatchers("/user/info", "/user/update/**", "/user/remove/**").hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
 
-                // ✅ 4. 위 규칙에 해당하지 않는 모든 요청은 인증 필요
+                // 🚫 나머지 모든 요청은 인증 필요
                 .anyRequest().authenticated());
 
         // WebSocket 메시지에 대한 모든 보안 제한 해제
