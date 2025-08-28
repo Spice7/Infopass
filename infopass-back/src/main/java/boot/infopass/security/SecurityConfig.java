@@ -63,50 +63,14 @@ public class SecurityConfig {
         // 세션 정책을 STATELESS로 설정 (JWT 사용 시 필수)
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        // 필터 설정
-        // ✅ JWT 요청 필터 1️⃣
-        // ✅ JWT 인증 필터 2️⃣
-        http.addFilterAt(new JwtAuthenticationFilter(authenticationManager, jwtTokenProvider),
-                UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new JwtRequestFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+        // 🚨 임시 테스트: JWT 필터 비활성화
+        // http.addFilterAt(new JwtAuthenticationFilter(authenticationManager, jwtTokenProvider),
+        //         UsernamePasswordAuthenticationFilter.class)
+        //         .addFilterBefore(new JwtRequestFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
-        // 권한 설정 - 간소화된 버전
+        // 🚨 임시 테스트: 모든 요청 허용
         http.authorizeHttpRequests(authorize -> authorize
-                // 🔐 가장 중요: 로그인 경로 최우선 허용
-                .requestMatchers(HttpMethod.POST, "/login").permitAll()
-                .requestMatchers(HttpMethod.OPTIONS, "/login").permitAll()
-                
-                // 🌐 전체 허용 경로들
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/", "/actuator/**").permitAll()
-                
-                // 🎮 게임 관련 전체 허용
-                .requestMatchers("/api/**", "/lobby/**", "/oxquiz/**", "/rank/**", "/block/**", 
-                        "/blankgamesingle/**", "/card/**", "/inquiries/**", "/api/games/**", "/api/quiz/**",
-                        "/wrong-answers/**", "/results/**")
-                .permitAll()
-                
-                // 👤 사용자 관련 허용 (회원가입, 찾기 등)
-                .requestMatchers("/user/checkId", "/user/checkNickName", "/user/join", 
-                        "/user/sendSms", "/user/verifyCode", "/user/findPw", "/user/findId",
-                        "/user/social/**", "/user/getResearchEmail", "/user/findPwCheck", "/user/changePw",
-                        "/auth/callback/**")
-                .permitAll()
-                
-                // 🎨 정적 리소스
-                .requestMatchers("/css/**", "/js/**", "/images/**", "/ox_image/**", "/public/**")
-                .permitAll()
-                
-                // 🔗 웹소켓 관련
-                .requestMatchers("/ws/**", "/ws-game/**", "/topic/**", "/queue/**", "/app/**")
-                .permitAll()
-
-                // 🔒 인증 필요 경로
-                .requestMatchers("/user/info", "/user/update/**", "/user/remove/**").hasAnyRole("USER", "ADMIN")
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-
-                // 🚫 나머지 모든 요청은 인증 필요
-                .anyRequest().authenticated());
+                .anyRequest().permitAll());
 
         // WebSocket 메시지에 대한 모든 보안 제한 해제
         http.csrf(csrf -> csrf.ignoringRequestMatchers("/ws/**", "/ws-game/**", "/topic/**", "/queue/**", "/app/**"));
