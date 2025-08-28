@@ -209,7 +209,7 @@ DB가 올려져 있는 aws의 비용문제와 서버 과부하로 인한 속도 
 
 ### 상세페이지 기술 설명
 
-<img width="2574" height="1256" alt="image" src="https://github.com/user-attachments/assets/a9f9d441-7f6e-426e-96e0-97ee4e91ab42" />
+!<img width="2574" height="1256" alt="image" src="https://github.com/user-attachments/assets/a9f9d441-7f6e-426e-96e0-97ee4e91ab42" />
 |-|
 |유저 랭킹 주간/실시간 페이지|
 
