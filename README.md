@@ -144,13 +144,28 @@
 <img width="2160" height="1136" alt="image" src="https://github.com/user-attachments/assets/e761d27b-3db4-4407-83d9-44c01c1a7559" />
 
 
-
-
 # 6. 주요기능
 ## - 6.1 메인 페이지
 <img width="2540" height="1190" alt="image" src="https://github.com/user-attachments/assets/18e8f324-53a0-43d4-a45b-0c0ed2ae1f70" />
 
-<br>
+- 사용자 친화적인 UI구축
+- 우주게임 배경을 위한 백그라운드 페이지(별 반짝이) 생성 후  그 위로 메인페이지 나타나게 함
+- 게임(컨텐츠)에 집중 하기 위해 간단하면서도 심플하게 만듬 
+
+### 메인페이지 특징
+https://github.com/user-attachments/assets/bbe6b0a7-ce79-4615-b08f-70a742073562
+
+- 왼쪽 상단바 클릭시 메뉴바가 생성
+- 사용자가 어느 페이지에 있든 메뉴바를 통해 원하는 페이지 이동 가능
+- 관리자로 로그인 시 관리자 전용페이지 이동 버튼 생성
+
+## - 6.1.2 게임 상세 페이지
+https://github.com/user-attachments/assets/ec35a7a8-7c56-4d76-bfc6-608b5014ca30
+
+- 실제 게임 영상을 삽입하여 게임 소개
+- 
+
+<br> 
 
 ## - 6.2 로그인/회원가입 기능
 
@@ -226,7 +241,7 @@
 - 한 명의 목숨이 모두 소진될 때까지 진행, 동시 탈락 시 무승부(DRAW)
 - **로비/방 생성/입장/캐릭터 선택** 등 실시간 동기화
 
-| <img src="https://github.com/user-attachments/assets/bf7f492e-0465-4874-9385-514c59f6fd8f" height="260"/> | <img src="https://github.com/user-attachments/assets/6f4ba093-ac4a-400f-a7e6-4f04dbf919f0" height="260"/> | <img src="https://github.com/user-attachments/assets/655d468a-d3b2-4334-8ca5-3a36410f2e7b" height="260"/> |
+| <img src="https://github.com/user-attachments/assets/bf7f492e-0465-4874-9385-514c59f6fd8f" height="260"/> | <img src="https://github.com/user-attachments/assets/6f4ba093-ac4a-400f-a7e6-4f04dbf919f0" height="260"/> | <img src="https://github.com/user-attachments/assets/ef0c1ba1-4563-41e6-aadb-78bf6e3387aa" height="260"/> |
 |:---:|:---:|:---:|
 | 승리 시 | 무승부 시 | 패배 시 | 
 
@@ -242,7 +257,7 @@
 - **싱글/멀티플레이 모두 직접 설계 및 구현**
 - **실시간 동기화, 애니메이션, REST & WebSocket 통합** 등 다양한 기술 스택 활용
 - **문제/결과/오답/랭킹 등 데이터 흐름 전체 설계 및 구현**
-- **게임 UX 개선(캐릭터 선택, 효과음, 이펙트 등) 주도**
+- **게임 UX 개선(캐릭터 선택, 이펙트 등) 주도**
 
 ---
 
