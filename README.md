@@ -226,6 +226,10 @@
 - 한 명의 목숨이 모두 소진될 때까지 진행, 동시 탈락 시 무승부(DRAW)
 - **로비/방 생성/입장/캐릭터 선택** 등 실시간 동기화
 
+| <img src="https://github.com/user-attachments/assets/bf7f492e-0465-4874-9385-514c59f6fd8f" height="260"/> | <img src="https://github.com/user-attachments/assets/6f4ba093-ac4a-400f-a7e6-4f04dbf919f0" height="260"/> | <img src="https://github.com/user-attachments/assets/655d468a-d3b2-4334-8ca5-3a36410f2e7b" height="260"/> |
+|:---:|:---:|:---:|
+| 승리 시 | 무승부 시 | 패배 시 | 
+
 #### **주요 구현 포인트**
 - **Spring Boot + STOMP/WebSocket**으로 실시간 통신 및 동기화
 - **프론트엔드**: React에서 소켓 연결/메시지 처리, 실시간 UI 반영
@@ -244,7 +248,7 @@
 
 > **코드 주요 파일**
 > - 프론트: `OX_SingleGame.jsx`, `OX_MultiGame.jsx`, `OX_Lobby.jsx`, `OXquizsocket.jsx`
-> - 백엔드: `OXQuizController.java`, `OXWebController.java`
+> - 백엔드: `OXQuizController.java`, `OXWebController.java`, `WebSocketConfig.java`
 
 ---
 
