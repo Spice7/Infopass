@@ -150,7 +150,6 @@
 ## - 6.1 메인 페이지
 <img width="2540" height="1190" alt="image" src="https://github.com/user-attachments/assets/18e8f324-53a0-43d4-a45b-0c0ed2ae1f70" />
 
-
 <br>
 
 ## - 6.2 로그인/회원가입 기능
@@ -177,6 +176,77 @@
 - 로그인 성공 시 JWT 토큰 발급 및 클라이언트 브라우저 쿠키에 토큰 저장, 자동 로그인 처리
 - 로그인/회원가입 오류 상황에 대한 안내 및 예외 처리
 <br>
+
+## 6.3. OX퀴즈 게임
+
+### 🕹️ 게임 소개
+
+정보처리기사 실전 대비를 위한 **OX 퀴즈 게임**입니다.  
+싱글플레이와 멀티플레이(1:1 대결) 모두 지원하며,  
+게임적 재미와 학습 효과를 동시에 제공합니다.
+
+---
+
+### 6.3.1 주요 화면
+
+| ![시작 화면](https://github.com/user-attachments/assets/adea262b-f79e-4ab9-9cc2-df685bf72080) | ![캐릭터 선택화면](https://github.com/user-attachments/assets/e120dc45-08a2-4439-9932-c8c693a10b28) |
+|:---:|:---:|
+| 시작 화면 | 캐릭터 선택화면 |
+
+---
+
+### 6.3.2 싱글플레이
+
+[🎬 게임 플레이 영상 보기](https://github.com/user-attachments/assets/a84e128f-4dff-4a8e-be89-18e7f44cee1d)
+
+#### **게임 특징**
+- **랜덤 OX 문제**를 5분 동안 최대한 많이 풀어 점수를 획득
+- **3개의 목숨**이 주어지며, 오답 시 몬스터가 등장해 공격
+- 목숨이 모두 소진되거나 시간이 종료되면 게임 종료 및 결과 저장
+- **애니메이션 효과**(몬스터, 레이저, 폭발, 연기/불)로 몰입감 강화
+
+| <img src="https://github.com/user-attachments/assets/465bc2e7-9d75-438e-8dd3-a47be9408873" height="260"/> | <img src="https://github.com/user-attachments/assets/655d468a-d3b2-4334-8ca5-3a36410f2e7b" height="260"/> |
+|:---:|:---:|
+| 게임 오버 (목숨 3개 소모) | 게임 클리어 (5분 생존) |
+
+#### **주요 구현 포인트**
+- **React**로 상태 관리 및 UI 구현, **Axios**로 REST API 연동
+- **애니메이션/이펙트**: CSS와 상태값을 조합해 동적 효과 구현
+- **게임 데이터**: Spring Boot + MyBatis로 문제/결과/오답 기록 관리
+
+---
+
+### 6.3.3 멀티플레이(로비/1:1 대결)
+
+[🎬 멀티플레이 영상 보기](https://github.com/user-attachments/assets/6d73b189-234e-4a35-8f4d-6cc15767ec09)
+
+#### **게임 특징**
+- **WebSocket(STOMP)** 기반 실시간 1:1 대결
+- 동일한 문제를 5초 내에 풀고, 정답 공개 후 결과 비교
+- 한 명의 목숨이 모두 소진될 때까지 진행, 동시 탈락 시 무승부(DRAW)
+- **로비/방 생성/입장/캐릭터 선택** 등 실시간 동기화
+
+#### **주요 구현 포인트**
+- **Spring Boot + STOMP/WebSocket**으로 실시간 통신 및 동기화
+- **프론트엔드**: React에서 소켓 연결/메시지 처리, 실시간 UI 반영
+- **백엔드**: Java ConcurrentHashMap으로 방/플레이어 상태 관리, DB와 연동
+
+---
+
+### 💡 기술적 차별점 & 담당 역할
+
+- **싱글/멀티플레이 모두 직접 설계 및 구현**
+- **실시간 동기화, 애니메이션, REST & WebSocket 통합** 등 다양한 기술 스택 활용
+- **문제/결과/오답/랭킹 등 데이터 흐름 전체 설계 및 구현**
+- **게임 UX 개선(캐릭터 선택, 효과음, 이펙트 등) 주도**
+
+---
+
+> **코드 주요 파일**
+> - 프론트: `OX_SingleGame.jsx`, `OX_MultiGame.jsx`, `OX_Lobby.jsx`, `OXquizsocket.jsx`
+> - 백엔드: `OXQuizController.java`, `OXWebController.java`
+
+---
 
      
 ## - 6.3 유저 랭킹 서비스, 멀티 플레이 기능 페이지
