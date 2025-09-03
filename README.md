@@ -169,8 +169,6 @@
   - `src/pages/GlobalBackground.jsx`  
   - `src/pages/Menu.jsx`  
   - `src/pages/menu.css`, `src/pages/Home.css`
-- **게임 상세 페이지:**  
-  - (게임별 상세 컴포넌트, 예: `src/pages/GameDetail.jsx` 등)
 
 ---
 
@@ -271,7 +269,7 @@
 ---
 
 > **코드 주요 파일**
-> - 프론트: `OX_SingleGame.jsx`, `OX_MultiGame.jsx`, `OX_Lobby.jsx`, `OXquizsocket.jsx`
+> - 프론트: `OX_main.jsx`, `OX_SingleGame.jsx`, `OX_MultiGame.jsx`, `OX_Lobby.jsx`
 > - 백엔드: `OXQuizController.java`, `OXWebController.java`, `WebSocketConfig.java`
 
 ---
