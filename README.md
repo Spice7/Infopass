@@ -6,46 +6,37 @@
 
 <br>
 
-<div align="center">
-  <h2>🛒 쇼핑몰 프로젝트</h2>
-  <b>쌍용아카데미 제4강의장 1조</b>
-</div>
+---
 
-<br>
-
-# 📑 목차
+## 📑 목차
 1. [개요](#1-개요)
 2. [팀소개](#2-팀소개)
 3. [기술 스택](#3-기술-스택)
-4. [ERD](#4-ERD)
+4. [ERD](#4-erd)
 5. [시스템 아키텍처](#5-시스템-아키텍처)
 6. [주요 기능](#6-주요-기능)
 
 ---
 
-# 1. 개요
+## 1. 개요
 
-> **게임 기반 학습 플랫폼 개발 프로젝트 개요**
+> **게임 기반 학습 플랫폼 개발 프로젝트**
 
-정보처리기사 수험생들을 위한 새로운 학습 경험을 제공합니다.  
-퀴즈와 게임을 접목한 학습은 수험생의 흥미와 학습 지속성을 강화합니다.  
-멀티플레이 기능을 통해 다른 수험생들과 경쟁하고 협력하며 학습 시너지를 높일 수 있습니다.  
-또한, 오답 노트나 진도율 관리 등 다양한 부가 서비스를 제공하여 개인 맞춤형 학습을 지원합니다.  
-이처럼 효율성과 재미를 동시에 잡은 학습 경험으로 수험생들의 합격을 돕습니다.
+정보처리기사 수험생을 위한 새로운 학습 경험을 제공합니다.  
+퀴즈와 게임을 접목한 학습으로 흥미와 지속성을 강화하고,  
+멀티플레이 기능을 통해 경쟁과 승부욕을 통해 공부하고하는 시너지를 높였습니다.  
+오답노트, 진도율 관리 등 다양한 부가 서비스로 개인 맞춤형 학습을 지원합니다.
 
 **주요 기능**
-- 메인페이지 (현대적이고 유저친화적인 UI)
-- 회원가입 및 로그인 (관리자, 일반 사용자)
+- 메인페이지 (현대적이고 유저 친화적 UI)
+- 게임 상세 페이지 (게임 소개, 플레이 영상)
+- 회원가입 및 로그인 (관리자/일반 사용자)
 - 게임 싱글플레이 / 멀티플레이(로비)
-- 게임 상세 페이지 (게임 소개, 게임플레이 영상)
-- 게임 오답 페이지 (틀린 문제 해설)
-- 마이페이지 (게임 기록 조회, 오답노트, 문의)
-- 관리자 페이지 (통계, 문의 및 게임관리)
-- 유저 랭킹 페이지 (사용자 순위 통계 처리)
+- 오답노트, 마이페이지, 관리자 페이지, 유저 랭킹 등
 
 ---
 
-# 2. 팀소개
+## 2. 팀소개
 
 | 이름     | 역할                                                         | GitHub ID         |
 |----------|--------------------------------------------------------------|-------------------|
@@ -55,52 +46,30 @@
 | **김기범** | 마이페이지                                                  | @kkb0329          |
 | **이창연** | 실시간/주간 랭킹, 스피드 퀴즈 싱글/멀티                      | @changyeonyes     |
 
-<br>
+### 🧑‍💻 역할 분담
 
-## 🧑‍💻 역할 분담
-
-- **이건호**  
-  - 관리자페이지, 블록게임  
-  - 데이터베이스/서버 관리 및 구축  
-  - 프로젝트 배포
-
-- **박용희**  
-  - 프로젝트 UI 담당  
-  - 메인페이지, 게임 상세페이지  
-  - OX퀴즈게임 싱글/멀티플레이
-
-- **이정민**  
-  - 로그인/회원가입 페이지  
-  - 카드게임
-
-- **김기범**  
-  - 마이페이지
-
-- **이창연**  
-  - 실시간/주간 랭킹 페이지  
-  - 스피드 퀴즈 싱글/멀티플레이 페이지
+- **이건호** : 관리자페이지, 블록게임, DB/서버 관리 및 구축, 프로젝트 배포  
+- **박용희** : UI, 메인페이지, 게임 상세, OX퀴즈 싱글/멀티  
+- **이정민** : 로그인/회원가입, 카드게임  
+- **김기범** : 마이페이지  
+- **이창연** : 실시간/주간 랭킹, 스피드 퀴즈 싱글/멀티
 
 ---
 
-# 3. 📚 기술 스택
+## 3. 기술 스택
 
 <div align="center">
 
-<!-- 🟢 서버 -->
-<h3>🟢 Server</h3>
+### 🟢 Server
 <img src="https://img.shields.io/badge/amazonaws-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white">
 <img src="https://img.shields.io/badge/ec2-000000?style=for-the-badge&logo=amazonec2&logoColor=white">
 <img src="https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=white">
 <img src="https://img.shields.io/badge/nginx-009639?style=for-the-badge&logo=nginx&logoColor=white">
 <img src="https://img.shields.io/badge/linux-FCC624?style=for-the-badge&logo=linux&logoColor=black">
 
-<br><br>
-
-<!-- 🟩 백엔드 -->
-<h3>🟩 Backend</h3>
+### 🟩 Backend
 <img src="https://img.shields.io/badge/java-007396?style=for-the-badge&logo=java&logoColor=white">
 <img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
-<img src="https://img.shields.io/badge/spring-6DB33F?style=for-the-badge&logo=spring&logoColor=white">
 <img src="https://img.shields.io/badge/mybatis-0052CC?style=for-the-badge&logo=mybatis&logoColor=white">
 <img src="https://img.shields.io/badge/stomp-6DB33F?style=for-the-badge">
 <img src="https://img.shields.io/badge/websocket-010101?style=for-the-badge&logo=websocket&logoColor=white">
@@ -111,10 +80,7 @@
 <img src="https://img.shields.io/badge/springsecurity-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white">
 <img src="https://img.shields.io/badge/apache tomcat-F8DC75?style=for-the-badge&logo=apachetomcat&logoColor=white">
 
-<br><br>
-
-<!-- 🟦 프론트엔드 -->
-<h3>🟦 Frontend</h3>
+### 🟦 Frontend
 <img src="https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=black">
 <img src="https://img.shields.io/badge/axios-5A29E4?style=for-the-badge">
 <img src="https://img.shields.io/badge/material--ui-0081CB?style=for-the-badge&logo=mui&logoColor=white">
@@ -127,24 +93,27 @@
 <img src="https://img.shields.io/badge/prettier-F7B93E?style=for-the-badge&logo=prettier&logoColor=white">
 <img src="https://img.shields.io/badge/eslint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white">
 
-<br><br>
-
-<!-- 🛠️ 기타 -->
-<h3>🛠️ Etc</h3>
+### 🛠️ Etc
 <img src="https://img.shields.io/badge/github-181717?style=for-the-badge&logo=github&logoColor=white">
 <img src="https://img.shields.io/badge/git-F05032?style=for-the-badge&logo=git&logoColor=white">
 
 </div>
-</div>
-# 4. ERD
-<img width="2254" height="1612" alt="image" src="https://github.com/user-attachments/assets/192a5764-7139-4757-8c70-3e60b8740ecb" />
 
+---
 
-# 5. 시스템 아키텍쳐
-<img width="2160" height="1136" alt="image" src="https://github.com/user-attachments/assets/e761d27b-3db4-4407-83d9-44c01c1a7559" />
+## 4. ERD
 
+<img width="100%" alt="ERD" src="https://github.com/user-attachments/assets/192a5764-7139-4757-8c70-3e60b8740ecb" />
 
-# 6. 주요기능
+---
+
+## 5. 시스템 아키텍처
+
+<img width="100%" alt="시스템 아키텍처" src="https://github.com/user-attachments/assets/e761d27b-3db4-4407-83d9-44c01c1a7559" />
+
+---
+
+## 6. 주요 기능
 
 ## 6.1 메인 페이지
 
