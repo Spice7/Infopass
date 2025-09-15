@@ -9,6 +9,9 @@ import Postcode from './Postcode';
 import * as auth from './auth';
 import { LoginContext } from './LoginContextProvider';
 import { AlertDialog } from './RequireLogin';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
 
 const PHONENUMBER_LIST = ['010', '011', '016', '018', '019'];
 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
@@ -66,8 +69,8 @@ const SignupPage = () => {
           ...initialUserInfo,
           name: existingUser.name || '',
           nickname: existingUser.nickname || '',
-          phonePrefix: existingUser.mobile.split("-")[0],
-          phone: existingUser.mobile.split("-")[1] + existingUser.mobile.split("-")[2] || '',
+          phonePrefix: existingUser.mobile?.split("-")[0] || PHONENUMBER_LIST[0],
+          phone: (existingUser.mobile?.split("-")[1] || '') + (existingUser.mobile?.split("-")[2] || ''),
           addressZipCode: existingUser.zipCode || '',
           addressRoad: existingUser.roadAddress || '',
           addressDetail: existingUser.detailAddress || '',
@@ -262,20 +265,18 @@ const SignupPage = () => {
     };
     try {
       await auth.join(sendInfo).then(() => {
-        closeSignUpModal();
         setAlertData({
-          title: "회원가입",
-          message: "회원가입이 완료되었습니다."
+          title: "회원가입 완료",
+          message: "회원가입이 성공적으로 완료되었습니다. 로그인 페이지로 이동합니다."
         });
         setAlertOpen(true);
-        navi("/");
       });
       
       
     } catch (error) {
       setAlertData({
-        title: "회원가입",
-        message: "회원가입에 실패했습니다."
+        title: "회원가입 실패",
+        message: "회원가입에 실패했습니다. 다시 시도해주세요."
       });
       setAlertOpen(true);
       console.log(error);
@@ -285,173 +286,170 @@ const SignupPage = () => {
   if (!isSignUpModalOpen) return null;
 
   return (
-    <Modal
+    <Dialog
       open={isSignUpModalOpen}
       onClose={closeSignUpModal}
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
+      maxWidth="md"
+      fullWidth
+      className="signup-dialog"
+      PaperProps={{
+        className: "signup-dialog-paper"
+      }}
     >
-      <Box className="SignupPage-modal-container">
-        <Typography id="modal-modal-title" variant="h6" component="h2">
+      <DialogTitle id="modal-modal-title" className="signup-dialog-title">
+        <div className="infoTextFrame">
+          <span className="userinfoText">회원가입</span>
+        </div>
+      </DialogTitle>
+      <DialogContent className="signup-dialog-content">
+        <form onSubmit={onSubmitButton}>
+          {socialUser && (
+            <>
+              <input type="hidden" name="provider" value={socialUser.provider} />
+              <input type="hidden" name="providerKey" value={socialUser.providerKey} />
+            </>
+          )}
           <div className="infoTextFrame">
             <span className="userinfoText">기본 정보</span>
           </div>
-        </Typography>
-        <Typography id="modal-modal-description" component='div' sx={{ mt: 2 }}>
-          <form onSubmit={onSubmitButton}>
-            {socialUser && (
+          <div className='userInputFrame email-input-frame'>          
+            {socialUser ? (
               <>
-                <input type="hidden" name="provider" value={socialUser.provider} />
-                <input type="hidden" name="providerKey" value={socialUser.providerKey} />
-              </>
-            )}
-            <div className='userInputFrame email-input-frame'>
-              {socialUser ? (
-                <>
-                  <input
-                    type="text"
-                    className='UserInput UserInput--small'
-                    placeholder='아이디'
-                    value={socialUser.email.split('@')[0]}
-                    disabled
-                  />
-                  <span className="email-separator">@</span>
-                  <input
-                    type="text"
-                    className='UserInput UserInput--small'
-                    value={socialUser.email.split('@')[1]}
-                    disabled
-                    placeholder='이메일 도메인'
-                  />
-                  <button type='button' className='CheckOfId' onClick={handleCheckId}>
-                    이메일 중복확인
-                  </button>
-                </>
-              ) : (
-                <>
-                  <input
-                    type="text"
-                    className='UserInput UserInput--small'
-                    placeholder='아이디'
-                    name='id'
-                    minLength='5'
-                    value={userInfo.id}
-                    disabled={isIdSent}
-                    onChange={inputChangeEvent}
-                    required
-                  />
-                  <span className="email-separator">@</span>
-                  <select
-                    className='UserInput UserInput--small'
-                    name='emailDomain'
-                    value={userInfo.emailDomain}
-                    onChange={inputChangeEvent}
-                    required
-                  >
-                    <option value="naver.com">naver.com</option>
-                    <option value="gmail.com">gmail.com</option>
-                    <option value="google.com">google.com</option>
-                    <option value="kakao.com">kakao.com</option>
-                    <option value="직접입력">직접입력</option>
-                  </select>
-                  <button type='button' className='CheckOfId' onClick={handleCheckId}>
-                    아이디 확인
-                  </button>
-                </>
-              )}
-              {userInfo.emailDomain === "직접입력" && !socialUser && (
                 <input
-                  className='UserInput UserInput--small'
                   type="text"
-                  name="emailInput"
-                  placeholder="이메일 직접입력"
-                  value={userInfo.emailInput}
+                  className='UserInput UserInput--small'
+                  placeholder='아이디'
+                  value={socialUser.email.split('@')[0]}
+                  disabled
+                />
+                <span className="email-separator">@</span>
+                <input
+                  type="text"
+                  className='UserInput UserInput--small'
+                  value={socialUser.email.split('@')[1]}
+                  disabled
+                  placeholder='이메일 도메인'
+                />
+                <button type='button' className='CheckOfId' onClick={handleCheckId}>
+                  이메일 중복확인
+                </button>
+              </>
+            ) : (
+              <>
+                <input
+                  type="text"
+                  className='UserInput UserInput--small'
+                  placeholder='아이디'
+                  name='id'
+                  minLength='5'
+                  value={userInfo.id}
+                  disabled={isIdSent}
                   onChange={inputChangeEvent}
                   required
                 />
-              )}
-              <span className="id-check-message" style={{ color: idmsg.color }}>
-                {idmsg.text}
-              </span>
-            </div>
-            <div className='userInputFrame'>
-              <input type="password"
-                className='UserInput auth-userInput-input'
-                placeholder='비밀번호'
-                minLength='8'
-                name="password"
-                required
-                value={userInfo.password}
-                onChange={inputChangeEvent}
-              />
-              {!passwordValid && (
-                <span style={{ color: 'red' }}>비밀번호는 8자 이상, 영문+숫자+특수문자를 포함해야 합니다.(@$!%*#?&)</span>
-              )}
-            </div>
-            <div className='userInputFrame'>
-              <input type="password"
-                className='UserInput auth-userInput-input'
-                placeholder='비밀번호 확인'
-                minLength='8'
-                name="passwordConfirm"
-                required
-                value={userInfo.passwordConfirm}
-                onChange={inputChangeEvent}
-                onFocus={() => setPasswordConfirmFocused(true)}
-                onBlur={() => setPasswordConfirmFocused(false)}
-              />
-              {passwordConfirmFocused && userInfo.password !== userInfo.passwordConfirm && (
-                <span style={{ color: "red" }}>비밀번호가 일치하지 않습니다.</span>
-              )}
-            </div>
-            <div className="infoTextFrame">
-              <span className="userinfoText">닉네임</span>
-            </div>
-            <div className='userInputFrame'>
-              <input type="text"
-                className='UserInput auth-userInput-input'
-                placeholder='닉네임'
-                name='nickname'
-                required
-                minLength={2}
-                maxLength={8}
-                value={userInfo.nickname}
-                onChange={inputChangeEvent} />
-              <button type="button" className='CheckOfId' onClick={handleCheckNickName}>중복확인</button>
-              <span style={{ color: nickNameMsg.color }}>{nickNameMsg.text}</span>
-            </div>
-            <div className="infoTextFrame">
-              <span className="userinfoText">이름</span>
-            </div>
-            <div className="userInputFrame">
-              {socialUser ? (
-                <input className="UserInput auth-userInput-input"
-                  type="text"
-                  placeholder="이름을 입력해주세요"
-                  value={socialUser.username}
-                  disabled                  
-                />
-              ) : (
-                <input className="UserInput auth-userInput-input"
-                  type="text"
-                  placeholder="이름을 입력해주세요"
-                  name="name"
-                  value={userInfo.name}
+                <span className="email-separator">@</span>
+                <select
+                  className='UserInput UserInput--small'
+                  name='emailDomain'
+                  value={userInfo.emailDomain}
                   onChange={inputChangeEvent}
-                />
-              )}
-            </div>
-            <div className="infoTextFrame">
-              <span className="userinfoText">전화번호</span>
-            </div>
-            {socialUser ? (
-              <div className="numberSelectFrame">
-                <select className="numberBox"
-                    value={socialUser.mobile.split("-")[0]}
-                    disabled
+                  required
                 >
-                    {PHONENUMBER_LIST.map((number, index) => (<option key={index} disabled={isSent}>{number}</option>))}
-                  </select>
+                  <option value="naver.com">naver.com</option>
+                  <option value="gmail.com">gmail.com</option>
+                  <option value="google.com">google.com</option>
+                  <option value="kakao.com">kakao.com</option>
+                  <option value="직접입력">직접입력</option>
+                </select>
+                <button type='button' className='CheckOfId' onClick={handleCheckId}>
+                  아이디 확인
+                </button>
+              </>
+            )}
+            {userInfo.emailDomain === "직접입력" && !socialUser && (
+              <input
+                className='UserInput UserInput--small'
+                type="text"
+                name="emailInput"
+                placeholder="이메일 직접입력"
+                value={userInfo.emailInput}
+                onChange={inputChangeEvent}
+                required
+              />
+            )}
+            <span className="id-check-message" style={{ color: idmsg.color }}>
+              {idmsg.text}
+            </span>
+          </div>
+          <div className='userInputFrame'>
+            <input type="password"
+              className='UserInput auth-userInput-input'
+              placeholder='비밀번호'
+              name='password'
+              required
+              minLength='8'
+              value={userInfo.password}
+              onChange={inputChangeEvent}
+            />
+          </div>
+          <div className='userInputFrame'>
+            <input type="password"
+              className='UserInput auth-userInput-input'
+              placeholder='비밀번호 확인'
+              name='passwordConfirm'
+              required
+              minLength='8'
+              value={userInfo.passwordConfirm}
+              onChange={inputChangeEvent}
+              onFocus={() => setPasswordConfirmFocused(true)}
+              onBlur={() => setPasswordConfirmFocused(false)}
+            />
+          </div>
+          <div className='auth-message'>
+            {!passwordValid && (
+              <span style={{ color: 'red' }}>비밀번호는 8자 이상, 영문+숫자+특수문자를 포함해야 합니다.(@$!%*#?&)</span>
+            )}
+            {passwordConfirmFocused && userInfo.password !== userInfo.passwordConfirm && (
+              <span style={{ color: "red" }}>비밀번호가 일치하지 않습니다.</span>
+            )}
+          </div>
+          <div className='userInputFrame'>
+            <input type="text"
+              className='UserInput'
+              placeholder='이름'
+              name='name'
+              required
+              minLength='2'
+              maxLength='10'
+              value={userInfo.name}
+              onChange={inputChangeEvent}
+            />
+          </div>
+          <div className='userInputFrame'>
+            <input type="text"
+              className='UserInput'
+              placeholder='닉네임'
+              name='nickname'
+              required
+              minLength='2'
+              maxLength='10'
+              value={userInfo.nickname}
+              onChange={inputChangeEvent}
+            />
+            <button type='button' className='CheckOfId' onClick={handleCheckNickName}>닉네임 확인</button>
+          </div>
+          <span className="nickname-check-message" style={{ color: nickNameMsg.color }}>
+            {nickNameMsg.text}
+          </span>
+          <div className="infoTextFrame"><span className="userinfoText">휴대폰</span></div>
+          {socialUser ? (
+            <div className='userInputFrame'>
+              <div className="numberSelectFrame">
+                <select className="numberBox" disabled>
+                  <option>{socialUser.mobile.split("-")[0]}</option>
+                </select>
                 <input className="UserInput"
                   type="number"
                   placeholder="휴대폰 번호를 입력해주세요"
@@ -462,95 +460,102 @@ const SignupPage = () => {
                   value={socialUser.mobile.split("-")[1] + socialUser.mobile.split("-")[2]}
                 />
               </div>
-            ) : (
-              <>
-                <div className="numberSelectFrame">
-                  <select className="numberBox"
-                    value={phonePrefix}
-                    onChange={e => setPhonePrefix(e.target.value)}>
-                    {PHONENUMBER_LIST.map((number, index) => (<option key={index} disabled={isSent}>{number}</option>))}
-                  </select>
-                  <input className="UserInput"
-                    type="number"
-                    placeholder="휴대폰 번호를 입력해주세요"
-                    name="phone"
-                    required
-                    maxLength='8'
-                    minLength='8'                    
-                    disabled={isSent}
-                    value={userInfo.phone}
-                    onChange={inputChangeEvent}
-                  />
-                  <button type='button' className='CheckOfId' onClick={SendSmsEvent}>휴대폰 인증</button>
+            </div>
+          ) : (
+            <>
+              <div className="numberSelectFrame">
+                <select className="numberBox"
+                  value={phonePrefix}
+                  onChange={e => setPhonePrefix(e.target.value)}>
+                  {PHONENUMBER_LIST.map((number, index) => (<option key={index} disabled={isSent}>{number}</option>))}
+                </select>
+                <input className="UserInput"
+                  type="number"
+                  placeholder="휴대폰 번호를 입력해주세요"
+                  name="phone"
+                  required
+                  maxLength='8'
+                  minLength='8'                    
+                  disabled={isSent}
+                  value={userInfo.phone}
+                  onChange={inputChangeEvent}
+                />
+                <button type='button' className='CheckOfId' onClick={SendSmsEvent}>휴대폰 인증</button>
+              </div>
+              <br />
+              <div className='auth-input-frame'>
+                <input type="number"
+                  maxLength='6'
+                  minLength='6'
+                  className='UserInput auth-code-input'
+                  value={inputCode}
+                  disabled={isVerified}
+                  onChange={handleInputCodeChange} />
+                <button type='button' className='CheckOfId' onClick={handleVerifyCode}>인증 확인</button>
+                <div className='auth-message'>
+                  <span style={{ color: message.color }}>{message.text}</span>
                 </div>
-                <br />
-                <div className='auth-input-frame'>
-                  <input type="number"
-                    maxLength='6'
-                    minLength='6'
-                    className='UserInput auth-code-input'
-                    value={inputCode}
-                    disabled={isVerified}
-                    onChange={handleInputCodeChange} />
-                  <button type='button' className='CheckOfId' onClick={handleVerifyCode}>인증 확인</button>
-                  <div className='auth-message'>
-                    <span style={{ color: message.color }}>{message.text}</span>
-                  </div>
-                </div>
-              </>
-            )}
-            <div className="infoTextFrame"><span className="userinfoText">주소</span></div>
-            <div className='userInputFrame'>
-              <label>우편번호</label>
-              <input type="text"
-                style={{ marginLeft: '28px' }}
-                className='UserInput'
-                value={userInfo.addressZipCode}
-                readOnly
-                placeholder="우편번호" />
-              <button type="button" onClick={handleOpenPostcodeModal}>우편번호 검색</button>
-            </div>
-            <div className='userInputFrame'>
-              <label>도로명 주소</label>
-              <input type="text"
-                style={{ marginLeft: '10px' }}
-                className='UserInput'
-                value={userInfo.addressRoad}
-                readOnly
-                placeholder="도로명 주소" />
-            </div>
-            <div className='userInputFrame' >
-              <label>상세 주소</label>
-              <input className='UserInput'
-                style={{ marginLeft: '25px' }}
-                type="text"
-                value={detailAddress}
-                onChange={e => setDetailAddress(e.target.value)}
-                placeholder="상세주소"
-                required
-                minLength={2}
-                maxLength={50} />
-            </div>
-            <Postcode isOpen={isPostcodeModalOpen} onClose={handleClosePostcodeModal} onaddressSelect={handleAddressSelect} />
-            <div className='auth-message'>
-              <span style={{ color: signupMsg.color }}>{signupMsg.text}</span>
-            </div>
-            <div className="button-container">
-              <Button1 type='submit' variant="outlined" color='success'>회원가입</Button1>
-              <Button1 variant="outlined" type='button' onClick={closeSignUpModal}>로그인으로 돌아가기</Button1>
-            </div>
-          </form>
-        </Typography>
-      </Box>
+              </div>
+            </>
+          )}
+          <div className="infoTextFrame"><span className="userinfoText">주소</span></div>
+          <div className='userInputFrame'>
+            <label>우편번호</label>
+            <input type="text"
+              style={{ marginLeft: '28px' }}
+              className='UserInput'
+              value={userInfo.addressZipCode}
+              readOnly
+              placeholder="우편번호" />
+            <button type="button" onClick={handleOpenPostcodeModal}>우편번호 검색</button>
+          </div>
+          <div className='userInputFrame'>
+            <label>도로명 주소</label>
+            <input type="text"
+              style={{ marginLeft: '10px' }}
+              className='UserInput'
+              value={userInfo.addressRoad}
+              readOnly
+              placeholder="도로명 주소" />
+          </div>
+          <div className='userInputFrame' >
+            <label>상세 주소</label>
+            <input className='UserInput'
+              style={{ marginLeft: '25px' }}
+              type="text"
+              value={detailAddress}
+              onChange={e => setDetailAddress(e.target.value)}
+              placeholder="상세주소"
+              required
+              minLength={2}
+              maxLength={50} />
+          </div>
+          <Postcode isOpen={isPostcodeModalOpen} onClose={handleClosePostcodeModal} onaddressSelect={handleAddressSelect} />
+          <div className='auth-message'>
+            <span style={{ color: signupMsg.color }}>{signupMsg.text}</span>
+          </div>
+          <div className="button-container">
+            <Button1 type='submit' variant="outlined" color='success'>회원가입</Button1>
+            <Button1 variant="outlined" type='button' onClick={closeSignUpModal}>로그인으로 돌아가기</Button1>
+          </div>
+        </form>
+      </DialogContent>
       
       {/* 알림 다이얼로그 */}
       <AlertDialog
         open={alertOpen}
         title={alertData.title}
         message={alertData.message}
-        onConfirm={() => setAlertOpen(false)}
+        onConfirm={() => {
+          setAlertOpen(false);
+          if (alertData.title === "회원가입 완료") {
+            closeSignUpModal();
+            navi("/");
+          }
+          // 실패 시에는 모달을 열어두어 사용자가 다시 시도할 수 있음
+        }}
       />
-    </Modal>
+    </Dialog>
   );
 };
 

@@ -19,7 +19,6 @@ import boot.infopass.dto.BlankUserStatusDto;
 import boot.infopass.service.BlankQuizService;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/blankgamesingle")
 public class BlankController {
 

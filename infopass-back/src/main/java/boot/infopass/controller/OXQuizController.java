@@ -28,7 +28,6 @@ import boot.infopass.mapper.UserMapper;
 import boot.infopass.mapper.WrongAnswerMapper;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/oxquiz")
 public class OXQuizController {
 

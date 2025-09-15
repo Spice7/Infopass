@@ -6,6 +6,7 @@ import './OX_Quiz.css';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AlertDialog } from '../../user/RequireLogin';
+import { API_ENDPOINTS } from '../../config/api';
 
 // ========================================
 // 🧩 파일 개요 (멀티 로비)
@@ -14,35 +15,8 @@ import { AlertDialog } from '../../user/RequireLogin';
 // - 방 생성 시 DB 저장(REST), 이벤트는 STOMP로 브로드캐스트
 // ========================================
 
-// 재사용 가능한 모달 컴포넌트
-function Modal({ open, children }) {
-    return open ? (
-        <div style={{
-            position: 'fixed', left: 0, top: 0, width: '100vw', height: '100vh',
-            background: 'rgba(20,30,50,0.75)',
-            backdropFilter: 'blur(2.5px)',
-            zIndex: 999,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            animation: 'fadeIn 0.3s',
-        }}>
-            <div style={{
-                minWidth: 400, maxWidth: 520, width: '90vw',
-                background: 'linear-gradient(135deg, #22344f 60%, #2b4170 100%)',
-                borderRadius: 22,
-                boxShadow: '0 8px 32px rgba(0,0,0,0.28)',
-                padding: '38px 36px 28px 36px',
-                position: 'relative',
-                animation: 'modalPop 0.35s',
-            }}>
-                {children}
-            </div>
-            <style>{`
-                @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-                @keyframes modalPop { 0% { transform: scale(0.85); opacity: 0.5; } 100% { transform: scale(1); opacity: 1; } }
-            `}</style>
-        </div>
-    ) : null;
-}
+// Modal 컴포넌트는 Modal.jsx로 분리됨
+import { Modal } from './Modal';
 
 const OX_Lobby = () => {
     // ===== 상태/컨텍스트 그룹 =====
@@ -72,7 +46,7 @@ const OX_Lobby = () => {
     const [isHost, setIsHost] = useState(false);
 
     //url
-    const createoxlobby = 'http://localhost:9000/lobby/ox';
+  const createoxlobby = API_ENDPOINTS.LOBBY_OX;
 
     const roomSubRef = useRef(null);
     useEffect(() => { pendingCreateRef.current = pendingCreate; }, [pendingCreate]);
@@ -130,7 +104,7 @@ const OX_Lobby = () => {
 
     // STOMP 연결
     useEffect(() => {
-        const socket = new SockJS('http://localhost:9000/ws-game');
+        const socket = new SockJS(API_ENDPOINTS.WS_GAME);
         const client = new Client({
             webSocketFactory: () => socket,
             reconnectDelay: 4000,
@@ -189,7 +163,14 @@ const OX_Lobby = () => {
     // 방 생성
     const handleCreate = () => {
         if (!stompClient || !nickname) return;
-        if (!newTitle.trim()) { alert('방 제목을 입력하세요'); return; }
+        if (!newTitle.trim()) {
+            setAlertData({
+                title: "방 생성 불가❗❗❗",
+                message: '방 제목을 입력해주세요'
+            });
+            setAlertOpen(true);
+            return;
+        }
 
         const titleTrim = newTitle.trim();
         createdRoomTemp.current = { title: titleTrim, max: newMax };
@@ -291,7 +272,11 @@ const OX_Lobby = () => {
     const handleStart = () => {
         if (!stompClient || !myRoom) return;
         if (players.length !== myRoom.max) {
-            alert('정원이 꽉 찼을 때만 시작 가능합니다.');
+            setAlertData({
+                title: "게임 시작 불가❗❗❗",
+                message: '정원이 가득 찼을 때만 시작할 수 있습니다.'
+              });
+              setAlertOpen(true);
             return;
         }
         stompClient.publish({

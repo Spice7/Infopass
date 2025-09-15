@@ -9,10 +9,10 @@ import Home from '../pages/Home'
 import MyPageRoutes from './MyPageRoutes'
 import Ranking from "./Ranking";
 import blankgame from './BlankGame.jsx'
-import Menu from '../pages/menu.jsx'
+import Menu from '../pages/Menu.jsx'
 import TermsOfUse from '../pages/TermsOfUse.jsx'
 import PrivacyPolicy from '../pages/PrivacyPolicy.jsx'
-import Coffee from '../pages/coffee.jsx'
+import Coffee from '../pages/Coffee.jsx'
 
 const RouterMain = () => {
     return (

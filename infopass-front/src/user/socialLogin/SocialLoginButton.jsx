@@ -1,13 +1,14 @@
 // LoginButtons.jsx
 import React from 'react';
 import Cookies from 'js-cookie'
+import { generateUUID } from '../../utils/uuid';
 import './SocialLoginButton.css';
 
 export const KakaoLoginButton = () => {
   const REST_API_KEY = 'e1a223829a67fa4d5555d824be78d1c7';
-  const REDIRECT_URI = 'http://localhost:5173/auth/callback/kakao'; // 프론트 콜백
+  const REDIRECT_URI = `${import.meta.env.VITE_FRONTEND_URL || 'http://localhost:5173'}/auth/callback/kakao`; // 프론트 콜백
   //const REDIRECT_URI = 'http://192.168.10.141/:5173/auth/callback/kakao'; // 프론트 콜백
-  const state = crypto.randomUUID();
+  const state = generateUUID();
   Cookies.set('kakao_oauth_state', state);
 
   const kakaoUrl =
@@ -29,9 +30,9 @@ export const KakaoLoginButton = () => {
 
 export const NaverLoginButton = () => {
   const NAVER_CLIENT_ID = 'kY3Gxh_p4svxg1tae7id';
-  const REDIRECT_URI = 'http://localhost:5173/auth/callback/naver'; // 프론트 콜백
+  const REDIRECT_URI = `${import.meta.env.VITE_FRONTEND_URL || 'http://localhost:5173'}/auth/callback/naver`; // 프론트 콜백
   //const REDIRECT_URI = 'http://192.168.10.141/:5173/auth/callback/naver'; // 프론트 콜백
-  const state = crypto.randomUUID();
+  const state = generateUUID();
   Cookies.set('naver_oauth_state', state);
 
   const naverUrl =

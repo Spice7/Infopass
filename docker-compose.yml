@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  # Redis Service
+  redis:
+    image: redis:7-alpine
+    container_name: infopass-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - infopass-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Backend Service
+  infopass-back:
+    build:
+      context: ./infopass-back
+      dockerfile: Dockerfile
+    container_name: infopass-backend
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - KAKAO_CLIENT_ID=${KAKAO_CLIENT_ID}
+      - KAKAO_CLIENT_SECRET=${KAKAO_CLIENT_SECRET}
+      - KAKAO_REDIRECT_URI=${KAKAO_REDIRECT_URI}
+      - NAVER_CLIENT_ID=${NAVER_CLIENT_ID}
+      - NAVER_CLIENT_SECRET=${NAVER_CLIENT_SECRET}
+      - NAVER_REDIRECT_URI=${NAVER_REDIRECT_URI}
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - EC2_PUBLIC_IP=${EC2_PUBLIC_IP}
+      - CUSTOM_DOMAIN=${CUSTOM_DOMAIN}
+      - VITE_FRONTEND_URL=${VITE_FRONTEND_URL}
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL}
+      - WEBSOCKET_ENDPOINT=${WEBSOCKET_ENDPOINT}
+      - WEBSOCKET_ALLOWED_ORIGINS=${WEBSOCKET_ALLOWED_ORIGINS}
+      - WEBSOCKET_HEARTBEAT_INTERVAL=${WEBSOCKET_HEARTBEAT_INTERVAL}
+      - WEBSOCKET_DISCONNECT_DELAY=${WEBSOCKET_DISCONNECT_DELAY}
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - infopass-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9000/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Frontend Service
+  infopass-front:
+    build:
+      context: ./infopass-front
+      dockerfile: Dockerfile
+    container_name: infopass-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      # - "443:443"  # HTTPS 포트 비활성화 (SSL 에러 해결)
+    environment:
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://3.39.163.37:9000}
+      - VITE_WS_BASE_URL=${VITE_WS_BASE_URL:-ws://3.39.163.37:9000}
+      - VITE_FRONTEND_URL=${VITE_FRONTEND_URL:-http://3.39.163.37}
+    depends_on:
+      infopass-back:
+        condition: service_healthy
+    networks:
+      - infopass-network
+
+networks:
+  infopass-network:
+    driver: bridge

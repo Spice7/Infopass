@@ -2,12 +2,12 @@
 .ranking-wrapper {
   position: relative;
   width: 100%;
-  min-height: 100vh;
-  overflow-x: hidden;
+
+  margin-top: 50px;
   overflow-y: auto;
   display: flex;
   gap: 10vh;
-  padding: 20px;
+  padding: 2px;
   flex-wrap: wrap;
 }
 
@@ -19,8 +19,6 @@
   height: 100%;
   z-index: 0;
 }
-
-
 
 body {
   margin: 0;
@@ -262,6 +260,7 @@ body {
 
 .ranking-item:last-child {
   border-bottom: none;
+  background-color: #333;
 }
 
 .ranking-item:hover {

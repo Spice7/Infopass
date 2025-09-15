@@ -59,7 +59,7 @@ export const LoginSuccessDialog = ({ open, onConfirm }) => (
     </DialogTitle>
     <DialogContent>
       <Typography align="center">
-        환영합니다! 원래 페이지로 이동합니다.
+       "로그인에 성공했습니다!"
       </Typography>
     </DialogContent>
     <DialogActions sx={{ justifyContent: 'center' }}>

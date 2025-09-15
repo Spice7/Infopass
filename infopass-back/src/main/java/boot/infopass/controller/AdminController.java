@@ -25,7 +25,6 @@ import boot.infopass.service.AnalyticsService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/admin")
 @RequiredArgsConstructor
 public class AdminController {

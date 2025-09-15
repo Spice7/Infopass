@@ -13,8 +13,7 @@ const ExpBar = ({
   showLevelUp, 
   showExpAnimation, 
   expCount, 
-  sessionExp,
-  gameMode = 'normal'
+  sessionExp  
 }) => {
   // 경험치 퍼센트 계산
   const expProgress = (animatedExp / MAX_EXP_PER_LEVEL) * 100;
@@ -107,12 +106,13 @@ const ExpBar = ({
       {/* 경험치 획득 정보 */}
       {sessionExp > 0 && (
         <Typography variant="body2" sx={{ mt: 2, textAlign: 'center', color: '#4caf50' }}>
-          획득한 경험치: +{sessionExp}
+          획득한 경험치: +{Math.abs(sessionExp)}
         </Typography>
       )}
-      {sessionExp === 0 && gameMode === 'timeAttack' && (
-        <Typography variant="body2" sx={{ mt: 2, textAlign: 'center', color: '#ff9800' }}>
-          타임어택 - 경험치 없음
+      {/* 경험치 획득 x */}
+      {sessionExp === 0 && (
+        <Typography variant="body2" sx={{ mt: 2, textAlign: 'center', color: '#f44336' }}>
+          경험치 손실: {Math.abs(sessionExp)}
         </Typography>
       )}
     </Box>

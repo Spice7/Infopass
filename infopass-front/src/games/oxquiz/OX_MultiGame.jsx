@@ -51,7 +51,7 @@ const OX_MultiGame = () => {
 
   // 상대방 정보
   const [enemynickname, setEnemynickname] = useState('상대방닉네임');
-  const [enemyidx, setEnemyidx] = useState(null);
+  const [setEnemyidx] = useState(null);
   const [enemyOX, setEnemyOX] = useState(null);
   const [enemyScore, setEnemyScore] = useState(0);
   const [enemyLife, setEnemyLife] = useState(MAX_LIFE);
@@ -117,10 +117,10 @@ const OX_MultiGame = () => {
   }, [myLife, enemyLife, quizlist, currentindex, myScore]);
 
   // API URL
-  const usersubmiturl = 'http://localhost:9000/oxquiz/submitOXquiz';
-  const wronganswerurl = 'http://localhost:9000/oxquiz/wronganswer';
-  const lobbyendedurl = 'http://localhost:9000/oxquiz/EndGame';
-  const multiresulturl = 'http://localhost:9000/oxquiz/multiresult';
+  const usersubmiturl = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:9000'}/oxquiz/submitOXquiz`;
+  const wronganswerurl = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:9000'}/oxquiz/wronganswer`;
+  const lobbyendedurl = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:9000'}/oxquiz/EndGame`;
+  const multiresulturl = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:9000'}/oxquiz/multiresult`;
 
   // 로딩 애니메이션
   useEffect(() => {
@@ -198,7 +198,7 @@ const OX_MultiGame = () => {
     // roomId나 useridx가 없으면 연결 시도조차 하지 않음
     if (!roomId || !useridx) return;
 
-    const socket = new SockJS('http://localhost:9000/ws-game');
+    const socket = new SockJS(`${import.meta.env.VITE_WS_BASE_URL || 'http://localhost:9000'}/ws-game`);
     const client = new Client({
       webSocketFactory: () => socket,
       debug: str => console.log(str),
@@ -234,7 +234,11 @@ const OX_MultiGame = () => {
 
           if (data.type === 'charDenied') {
             if (String(data.userId) === String(useridx)) {
-              alert('이미 선택된 캐릭터입니다.');
+              setAlertData({
+                title: "이미 선택된 캐릭터입니다.",
+                message: '다른 캐릭터를 선택해주세요.'
+              });
+              setAlertOpen(true);
               setSelectedChar(null);
             }
           }

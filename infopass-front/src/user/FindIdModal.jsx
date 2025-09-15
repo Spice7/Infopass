@@ -1,5 +1,5 @@
 // FindIdModal.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as auth from './auth';
 import './userInfo.css';
 import Box from '@mui/material/Box';
@@ -11,6 +11,39 @@ const FindIdModal = () => {
     const [phone, setPhone] = useState('');
     const [result, setResult] = useState('');
     const [open, setOpen] = useState(false);
+
+    // 모든 상태를 초기화하는 함수
+    const resetState = () => {
+        console.log('FindIdModal resetState 실행');
+        setName('');
+        setPhone('');
+        setResult('');
+    };
+
+    // 모달이 열릴 때마다 상태 초기화
+    useEffect(() => {
+        if (open) {
+            console.log('FindIdModal 모달 열림 - 상태 초기화 실행');
+            resetState();
+        }
+    }, [open]);
+
+    // 모달 열기
+    const handleOpenModal = () => {
+        console.log('FindIdModal 모달 열기 버튼 클릭');
+        resetState(); // 모달 열기 전에 상태 초기화
+        setOpen(true);
+    };
+
+    // 모달 닫기
+    const handleCloseModal = () => {
+        console.log('FindIdModal 모달 닫기');
+        setOpen(false);
+        // 모달이 완전히 닫힌 후 상태 초기화
+        setTimeout(() => {
+            resetState();
+        }, 100);
+    };
 
     const handleFindId = async () => {
 
@@ -33,12 +66,12 @@ const FindIdModal = () => {
 
     return (
         <div>
-            <button type='button' className='btn btn-id' onClick={() => setOpen(true)}>
+            <button type='button' className='btn btn-id' onClick={handleOpenModal}>
                 아이디 찾기
             </button>
             <Modal
                 open={open}
-                onClose={() => setOpen(false)}
+                onClose={handleCloseModal}
                 aria-labelledby="find-id-modal-title"
                 aria-describedby="find-id-modal-description"
             >
@@ -94,7 +127,7 @@ const FindIdModal = () => {
                             <button
                                 type="button"
                                 className="CheckOfId"
-                                onClick={() => setOpen(false)}
+                                onClick={handleCloseModal}
                             >
                                 닫기
                             </button>

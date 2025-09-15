@@ -1,6 +1,7 @@
 package com.infopass.backend.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -12,9 +13,16 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 public class RedisConfig {
     
+    @Value("${spring.data.redis.host:localhost}")
+    private String redisHost;
+    
+    @Value("${spring.data.redis.port:6379}")
+    private int redisPort;
+    
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        LettuceConnectionFactory factory = new LettuceConnectionFactory("localhost", 6379);
+        log.info("Redis 연결 설정 - Host: {}, Port: {}", redisHost, redisPort);
+        LettuceConnectionFactory factory = new LettuceConnectionFactory(redisHost, redisPort);
         
         try {
             factory.afterPropertiesSet();

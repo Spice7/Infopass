@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Box, Typography, LinearProgress } from '@mui/material';
 import { FlashOn } from '@mui/icons-material';
 

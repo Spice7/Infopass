@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./Rank.css";
+import { API_ENDPOINTS } from "../../config/api";
 
 const Rank = () => {
   const [selectedWeek, setSelectedWeek] = useState("2024년 07월 29일 ~ 04일");
@@ -10,7 +11,7 @@ const Rank = () => {
 
   // 주간 랭킹 데이터 가져오기
   useEffect(() => {
-    fetch("http://localhost:9000/rank?type=weekly", {
+    fetch(API_ENDPOINTS.RANK_WEEKLY, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -48,7 +49,7 @@ const Rank = () => {
   // 실시간 랭킹 데이터 가져오기
   useEffect(() => {
     const fetchRealtimeRanking = () => {
-      fetch("http://localhost:9000/rank?type=realtime", {
+      fetch(API_ENDPOINTS.RANK_REALTIME, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -202,19 +203,19 @@ const Rank = () => {
             {isDatePickerOpen && (
               <div className="date-picker">
                 <div
-                  onClick={() => handleWeekChange("2024년 07월 29일 ~ 04일")}
+                  onClick={() => handleWeekChange("2025년 08월 22일 ~ 29일")}
                 >
-                  2024년 07월 29일 ~ 04일
+                  2025년 08월 22일 ~ 29일
                 </div>
                 <div
-                  onClick={() => handleWeekChange("2024년 07월 22일 ~ 28일")}
+                  onClick={() => handleWeekChange("2025년 08월 22일 ~ 29일")}
                 >
-                  2024년 07월 22일 ~ 28일
+                  2025년 08월 22일 ~ 29일
                 </div>
                 <div
-                  onClick={() => handleWeekChange("2024년 07월 15일 ~ 21일")}
+                  onClick={() => handleWeekChange("2025년 08월 22일 ~ 29일")}
                 >
-                  2024년 07월 15일 ~ 21일
+                  2025년 08월 22일 ~ 29일
                 </div>
               </div>
             )}

@@ -18,7 +18,6 @@ import boot.infopass.service.InquiryService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/admin/inquiries")
 @RequiredArgsConstructor
 public class AdminInquiryController {

@@ -4,8 +4,7 @@ const CardsGrid = ({
   cards, 
   onCardClick, 
   onRestart, 
-  onNextQuestions, 
-  onGameEnd,
+  onNextQuestions,   
   onExitToMenu,
   showNextButton 
 }) => {

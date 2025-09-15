@@ -1,0 +1,14 @@
+build/
+.gradle/
+#gradle/
+gradlew
+gradlew.bat
+bin/
+.git
+.gitignore
+README.md
+*.md
+.DS_Store
+*.log
+src/main/resources/application-local.yml
+.env

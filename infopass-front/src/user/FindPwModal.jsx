@@ -1,13 +1,16 @@
 // FindPwModal.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as auth from './auth';
 import './userInfo.css';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
+import { AlertDialog } from './RequireLogin';
 
 const FindPwModal = () => {
     const [open, setOpen] = useState(false);
+    const [alertOpen, setAlertOpen] = useState(false);
+    const [alertData, setAlertData] = useState({ title: '', message: '' });
 
     const [step, setStep] = useState(1);
     const [email, setEmail] = useState('');
@@ -26,6 +29,45 @@ const FindPwModal = () => {
     const [isSent, setIsSent] = useState(false);
     const [isVerified, setIsVerified] = useState(false); // 휴대폰 인증 완료 여부
 
+    // 모든 상태를 초기화하는 함수
+    const resetState = () => {
+        setStep(1);
+        setEmail('');
+        setPhone('');
+        setNewPw('');
+        setConfirmPw('');
+        setResult('');
+        setPasswordConfirmFocused(false);
+        setPasswordValid(true);
+        setSmsToken('');
+        setInputCode('');
+        setIsSent(false);
+        setIsVerified(false);
+        setAlertOpen(false);
+        setAlertData({ title: '', message: '' });
+    };
+
+    // 모달이 열릴 때마다 상태 초기화
+    useEffect(() => {
+        if (open) {
+            resetState();
+        }
+    }, [open]);
+
+    // 모달 열기
+    const handleOpenModal = () => {
+        setOpen(true);
+    };
+
+    // 모달 닫기
+    const handleCloseModal = () => {
+        setOpen(false);
+        // 모달이 완전히 닫힌 후 상태 초기화
+        setTimeout(() => {
+            resetState();
+        }, 100);
+    };
+
     // 1단계: 이메일/전화번호 확인
     const handleCheckUser = async () => {
         if (!email || !phone) {
@@ -33,7 +75,11 @@ const FindPwModal = () => {
             return;
         }
         if (!isVerified) {
-            alert('휴대폰 인증을 완료해주세요');
+            setAlertData({
+                title: '인증 필요',
+                message: '휴대폰 인증을 완료해주세요'
+            });
+            setAlertOpen(true);
             return;
         }
 
@@ -67,11 +113,10 @@ const FindPwModal = () => {
             const response = await auth.changePw(email, phone, newPw);
             if (response.data && response.data.success) {
                 setResult({ text: '비밀번호가 성공적으로 변경되었습니다. 새 비밀번호로 로그인하세요.', color: 'yellowgreen' });
-                setStep(1); // 초기화
-                setEmail('');
-                setPhone('');
-                setNewPw('');
-                setConfirmPw('');
+                // 비밀번호 변경 성공 후 모달 닫기
+                setTimeout(() => {
+                    handleCloseModal();
+                }, 2000); // 2초 후 자동으로 모달 닫기
             } else {
                 setResult({ text: '비밀번호 변경에 실패했습니다.', color: 'red' });
             }
@@ -138,12 +183,12 @@ const FindPwModal = () => {
 
     return (
         <div>
-            <button type="button" className="btn btn-password" onClick={() => setOpen(true)}>
+            <button type="button" className="btn btn-password" onClick={handleOpenModal}>
                 비밀번호 찾기
             </button>
             <Modal
                 open={open}
-                onClose={() => setOpen(false)}
+                onClose={handleCloseModal}
                 aria-labelledby="find-pw-modal-title"
                 aria-describedby="find-pw-modal-description"
             >
@@ -268,7 +313,7 @@ const FindPwModal = () => {
                             <button
                                 type="button"
                                 className="CheckOfId"
-                                onClick={() => setOpen(false)}
+                                onClick={handleCloseModal}
                             >
                                 닫기
                             </button>
@@ -276,6 +321,14 @@ const FindPwModal = () => {
                     </Typography>
                 </Box>
             </Modal>
+
+            {/* 알림 다이얼로그 */}
+            <AlertDialog
+                open={alertOpen}
+                title={alertData.title}
+                message={alertData.message}
+                onConfirm={() => setAlertOpen(false)}
+            />
         </div>
     );
 };

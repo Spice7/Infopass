@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef, useContext } from "react";
 import "./BlankGame.css";
 import axios from "axios";
 import { LoginContext } from "../../user/LoginContextProvider";
-import BlankGameMain from "./BlankGameMain";
+import { API_ENDPOINTS } from "../../config/api";
 
 const MAX_LIFE = 3;
-const TIMER_DURATION = 1800;
+const TIMER_DURATION = 45;
 const walkImgs = Array.from(
   { length: 16 },
   (_, i) => `/ox_image/walk${i + 1}.png`
@@ -81,10 +81,9 @@ const BlankGameSingle = () => {
   // =========================
   // API URL
   // =========================
-  const quizurl = "http://localhost:9000/blankgamesingle/blankquizlist";
-  const usersubmiturl = "http://localhost:9000/blankgamesingle/submitblankquiz";
-  const wronganswerurl = "http://localhost:9000/blankgamesingle/blankwronganswer";
-  const userstatusurl = "http://localhost:9000/blankgamesingle/blankinsertuserstatus";
+  const quizurl = API_ENDPOINTS.BLANK_QUIZ_LIST;
+  const usersubmiturl = API_ENDPOINTS.BLANK_SUBMIT;
+  const userstatusurl = API_ENDPOINTS.BLANK_USER_STATUS;
 
   // =========================
   // useEffect: 로딩 애니메이션
@@ -392,9 +391,8 @@ const BlankGameSingle = () => {
             setTimeLeft(TIMER_DURATION);
             setShowQuiz(false); // 퀴즈 화면 초기화
             setCountdown(null); // 카운트다운 초기화
-            setButtonDisabled(false); // 버튼 활성화
+            setInputDisabled(false); // 버튼 활성화
             setResultMsg(""); // 결과 메시지 초기화
-            setMyOX(null); // 선택 초기화
             setShowMonster(false);
             setShowLaser(false);
             setShowBoom(false);

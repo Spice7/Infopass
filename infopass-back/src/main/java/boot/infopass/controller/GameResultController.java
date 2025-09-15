@@ -16,7 +16,6 @@ import boot.infopass.security.CustomUser;
 import boot.infopass.service.GameResultService;
 import boot.infopass.service.UserService;
 
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/results")
 public class GameResultController {
