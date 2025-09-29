@@ -176,7 +176,7 @@
 
 ## - 6.2 로그인/회원가입 기능
 
-|<img width="1893" height="932" alt="스크린샷 2025-08-27 114803" src="https://github.com/user-attachments/assets/a52df384-3a39-4608-ba75-ca1795df5f04" />|
+|[로그인 시연 영상 보기](https://github.com/user-attachments/assets/0d804944-e7a6-4f97-9c8c-7b1ebc3f6f6b)|
 |-|
 |로그인 페이지|
 
