@@ -176,13 +176,21 @@
 
 ## - 6.2 로그인/회원가입 기능
 
-|[로그인 시연 영상 보기](https://github.com/user-attachments/assets/0d804944-e7a6-4f97-9c8c-7b1ebc3f6f6b)|
-|-|
-|로그인 페이지|
+### 6.2.1 로그인
 
-|<img width="1919" height="932" alt="화면 캡처 2025-08-28 162222" src="https://github.com/user-attachments/assets/31e05286-1806-4010-b8f9-5cbbdffc947e" />|
-|-|
-|회원가입 페이지|
+[로그인 시연 영상 보기](https://github.com/user-attachments/assets/0d804944-e7a6-4f97-9c8c-7b1ebc3f6f6b)
+
+---
+
+### 6.2.2 회원가입
+
+[회원가입 시연 영상 보기](https://github.com/user-attachments/assets/ee151e55-dac0-4c92-8337-9f61a0d2d461)
+
+---
+
+### 6.2.3 소셜 회원가입
+
+[소셜 회원가입 시연 영상 보기](https://github.com/user-attachments/assets/6a7461cf-4b51-4098-99ed-90265531596d)
 
 ### 로그인/회원가입 페이지 주요 기술 포인트
 #### 인증 및 보안 시스템 (JWT, Spring Security)
